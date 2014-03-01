@@ -4,14 +4,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
@@ -35,10 +32,10 @@ public class MainActivity extends FragmentActivity {
     private CharSequence mTitle;
     private SimpleAdapter mDrawerAdapter;
     private int[] mDrawerDrawables = {
+        R.drawable.binoculars,
         R.drawable.men,
-        R.drawable.men,
-        R.drawable.men,
-        R.drawable.men,
+        R.drawable.door_open,
+        R.drawable.email,
         R.drawable.gear,
         R.drawable.speech_bubble_ellipsis,
         R.drawable.money_bag
@@ -65,6 +62,8 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         createDrawer();
+        showDiscoverFragment(DISCOVER_POSITION);
+        setDrawerSelected(DISCOVER_POSITION);
     }
 
     private void createDrawer() {
@@ -158,8 +157,8 @@ public class MainActivity extends FragmentActivity {
 
     private static final int DISCOVER_POSITION = 0;
     private static final int EVENTS_POSITION = 1;
-    private static final int CALENDAR_POSITION = 2;
-    private static final int LOCATIONS_POSITION = 3;
+    private static final int HOSTING_POSITION = 2;
+    private static final int INVITES_POSITION = 3;
     private static final int SETTINGS_POSITION = 4;
     private static final int SEND_FEEDBACK_POSITION = 5;
     private static final int PURCHASE_POSITION = 6;
@@ -172,14 +171,15 @@ public class MainActivity extends FragmentActivity {
             default:
             case DISCOVER_POSITION:
                 showDiscoverFragment(position);
+                setDrawerSelected(position);
                 break;
             case EVENTS_POSITION:
                 Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
                 break;
-            case CALENDAR_POSITION:
+            case HOSTING_POSITION:
                 Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
                 break;
-            case LOCATIONS_POSITION:
+            case INVITES_POSITION:
                 Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
                 break;
             case SETTINGS_POSITION:
@@ -193,14 +193,14 @@ public class MainActivity extends FragmentActivity {
                 break;
 
         }
-        showDiscoverFragment(position);
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
 
-        // Highlight the selected item, update the title, and close the drawer
-
+    private void setDrawerSelected(int position) {
         mDrawerList.setItemChecked(position, true);
         setTitle(mDrawerArray[position]);
         mDrawerLastTitle = mDrawerTitle;
-        mDrawerLayout.closeDrawer(mDrawerList);
+
     }
 
     private void showDiscoverFragment(int position) {
