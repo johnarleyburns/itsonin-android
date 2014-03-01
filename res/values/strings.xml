@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">It\'s On In</string>
+
+    <string name="discover">Discover</string>
+    <string name="events">Events</string>
+    <string name="calendar">Calendar</string>
+    <string name="locations">Locations</string>
+    <string name="settings">Settings</string>
+    <string name="send_feedback">Send Feedback</string>
+    <string name="purchase">Purchase</string>
+
+    <string name="not_implemented">Not implemented</string>
+    <string name="contact_email_address">admin@chanapps.com</string>
+    <string name="send_email">Send email</string>
+
+    <string name="drawer_open">Open Drawer</string>
+    <string name="drawer_close">Close Drawer</string>
+
+    <string name="picnic">Picnic</string>
+    <string name="picnic_desc">Do you fancy a picnic in the park?</string>
+    <string name="going_out">Going Out</string>
+    <string name="going_out_desc">Oh you, had, the time of your life</string>
+    <string name="rally_protest">Rally/Protest</string>
+    <string name="rally_protest_desc">Unite and show the people!</string>
+    <string name="birthday">Birthday</string>
+    <string name="birthday_desc">Happy birthday to who, happy birthday to who?</string>
+    <string name="festival">Festival</string>
+    <string name="festival_desc">Food, music, crowds, what more could you want?</string>
+    <string name="mischief">Mischief</string>
+    <string name="mischief_desc">Don\'t talk about fight club</string>
+    <string name="sport">Sport</string>
+    <string name="sport_desc">Run Forest run!</string>
+    <string name="watch_film">Watch a Film</string>
+    <string name="watch_film_desc">The popcorn and soda are waiting for you</string>
+    <string name="other">Misc/Other</string>
+    <string name="other_desc">For those outliers who don\'t fit elsewhere</string>
+
+</resources>

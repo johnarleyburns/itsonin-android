@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="drawer_array">
+        <item>@string/discover</item>
+        <item>@string/events</item>
+        <item>@string/calendar</item>
+        <item>@string/locations</item>
+        <item>@string/settings</item>
+        <item>@string/send_feedback</item>
+        <item>@string/purchase</item>
+    </array>
+
+    <array name="discover_page_titles">
+        <item>@string/picnic</item>
+        <item>@string/going_out</item>
+        <item>@string/rally_protest</item>
+        <item>@string/birthday</item>
+        <item>@string/festival</item>
+        <item>@string/mischief</item>
+        <item>@string/sport</item>
+        <item>@string/watch_film</item>
+        <item>@string/other</item>
+    </array>
+
+    <array name="discover_page_descriptions">
+        <item>@string/picnic_desc</item>
+        <item>@string/going_out_desc</item>
+        <item>@string/rally_protest_desc</item>
+        <item>@string/birthday_desc</item>
+        <item>@string/festival_desc</item>
+        <item>@string/mischief_desc</item>
+        <item>@string/sport_desc</item>
+        <item>@string/watch_film_desc</item>
+        <item>@string/other_desc</item>
+    </array>
+
+</resources>
