@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="contact_email_address">admin@chanapps.com</string>
+
+    <string name="picnic_code">picnic</string>
+    <string name="going_out_code">going_out</string>
+    <string name="rally_protest_code">rally_protest</string>
+    <string name="birthday_code">birthday</string>
+    <string name="festival_code">festival</string>
+    <string name="mischief_code">mischief</string>
+    <string name="sport_code">sport</string>
+    <string name="watch_film_code">watch_film</string>
+    <string name="other_code">other</string>
+
+    <string name="attending_code">hosting</string>
+    <string name="hosting_code">hosting</string>
+    <string name="invited_code">invited</string>
+
+</resources>

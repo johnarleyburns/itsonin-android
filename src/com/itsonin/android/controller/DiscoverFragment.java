@@ -1,4 +1,4 @@
-package com.itsonin.android;
+package com.itsonin.android.controller;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.itsonin.android.R;
 
 /**
  * Created with IntelliJ IDEA.
@@ -47,11 +48,13 @@ public class DiscoverFragment extends Fragment {
 
         private String[] mPageTitles;
         private String[] mPageDescriptions;
+        private String[] mPageCategories;
 
         public DiscoverPagerAdapter(FragmentManager fm) {
             super(fm);
             mPageTitles = getResources().getStringArray(R.array.discover_page_titles);
             mPageDescriptions = getResources().getStringArray(R.array.discover_page_descriptions);
+            mPageCategories = getResources().getStringArray(R.array.discover_page_event_categories);
         }
 
         @Override
@@ -61,6 +64,7 @@ public class DiscoverFragment extends Fragment {
             // Our object is just an integer :-P
             args.putString(EventListFragment.PAGE_TITLE, mPageTitles[i]);
             args.putString(EventListFragment.PAGE_DESCRIPTION, mPageDescriptions[i]);
+            args.putString(EventListFragment.EVENT_CATEGORY, mPageCategories[i]);
             fragment.setArguments(args);
             return fragment;
         }

@@ -1,8 +1,9 @@
-package com.itsonin.android;
+package com.itsonin.android.controller;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import com.itsonin.android.R;
 
 public class SendFeedback {
     

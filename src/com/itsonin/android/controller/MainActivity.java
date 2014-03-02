@@ -1,4 +1,4 @@
-package com.itsonin.android;
+package com.itsonin.android.controller;
 
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
+import com.itsonin.android.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,7 +157,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     private static final int DISCOVER_POSITION = 0;
-    private static final int EVENTS_POSITION = 1;
+    private static final int ATTENDING_POSITION = 1;
     private static final int HOSTING_POSITION = 2;
     private static final int INVITES_POSITION = 3;
     private static final int SETTINGS_POSITION = 4;
@@ -173,14 +174,14 @@ public class MainActivity extends FragmentActivity {
                 showDiscoverFragment(position);
                 setDrawerSelected(position);
                 break;
-            case EVENTS_POSITION:
-                Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
+            case ATTENDING_POSITION:
+                showAttendingFragment();
                 break;
             case HOSTING_POSITION:
-                Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
+                showHostingFragment();
                 break;
             case INVITES_POSITION:
-                Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
+                showInvitedFragment();
                 break;
             case SETTINGS_POSITION:
                 Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
@@ -203,21 +204,47 @@ public class MainActivity extends FragmentActivity {
 
     }
 
-    private void showDiscoverFragment(int position) {
-        Fragment fragment = new DiscoverFragment();
-        //Bundle args = new Bundle();
-        //args.putInt(DiscoverFragment.ARG_PLANET_NUMBER, position);
-        //fragment.setArguments(args);
-
+    private void showFragment(Fragment fragment) {
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
                 .commit();
-
+    }
+    
+    private void showDiscoverFragment(int position) {
+        showFragment(new DiscoverFragment());
+    }
+    
+    private void showAttendingFragment() {
+        Fragment fragment = new EventListFragment();
+        Bundle args = new Bundle();
+        args.putString(EventListFragment.PAGE_TITLE, getString(R.string.attending));
+        args.putString(EventListFragment.PAGE_DESCRIPTION, getString(R.string.attending_desc));
+        args.putString(EventListFragment.EVENT_CATEGORY, getString(R.string.attending_code));
+        fragment.setArguments(args);
+        showFragment(fragment);
     }
 
+    private void showHostingFragment() {
+        Fragment fragment = new EventListFragment();
+        Bundle args = new Bundle();
+        args.putString(EventListFragment.PAGE_TITLE, getString(R.string.hosting));
+        args.putString(EventListFragment.PAGE_DESCRIPTION, getString(R.string.hosting_desc));
+        args.putString(EventListFragment.EVENT_CATEGORY, getString(R.string.hosting_code));
+        fragment.setArguments(args);
+        showFragment(fragment);
+    }
 
+    private void showInvitedFragment() {
+        Fragment fragment = new EventListFragment();
+        Bundle args = new Bundle();
+        args.putString(EventListFragment.PAGE_TITLE, getString(R.string.invites));
+        args.putString(EventListFragment.PAGE_DESCRIPTION, getString(R.string.invites_desc));
+        args.putString(EventListFragment.EVENT_CATEGORY, getString(R.string.invited_code));
+        fragment.setArguments(args);
+        showFragment(fragment);
+    }
 
     @Override
     public void setTitle(CharSequence title) {

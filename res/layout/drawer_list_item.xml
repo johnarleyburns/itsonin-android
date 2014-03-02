@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/frame_child"
             android:layout_centerVertical="true"
-            android:textColor="@color/PaletteWhite"
+            android:textColor="@color/drawer_item_text"
             android:textSize="18sp"/>
 
     <TextView
@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:textColor="@color/PaletteWhite"
+            android:textColor="@color/drawer_item_text"
             android:textSize="14sp"
             android:visibility="gone"
             android:maxLines="1"

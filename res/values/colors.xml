@@ -125,5 +125,6 @@
     <color name="pager_title_strip_bg">#1fbba6</color>
     <color name="pager_title_strip_text">#fefefe</color>
     <color name="drawer_bg">#323a45</color>
+    <color name="drawer_item_text">#f1f1f3</color>
 
 </resources>

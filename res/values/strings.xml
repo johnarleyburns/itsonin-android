@@ -3,7 +3,7 @@
     <string name="app_name">It\'s On In</string>
 
     <string name="discover">What\'s Happening</string>
-    <string name="events">Events</string>
+    <string name="attending">Attending</string>
     <string name="hosting">Hosting</string>
     <string name="invites">Invites</string>
     <string name="settings">Settings</string>
@@ -11,7 +11,6 @@
     <string name="purchase">Purchase</string>
 
     <string name="not_implemented">Not implemented</string>
-    <string name="contact_email_address">admin@chanapps.com</string>
     <string name="send_email">Send email</string>
 
     <string name="drawer_open">Open Drawer</string>
@@ -35,5 +34,9 @@
     <string name="watch_film_desc">The popcorn and soda are waiting for you</string>
     <string name="other">Misc/Other</string>
     <string name="other_desc">For those outliers who don\'t fit elsewhere</string>
+
+    <string name="attending_desc">Events you are attending</string>
+    <string name="hosting_desc">Events you are hosting</string>
+    <string name="invites_desc">Events you have been invited to</string>
 
 </resources>
