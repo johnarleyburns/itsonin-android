@@ -35,7 +35,7 @@ public class Event {
         e.text = "Come and enjoy the wine, sunshine along the Rhine";
         e.host = "Tina";
         e.category = "picnic";
-        e.date = "2014-04-01";
+        e.date = "April 1st, 2014";
         e.startTime = "13:00";
         e.endTime = "19:00";
         e.place = "Rheinpark Golzheim";
@@ -44,6 +44,28 @@ public class Event {
         e.longitude = 6.767661;
         e.numAttendees = 7;
         return e;
+    }
+
+    public static Event createTestEvent2() {
+        Event e = new Event();
+        e._id = mRandom.nextLong();
+        e.title = "Jogging the Hafen";
+        e.text = "Use first our legs to make a run, then later some Kolsch to make it fun.  Meet at Eigelsteins in your Addidas track suits.";
+        e.host = "John";
+        e.category = "sports";
+        e.date = "March 27th, 2014";
+        e.startTime = "19:00";
+        e.endTime = "21:00";
+        e.place = "Eigelstein";
+        e.address = "Hammer Straße 17, 40219 Düsseldorf, Germany";
+        e.latitude = 51.214666;
+        e.longitude = 6.755323;
+        e.numAttendees = 4;
+        return e;
+    }
+
+    public static Event[] createTestEvents() {
+        return new Event[] { createTestEvent(), createTestEvent2() };
     }
 
     public Object[] makeCursorRow() {

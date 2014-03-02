@@ -44,11 +44,10 @@ public class EventListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View rootView = inflater.inflate(
-                R.layout.discover_list_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.event_list_fragment, container, false);
         Bundle args = getArguments();
-        ((TextView) rootView.findViewById(R.id.title)).setText(args.getString(PAGE_TITLE));
-        ((TextView) rootView.findViewById(R.id.title_desc)).setText(args.getString(PAGE_DESCRIPTION));
+        //((TextView) rootView.findViewById(R.id.title)).setText(args.getString(PAGE_TITLE));
+        //((TextView) rootView.findViewById(R.id.title_desc)).setText(args.getString(PAGE_DESCRIPTION));
 
         mListView = (ListView)rootView.findViewById(R.id.list_view);
         mAdapter = new SimpleCursorAdapter(container.getContext(), EventCard.list_item_layout, null,

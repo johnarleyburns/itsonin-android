@@ -15,8 +15,170 @@
                 android:id="@+id/event_card_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="22sp"
+                android:textSize="@dimen/card_title"
+                android:paddingTop="@dimen/card_inner"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                android:textColor="@color/card_title"
                 />
+        <TextView
+                android:id="@+id/event_card_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/card_text"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                android:textColor="@color/card_text"
+                />
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                >
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/card_text"
+                    android:text="Hosted by "
+                    android:textColor="@color/card_text"
+                    />
+            <TextView
+                    android:id="@+id/event_card_host"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/card_text"
+                    android:textColor="@color/card_text"
+                    />
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/event_card_place"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/card_text"
+                android:paddingTop="@dimen/card_inner"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                android:textColor="@color/card_place"
+                />
+        <TextView
+                android:id="@+id/event_card_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/card_text"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                android:textColor="@color/card_place"
+                />
+
+        <TextView
+                android:id="@+id/event_card_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/card_text"
+                android:paddingTop="@dimen/card_inner"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                android:textColor="@color/card_date"
+                />
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                android:paddingBottom="@dimen/card_inner"
+                >
+            <TextView
+                    android:id="@+id/event_card_start_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/card_text"
+                    android:textColor="@color/card_date"
+                    />
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/card_text"
+                    android:text=" - "
+                    android:textColor="@color/card_date"
+                    />
+            <TextView
+                    android:id="@+id/event_card_end_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/card_text"
+                    android:textColor="@color/card_date"
+                    />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/event_card_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/eigelstein"
+            />
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:paddingTop="4dp"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                android:paddingBottom="4dp"
+                android:gravity="center_vertical"
+                >
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_directions"
+                    />
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/card_inner"
+                    android:text="Get directions"
+                    android:textColor="@color/card_action"
+                    android:textSize="@dimen/card_action_text"
+                    />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/card_divider"
+            />
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:paddingTop="4dp"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                android:paddingBottom="4dp"
+                android:gravity="center_vertical"
+                >
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_share"
+                    />
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/card_action_text"
+                    android:paddingLeft="@dimen/card_inner"
+                    android:text="Share"
+                    android:textColor="@color/card_action"
+                    />
+        </LinearLayout>
 
     </LinearLayout>
 

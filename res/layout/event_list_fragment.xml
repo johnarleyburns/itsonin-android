@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+        <!--
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
-
+              android:layout_height="match_parent"
+              android:background="@color/PaletteCardListBg"
+        >
+            -->
+    <!--
     <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
@@ -23,13 +26,23 @@
             android:layout_marginTop="8dp"
             android:visibility="gone"
             />
-
-    <ListView
+    -->
+    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/title_desc"
+            android:layout_gravity="start"
+            android:padding="@dimen/card_spacing"
             android:background="@color/PaletteCardListBg"
+            android:smoothScrollbar="false"
+            android:stretchMode="none"
+            android:verticalSpacing="0dp"
+            android:horizontalSpacing="0dp"
+            android:listSelector="@drawable/null_selector_bg"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="@dimen/card_spacing"
+            android:clipToPadding="false"
         />
-
-</RelativeLayout>
+<!--
+</FrameLayout>
+        -->

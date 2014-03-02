@@ -98,9 +98,9 @@ public class EventsContentProvider extends ContentProvider {
         //SQLiteDatabase db = dbHelper.getReadableDatabase();
         //Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
 
-        Event e = Event.createTestEvent();
         MatrixCursor c = new MatrixCursor(Events.COLUMNS, 1);
-        c.addRow(e.makeCursorRow());
+        for (Event e : Event.createTestEvents())
+            c.addRow(e.makeCursorRow());
 
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
