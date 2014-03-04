@@ -59,12 +59,12 @@ public class DiscoverFragment extends Fragment {
 
         @Override
         public Fragment getItem(int i) {
-            Fragment fragment = new EventListFragment();
+            Fragment fragment = new DiscoverEventListFragment();
             Bundle args = new Bundle();
             // Our object is just an integer :-P
-            args.putString(EventListFragment.PAGE_TITLE, mPageTitles[i]);
-            args.putString(EventListFragment.PAGE_DESCRIPTION, mPageDescriptions[i]);
-            args.putString(EventListFragment.EVENT_CATEGORY, mPageCategories[i]);
+            args.putString(DiscoverEventListFragment.PAGE_TITLE, mPageTitles[i]);
+            args.putString(DiscoverEventListFragment.PAGE_DESCRIPTION, mPageDescriptions[i]);
+            args.putString(DiscoverEventListFragment.EVENT_CATEGORY, mPageCategories[i]);
             fragment.setArguments(args);
             return fragment;
         }

@@ -63,7 +63,7 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         createDrawer();
-        showDiscoverFragment(DISCOVER_POSITION);
+        showFragment(new DiscoverFragment());
         setDrawerSelected(DISCOVER_POSITION);
     }
 
@@ -171,17 +171,17 @@ public class MainActivity extends FragmentActivity {
         switch (position) {
             default:
             case DISCOVER_POSITION:
-                showDiscoverFragment(position);
+                showFragment(new DiscoverFragment());
                 setDrawerSelected(position);
                 break;
             case ATTENDING_POSITION:
-                showAttendingFragment();
+                showFragment(new AttendingEventListFragment());
                 break;
             case HOSTING_POSITION:
-                showHostingFragment();
+                showFragment(new HostingEventListFragment());
                 break;
             case INVITES_POSITION:
-                showInvitedFragment();
+                showFragment(new InvitesEventListFragment());
                 break;
             case SETTINGS_POSITION:
                 Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
@@ -210,40 +210,6 @@ public class MainActivity extends FragmentActivity {
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
                 .commit();
-    }
-    
-    private void showDiscoverFragment(int position) {
-        showFragment(new DiscoverFragment());
-    }
-    
-    private void showAttendingFragment() {
-        Fragment fragment = new EventListFragment();
-        Bundle args = new Bundle();
-        args.putString(EventListFragment.PAGE_TITLE, getString(R.string.attending));
-        args.putString(EventListFragment.PAGE_DESCRIPTION, getString(R.string.attending_desc));
-        args.putString(EventListFragment.EVENT_CATEGORY, getString(R.string.attending_code));
-        fragment.setArguments(args);
-        showFragment(fragment);
-    }
-
-    private void showHostingFragment() {
-        Fragment fragment = new EventListFragment();
-        Bundle args = new Bundle();
-        args.putString(EventListFragment.PAGE_TITLE, getString(R.string.hosting));
-        args.putString(EventListFragment.PAGE_DESCRIPTION, getString(R.string.hosting_desc));
-        args.putString(EventListFragment.EVENT_CATEGORY, getString(R.string.hosting_code));
-        fragment.setArguments(args);
-        showFragment(fragment);
-    }
-
-    private void showInvitedFragment() {
-        Fragment fragment = new EventListFragment();
-        Bundle args = new Bundle();
-        args.putString(EventListFragment.PAGE_TITLE, getString(R.string.invites));
-        args.putString(EventListFragment.PAGE_DESCRIPTION, getString(R.string.invites_desc));
-        args.putString(EventListFragment.EVENT_CATEGORY, getString(R.string.invited_code));
-        fragment.setArguments(args);
-        showFragment(fragment);
     }
 
     @Override

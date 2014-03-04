@@ -1,12 +1,12 @@
 package com.itsonin.android.controller;
 
-import android.net.Uri;
-import android.support.v4.app.LoaderManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.Loader;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import com.itsonin.android.R;
 import com.itsonin.android.model.Event;
 import com.itsonin.android.view.EventCard;
@@ -26,17 +25,12 @@ import com.itsonin.android.view.EventCard;
 * Time: 11:19 PM
 * To change this template use File | Settings | File Templates.
 */
-public class EventListFragment extends Fragment {
-
-    public static final String PAGE_TITLE = "pageTitle";
-    public static final String PAGE_DESCRIPTION = "pageDescription";
-    public static final String EVENT_CATEGORY = "eventCategory";
+public class AttendingEventListFragment extends Fragment {
 
     private static final int EVENTS_LOADER = 0;
 
     private String[] mProjection = Event.Events.COLUMNS;
     private Uri mDataUri;
-    private String mEventCategory;
     private ListView mListView;
     private CursorAdapter mAdapter;
 
@@ -45,9 +39,6 @@ public class EventListFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.event_list_fragment, container, false);
-        Bundle args = getArguments();
-        //((TextView) rootView.findViewById(R.id.title)).setText(args.getString(PAGE_TITLE));
-        //((TextView) rootView.findViewById(R.id.title_desc)).setText(args.getString(PAGE_DESCRIPTION));
 
         mListView = (ListView)rootView.findViewById(R.id.list_view);
         mAdapter = new SimpleCursorAdapter(container.getContext(), EventCard.list_item_layout, null,
@@ -55,8 +46,7 @@ public class EventListFragment extends Fragment {
                 Adapter.NO_SELECTION);
         mListView.setAdapter(mAdapter);
 
-        mDataUri = Event.Events.CONTENT_URI;
-        mEventCategory = args.getString(EVENT_CATEGORY);
+        mDataUri = Event.Events.EVENTS_ATTENDING_CONTENT_URI;
         getLoaderManager().initLoader(EVENTS_LOADER, null, mLoaderCallbacks);
 
         return rootView;
