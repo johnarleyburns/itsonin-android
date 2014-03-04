@@ -38,6 +38,7 @@ public class DiscoverEventListFragment extends Fragment {
     private String mEventCategory;
     private ListView mListView;
     private SimpleCursorAdapter mAdapter;
+    private View mEmptyView;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -54,6 +55,7 @@ public class DiscoverEventListFragment extends Fragment {
                 Adapter.NO_SELECTION);
         mAdapter.setViewBinder(new EventCard.EventViewBinder());
         mListView.setAdapter(mAdapter);
+        mEmptyView = rootView.findViewById(R.id.empty_message);
 
         mEventCategory = args.getString(EVENT_CATEGORY);
         mDataUri = Uri.withAppendedPath(Event.Events.EVENTS_DISCOVER_CONTENT_URI, mEventCategory);
@@ -83,6 +85,8 @@ public class DiscoverEventListFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             mAdapter.swapCursor(data);
+            if (mListView.getEmptyView() == null)
+                mListView.setEmptyView(mEmptyView);
         }
 
         @Override

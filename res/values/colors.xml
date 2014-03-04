@@ -133,5 +133,6 @@
     <color name="card_action">#14b9d6</color>
     <color name="card_divider">#eaedf1</color>
     <color name="card_image_placeholder">#9ea7b3</color>
+    <color name="card_attention">#f27935</color>
 
 </resources>

@@ -33,6 +33,7 @@ public class AttendingEventListFragment extends Fragment {
     private Uri mDataUri;
     private ListView mListView;
     private CursorAdapter mAdapter;
+    private View mEmptyView;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -45,6 +46,8 @@ public class AttendingEventListFragment extends Fragment {
                 Event.Events.COLUMNS, EventCard.VIEW_IDS,
                 Adapter.NO_SELECTION);
         mListView.setAdapter(mAdapter);
+        mListView.setEmptyView(rootView.findViewById(R.id.empty_message));
+        mEmptyView = rootView.findViewById(R.id.empty_message);
 
         mDataUri = Event.Events.EVENTS_ATTENDING_CONTENT_URI;
         getLoaderManager().initLoader(EVENTS_LOADER, null, mLoaderCallbacks);
@@ -73,6 +76,8 @@ public class AttendingEventListFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             mAdapter.swapCursor(data);
+            if (mListView.getEmptyView() == null)
+                mListView.setEmptyView(mEmptyView);
         }
 
         @Override

@@ -176,12 +176,15 @@ public class MainActivity extends FragmentActivity {
                 break;
             case ATTENDING_POSITION:
                 showFragment(new AttendingEventListFragment());
+                setDrawerSelected(position);
                 break;
             case HOSTING_POSITION:
                 showFragment(new HostingEventListFragment());
+                setDrawerSelected(position);
                 break;
             case INVITES_POSITION:
                 showFragment(new InvitesEventListFragment());
+                setDrawerSelected(position);
                 break;
             case SETTINGS_POSITION:
                 Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();

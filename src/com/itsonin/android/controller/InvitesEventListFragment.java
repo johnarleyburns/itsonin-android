@@ -33,6 +33,7 @@ public class InvitesEventListFragment extends Fragment {
     private Uri mDataUri;
     private ListView mListView;
     private CursorAdapter mAdapter;
+    private View mEmptyView;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -46,6 +47,8 @@ public class InvitesEventListFragment extends Fragment {
                 Event.Events.COLUMNS, EventCard.VIEW_IDS,
                 Adapter.NO_SELECTION);
         mListView.setAdapter(mAdapter);
+        mListView.setEmptyView(rootView.findViewById(R.id.empty_message));
+        mEmptyView = rootView.findViewById(R.id.empty_message);
 
         mDataUri = Event.Events.EVENTS_INVITES_CONTENT_URI;
         getLoaderManager().initLoader(EVENTS_LOADER, null, mLoaderCallbacks);
@@ -74,6 +77,8 @@ public class InvitesEventListFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             mAdapter.swapCursor(data);
+            if (mListView.getEmptyView() == null)
+                mListView.setEmptyView(mEmptyView);
         }
 
         @Override

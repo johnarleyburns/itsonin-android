@@ -1,13 +1,22 @@
 package com.itsonin.android.view;
 
 import android.database.Cursor;
+import android.net.http.AndroidHttpClient;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.util.Xml;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import com.itsonin.android.R;
 import com.itsonin.android.model.Event;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.squareup.picasso.Picasso;
+import org.apache.http.Header;
+import org.apache.http.util.EntityUtils;
+
+import java.lang.ref.WeakReference;
 
 public class EventCard {
 
@@ -24,8 +33,8 @@ public class EventCard {
             R.id.event_card_end_time,
             R.id.event_card_place,
             R.id.event_card_address,
-            R.id.event_card_image,
-            0,
+            R.id.event_card_map,
+            R.id.event_card_streetview,
             0
     };
   /*
@@ -63,33 +72,99 @@ public class EventCard {
              * @return true if the data was bound to the view, false otherwise
              */
 
-            private static final String STREET_VIEW_URL_FORMAT =
-                    "https://maps.googleapis.com/maps/api/streetview?size=%1$dx%2$d&location=%3$f,%4$f&sensor=false";
-                    // %1$d = image width, %2$d = image_height, %3$f = lat, %4$f = long
+        private static final String STREET_VIEW_CHECK_URL_FORMAT =
+                "https://maps.google.com/cbk" +
+                        "?output=json" +
+                        "&hl=en" +
+                        "&ll=%1$f,%2$f" +
+                        "&radius=50" +
+                        "&cb_client=maps_sv" +
+                        "&v=4";
+        // %1$f = lat, %2$f = long
 
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                if (view.getId() == R.id.event_card_image)
-                    return setEventCardImage((ImageView) view, cursor);
-                else
-                    return false;
-            }
+        private static final String STREET_VIEW_IMAGE_URL_FORMAT =
+                "https://maps.googleapis.com/maps/api/streetview" +
+                        "?size=%1$dx%2$d" +
+                        "&location=%3$f,%4$f" +
+                        "&sensor=false";
+        // %1$d = image width, %2$d = image_height, %3$f = lat, %4$f = long
 
-            private boolean setEventCardImage(ImageView view, Cursor cursor) {
-                double lat = cursor.getDouble(cursor.getColumnIndex(Event.Events.LATITUDE));
-                double lng = cursor.getDouble(cursor.getColumnIndex(Event.Events.LONGITUDE));
-                int displayWidth = view.getResources().getDisplayMetrics().widthPixels;
-                int padding = view.getResources().getDimensionPixelSize(R.dimen.card_spacing);
-                int width = displayWidth - padding - padding;
-                int height = width / 2;
-                String url = String.format(STREET_VIEW_URL_FORMAT, width, height, lat, lng);
-                //url = "https://upload.wikimedia.org/wikipedia/en/9/92/Pok%C3%A9mon_episode_1_screenshot.png";
-                if (DEBUG) Log.i(TAG, "setEventCardImage() view=" + view + " url=" + url);
-                view.getLayoutParams().width = width;
-                view.getLayoutParams().height = height;
-                view.setBackgroundColor(R.color.card_image_placeholder);
-                Picasso.with(view.getContext()).load(url).into(view);
-                return true;
-            }
+        private static final String MAPS_IMAGE_URL_FORMAT =
+                "https://maps.googleapis.com/maps/api/staticmap" +
+                        "?center=%3$f,%4$f" +
+                        "&zoom=14" +
+                        "&markers=color:0xf27935|%3$f,%4$f" +
+                        "&size=%1$dx%2$d" +
+                        "&scale=2" +
+                        "&sensor=false";
+        // %1$d = image width, %2$d = image_height, %3$f = lat, %4$f = long
+
+        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+            if (view.getId() == R.id.event_card_map)
+                return setEventCardMap((ImageView) view, cursor);
+            else if (view.getId() == R.id.event_card_streetview)
+                return setEventCardStreetView((ImageView) view, cursor);
+            else
+                return false;
+        }
+
+        private boolean setEventCardMap(ImageView view, Cursor cursor) {
+            double lat = cursor.getDouble(cursor.getColumnIndex(Event.Events.LATITUDE));
+            double lng = cursor.getDouble(cursor.getColumnIndex(Event.Events.LONGITUDE));
+            int displayWidth = view.getResources().getDisplayMetrics().widthPixels;
+            int padding = view.getResources().getDimensionPixelSize(R.dimen.card_spacing);
+            int width = displayWidth - padding - padding;
+            int height = width / 2;
+            view.getLayoutParams().width = width;
+            view.getLayoutParams().height = height;
+            view.setBackgroundColor(R.color.card_image_placeholder);
+            String url = String.format(MAPS_IMAGE_URL_FORMAT, width/2, height/2, lat, lng);
+            if (DEBUG) Log.i(TAG, "setting map url=" + url);
+            Picasso.with(view.getContext()).load(url).into(view);
+            return true;
+        }
+
+        private boolean setEventCardStreetView(ImageView view, Cursor cursor) {
+            double lat = cursor.getDouble(cursor.getColumnIndex(Event.Events.LATITUDE));
+            double lng = cursor.getDouble(cursor.getColumnIndex(Event.Events.LONGITUDE));
+            int displayWidth = view.getResources().getDisplayMetrics().widthPixels;
+            int padding = view.getResources().getDimensionPixelSize(R.dimen.card_spacing);
+            int width = displayWidth - padding - padding;
+            int height = width / 2;
+            view.setImageDrawable(null);
+            asyncSetStreetView(new WeakReference<ImageView>(view), width, height, lat, lng);
+            return true;
+        }
+
+        private void asyncSetStreetView(final WeakReference<ImageView> view,
+                                       final int width, final int height,
+                                       final double lat, final double lng) {
+            AsyncHttpClient client = new AsyncHttpClient();
+            final String url = String.format(STREET_VIEW_CHECK_URL_FORMAT, lat, lng);
+            client.get(url, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    boolean streetViewFound = false;
+                    try {
+                        String response = new String(responseBody, Xml.Encoding.UTF_8.name());
+                        ImageView iv = view.get();
+                        if (iv == null)
+                            return;
+                        if (response != null && response.trim().length() > 2) {
+                            String url = String.format(STREET_VIEW_IMAGE_URL_FORMAT, width, height, lat, lng);
+                            Picasso.with(iv.getContext()).load(url).into(iv);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "failed reading street view response for url=" + url);
+                    }
+                }
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    Log.e(TAG, "failed street view url=" + url);
+                }
+            });
+
+        }
 
     }
 

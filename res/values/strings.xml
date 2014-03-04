@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">It\'s On In</string>
 
-    <string name="discover">What\'s Happening</string>
+    <string name="discover">@string/app_name</string>
     <string name="attending">Attending</string>
     <string name="hosting">Hosting</string>
     <string name="invites">Invites</string>
@@ -38,5 +38,6 @@
     <string name="attending_desc">Events you are attending</string>
     <string name="hosting_desc">Events you are hosting</string>
     <string name="invites_desc">Events you have been invited to</string>
+    <string name="no_events_found">No Events Found</string>
 
 </resources>

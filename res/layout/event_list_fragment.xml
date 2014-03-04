@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-        <!--
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@color/PaletteCardListBg"
         >
-            -->
     <!--
     <TextView
             android:id="@+id/title"
@@ -43,6 +41,16 @@
             android:dividerHeight="@dimen/card_spacing"
             android:clipToPadding="false"
         />
-<!--
+
+    <TextView
+        android:id="@+id/empty_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="@color/card_attention"
+        android:textSize="@dimen/card_title"
+        android:text="@string/no_events_found"
+        android:visibility="gone"
+        />
+
 </FrameLayout>
-        -->
