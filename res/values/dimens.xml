@@ -14,4 +14,6 @@
     <dimen name="card_text">16dp</dimen>
     <dimen name="card_action_text">18dp</dimen>
 
+    <dimen name="form_text">16dp</dimen>
+
 </resources>

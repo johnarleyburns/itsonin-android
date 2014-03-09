@@ -47,4 +47,28 @@
         <item>@string/other_code</item>
     </array>
 
+    <array name="event_categories_readable">
+        <item>@string/picnic</item>
+        <item>@string/going_out</item>
+        <item>@string/rally_protest</item>
+        <item>@string/birthday</item>
+        <item>@string/festival</item>
+        <item>@string/mischief</item>
+        <item>@string/sport</item>
+        <item>@string/watch_film</item>
+        <item>@string/other</item>
+    </array>
+
+    <array name="event_categories">
+        <item>@string/picnic_code</item>
+        <item>@string/going_out_code</item>
+        <item>@string/rally_protest_code</item>
+        <item>@string/birthday_code</item>
+        <item>@string/festival_code</item>
+        <item>@string/mischief_code</item>
+        <item>@string/sport_code</item>
+        <item>@string/watch_film_code</item>
+        <item>@string/other_code</item>
+    </array>
+
 </resources>

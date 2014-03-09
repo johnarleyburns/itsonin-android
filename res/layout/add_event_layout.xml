@@ -1,7 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
 
-</RelativeLayout>
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/card_inner"
+                android:orientation="vertical"
+                >
+
+            <AutoCompleteTextView
+                    android:id="@+id/host"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/form_text"
+                    android:inputType="textAutoComplete"
+                    android:hint="@string/host_hint"
+                    />
+
+            <EditText
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/form_text"
+                    android:inputType="textAutoComplete"
+                    android:hint="@string/title_hint"
+                    android:paddingTop="@dimen/card_inner"
+                    />
+
+            <Spinner
+                    android:id="@+id/category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/form_text"
+                    android:paddingTop="@dimen/card_inner"
+                    />
+
+            <EditText
+                    android:id="@+id/date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/card_inner"
+                    android:text="@string/date_hint"
+                    android:textSize="@dimen/form_text"
+                    android:editable="false"
+                    />
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="@dimen/card_inner"
+                    >
+
+                <EditText
+                        android:id="@+id/start_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/start_time_hint"
+                        android:textSize="@dimen/form_text"
+                        android:editable="false"
+                        />
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/card_inner"
+                        android:text="@string/time_to"
+                        android:textSize="@dimen/form_text"
+                        />
+
+                <EditText
+                        android:id="@+id/end_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/card_inner"
+                        android:text="@string/end_time_hint"
+                        android:textSize="@dimen/form_text"
+                        android:editable="false"
+                        />
+
+            </LinearLayout>
+
+            <EditText
+                    android:id="@+id/text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/form_text"
+                    android:hint="@string/text_hint"
+                    android:paddingTop="@dimen/card_inner"
+                    android:inputType="textMultiLine"
+                    android:gravity="bottom"
+                    android:minLines="3"
+                    />
+
+            <!--
+            public String place;
+            public String address;
+            public double latitude;
+            public double longitude;
+            public long numAttendees;
+            -->
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <View
+            android:id="@+id/overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/PaletteBlackHalfOpacity"
+            android:visibility="gone"
+            />
+
+    <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone"
+            />
+
+</FrameLayout>
