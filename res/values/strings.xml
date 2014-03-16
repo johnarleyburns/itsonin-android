@@ -42,11 +42,14 @@
 
     <string name="add_event">Create event</string>
     <string name="title_hint">Event name</string>
-    <string name="host_hint">Who\'s hosting the event</string>
+    <string name="host_hint">Who\'s hosting the event?</string>
     <string name="date_hint">Event date</string>
     <string name="start_time_hint">Start time</string>
     <string name="end_time_hint">End time</string>
     <string name="text_hint">Event description (optional)</string>
     <string name="time_to">to</string>
+    <string name="place_hint">Where is the event?</string>
+    <string name="address_hint">Address</string>
+    <string name="hosted_by">hosted by\u0020</string>
 
 </resources>

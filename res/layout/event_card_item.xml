@@ -26,6 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/card_text"
+                android:paddingTop="@dimen/card_inner"
                 android:paddingLeft="@dimen/card_inner"
                 android:paddingRight="@dimen/card_inner"
                 android:textColor="@color/card_text"
@@ -41,8 +42,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/card_text"
-                    android:text="Hosted by "
+                    android:text="@string/hosted_by"
                     android:textColor="@color/card_text"
+                    android:textStyle="italic"
                     />
             <TextView
                     android:id="@+id/event_card_host"
@@ -50,6 +52,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/card_text"
                     android:textColor="@color/card_text"
+                    android:textStyle="italic"
                     />
         </LinearLayout>
 

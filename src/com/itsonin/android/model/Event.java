@@ -238,6 +238,24 @@ public class Event {
         };
     }
 
+    public String toString() {
+        return "Event:" + _id
+                + "["
+                + "title=[" + title + "]"
+                + "text=[" + text + "]"
+                + "host=[" + host + "]"
+                + "category=[" + category + "]"
+                + "date=[" + date + "]"
+                + "startTime=[" + startTime + "]"
+                + "endTime=[" + endTime + "]"
+                + "place=[" + place + "]"
+                + "address=[" + address + "]"
+                + "latitude=[" + latitude + "]"
+                + "longitude=[" + longitude + "]"
+                + "numAttendees=[" + numAttendees + "]"
+                + "]";
+    }
+
     public static final class Events implements BaseColumns {
         private Events() {
         }

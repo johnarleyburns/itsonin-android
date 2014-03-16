@@ -5,25 +5,38 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
-import android.text.format.Time;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
 import com.itsonin.android.R;
+import com.itsonin.android.model.Event;
 import com.itsonin.android.model.Host;
+import com.itsonin.android.model.Place;
 import com.squareup.timessquare.CalendarPickerView;
-
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,24 +47,43 @@ import java.util.Set;
  */
 public class AddEventDialogFragment extends DialogFragment {
 
+    private static final String TAG = AddEventDialogFragment.class.toString();
+    private static final boolean DEBUG = true;
+    private static String mApiKey;
+
     private static final String CATEGORY_INDEX_KEY = "categoryIndex";
     private static final String EVENT_DATE_KEY = "eventDate";
     private static final String START_TIME_KEY = "startTime";
     private static final String END_TIME_KEY = "endTime";
+    private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place/autocomplete";
+    private static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode";
+    private static final String OUT_JSON = "/json";
+    private static final String UTF8 = "UTF-8";
 
     private Host host;
+    private Place place;
     private int categoryIndex;
     private Date eventDate;
     private Date startTime;
     private Date endTime;
+    private double latitude;
+    private double longitude;
 
     private String[] categories;
     private View overlay;
     private ProgressBar progressBar;
+    private EditText titleView;
+    private EditText textView;
+    private AutoCompleteTextView hostView;
+    private AutoCompleteTextView placeView;
     private TextView eventDateView;
     private TextView startTimeView;
     private TextView endTimeView;
     private ArrayAdapter<String> hostAutoAdapter;
+    private ArrayAdapter<String> placeAutoAdapter;
+    private AutoCompleteTextView addressView;
+    private PlacesAutoCompleteAdapter placesAutoCompleteAdapter;
+    private Location lastLocation;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -59,7 +91,17 @@ public class AddEventDialogFragment extends DialogFragment {
             restoreBundleVariables(savedInstanceState);
         }
 
-        View view = createLayout(savedInstanceState);
+        if (DEBUG) {
+            mApiKey = getResources().getString(R.string.debug_api_key);
+        }
+        else {
+            mApiKey = getResources().getString(R.string.api_key);
+        }
+
+        final View view = createLayout(savedInstanceState);
+
+        LocationManager locationManager = (LocationManager) view.getContext().getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 
         initDates(view.getContext());
 
@@ -69,6 +111,9 @@ public class AddEventDialogFragment extends DialogFragment {
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
+                                Event e = extractEvent();
+                                if (DEBUG) Log.i(TAG, e.toString());
+                                Toast.makeText(view.getContext(), "Created Event: " + e.title, Toast.LENGTH_SHORT).show();
                             }
                         }
                 )
@@ -113,15 +158,29 @@ public class AddEventDialogFragment extends DialogFragment {
         progressBar = (ProgressBar)view.findViewById(R.id.progress);
 
         host = Host.load(view.getContext());
+        place = Place.load(view.getContext());
         categories = getResources().getStringArray(R.array.event_categories);
         categoryIndex = 0;
 
+        titleView = (EditText)view.findViewById(R.id.title);
+        textView = (EditText)view.findViewById(R.id.text);
+
         hostAutoAdapter = new ArrayAdapter<String>(view.getContext(),
                 android.R.layout.simple_dropdown_item_1line, host.rememberedNames());
-        AutoCompleteTextView textView = (AutoCompleteTextView)
-                view.findViewById(R.id.host);
-        textView.setAdapter(hostAutoAdapter);
-        textView.setOnFocusChangeListener(hostListener);
+        hostView = (AutoCompleteTextView)view.findViewById(R.id.host);
+        hostView.setAdapter(hostAutoAdapter);
+        hostView.setOnFocusChangeListener(hostListener);
+
+        placeAutoAdapter = new ArrayAdapter<String>(view.getContext(),
+                android.R.layout.simple_dropdown_item_1line, place.rememberedNames());
+        placeView = (AutoCompleteTextView)view.findViewById(R.id.place);
+        placeView.setAdapter(placeAutoAdapter);
+        placeView.setOnFocusChangeListener(placeListener);
+
+        placesAutoCompleteAdapter = new PlacesAutoCompleteAdapter(view.getContext(), android.R.layout.simple_spinner_dropdown_item);
+        addressView = (AutoCompleteTextView)view.findViewById(R.id.address);
+        addressView.setAdapter(placesAutoCompleteAdapter);
+        addressView.setOnItemClickListener(placesAutoCompleteListener);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(),
                 R.array.event_categories_readable, android.R.layout.simple_spinner_item);
@@ -167,6 +226,27 @@ public class AddEventDialogFragment extends DialogFragment {
         }
     };
 
+    private View.OnFocusChangeListener placeListener = new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (!hasFocus) {
+                String name = ((EditText)v).getText().toString();
+                boolean exist = false;
+                for (int i = 0; i < placeAutoAdapter.getCount(); i++) {
+                    if (name.equals(placeAutoAdapter.getItem(i))) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (exist) {
+                    placeAutoAdapter.add(name);
+                }
+                place.names.add(name);
+                place.store(v.getContext());
+            }
+        }
+    };
+
     private Spinner.OnItemSelectedListener eventCategoryListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -184,7 +264,8 @@ public class AddEventDialogFragment extends DialogFragment {
             if (hasFocus) {
                 overlay.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.VISIBLE);
-                new EventDateDialog().show(getFragmentManager(), TAG);
+                if (isAdded())
+                    new EventDateDialog().show(getFragmentManager(), TAG);
             }
         }
     };
@@ -372,6 +453,210 @@ public class AddEventDialogFragment extends DialogFragment {
         bundle.putString(EVENT_DATE_KEY, eventDate.toString());
         bundle.putString(START_TIME_KEY, startTime.toString());
         bundle.putString(END_TIME_KEY, endTime.toString());
+    }
+
+    private ArrayList<String> autocomplete(String input) {
+        ArrayList<String> resultList = null;
+        String jsonResults = null;
+        try {
+            String placesParams =  "input=" + URLEncoder.encode(input, UTF8);
+            if (lastLocation != null) {
+                placesParams += "&location=" + lastLocation.getLatitude() + "," + lastLocation.getLongitude();
+            }
+            //String countryCode = getResources().getConfiguration().locale.getCountry();
+            //sb.append("&components=country:" + countryCode);
+
+            jsonResults = placesJSON(PLACES_API_BASE, placesParams);
+            if (jsonResults == null) {
+                if (DEBUG) Log.i(TAG, "no autocomplete found for input=" + input);
+            }
+
+            // Create a JSON object hierarchy from the results
+            JSONObject jsonObj = new JSONObject(jsonResults);
+            JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
+
+            // Extract the Place descriptions from the results
+            resultList = new ArrayList<String>(predsJsonArray.length());
+            for (int i = 0; i < predsJsonArray.length(); i++) {
+                String s = predsJsonArray.getJSONObject(i).getString("description");
+                resultList.add(s);
+                if (DEBUG) Log.i(TAG, "found result:" + s);
+            }
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "Cannot encode", e);
+        } catch (JSONException e) {
+            Log.e(TAG, "Cannot process JSON results", e);
+        }
+
+        return resultList;
+    }
+
+    private class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
+        private ArrayList<String> resultList;
+
+        public PlacesAutoCompleteAdapter(Context context, int textViewResourceId) {
+            super(context, textViewResourceId);
+        }
+
+        @Override
+        public int getCount() {
+            return resultList.size();
+        }
+
+        @Override
+        public String getItem(int index) {
+            return resultList.get(index);
+        }
+
+        @Override
+        public Filter getFilter() {
+            Filter filter = new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults filterResults = new FilterResults();
+                    if (constraint != null) {
+                        // Retrieve the autocomplete results.
+                        resultList = autocomplete(constraint.toString());
+
+                        // Assign the data to the FilterResults
+                        filterResults.values = resultList;
+                        filterResults.count = resultList.size();
+                    }
+                    return filterResults;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    if (results != null && results.count > 0) {
+                        notifyDataSetChanged();
+                    }
+                    else {
+                        notifyDataSetInvalidated();
+                    }
+                }};
+            return filter;
+        }
+    }
+
+    private AdapterView.OnItemClickListener placesAutoCompleteListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            String str = (String) parent.getItemAtPosition(position);
+            if (addressView != null)
+                addressView.setText(str);
+            updateLocationToAddress();
+        }
+    };
+
+    private void updateLocationToAddress() {
+        String jsonResults = null;
+        String input = addressView.getText().toString();
+        try {
+            jsonResults = placesJSON(GEOCODE_API_BASE,  "address=" + URLEncoder.encode(input, UTF8));
+            if (jsonResults == null) {
+                if (DEBUG) Log.i(TAG, "no places found for input=" + input);
+            }
+
+            // Create a JSON object hierarchy from the results
+            JSONObject jsonObj = new JSONObject(jsonResults);
+            JSONArray predsJsonArray = jsonObj.getJSONArray("results");
+
+            // Extract the Place descriptions from the results
+            for (int i = 0; i < predsJsonArray.length(); i++) {
+                JSONObject addr = predsJsonArray.getJSONObject(i);
+                JSONObject geometry = addr.getJSONObject("geometry");
+                if (geometry == null) {
+                    continue;
+                }
+                JSONObject location = geometry.getJSONObject("location");
+                if (location == null) {
+                    continue;
+                }
+                double lat = location.getDouble("lat");
+                double lng = location.getDouble("lng");
+                latitude = lat;
+                longitude = lng;
+                if (DEBUG) Log.i(TAG, "found result:" + geometry);
+            }
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "Cannot encode", e);
+        } catch (JSONException e) {
+            Log.e(TAG, "Cannot process JSON results", e);
+        }
+    }
+
+    private boolean isNetworkAvailable() {
+        Context context = getActivity() != null ? getActivity() : null;
+        if (context != null) {
+            ConnectivityManager connectivityManager
+                    = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        else {
+            return false;
+        }
+    }
+
+    // Define a listener that responds to location updates
+    private LocationListener locationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            // Called when a new location is found by the network location provider.
+            lastLocation = location;
+        }
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+        public void onProviderEnabled(String provider) {}
+        public void onProviderDisabled(String provider) {}
+    };
+
+    private String placesJSON(String apiBase, String inputParam) {
+        String jsonResults = null;
+
+        if (!isNetworkAvailable()) {
+            if (DEBUG) Log.i(TAG, "No network available for autocomplete");
+            return jsonResults;
+        }
+
+        try {
+            String languageCode = getResources().getConfiguration().locale.getLanguage();
+            StringBuilder sb = new StringBuilder(apiBase + OUT_JSON);
+            sb.append("?sensor=true");
+            sb.append("&key=" + mApiKey);
+            sb.append("&language=" + languageCode);
+            sb.append("&" + inputParam);
+
+            HttpResponse response;
+            HttpClient myClient = new DefaultHttpClient();
+            HttpGet myConnection = new HttpGet(sb.toString());
+            if (DEBUG) Log.i(TAG, "calling url: " + sb.toString());
+            response = myClient.execute(myConnection);
+            jsonResults = EntityUtils.toString(response.getEntity(), UTF8);
+            if (DEBUG) Log.i(TAG, "results: " + jsonResults);
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "Error processing Places API URL", e);
+        } catch (IOException e) {
+            Log.e(TAG, "Error connecting to Places API", e);
+        }
+
+        return jsonResults;
+    }
+
+    private Event extractEvent() {
+        Event e = new Event();
+        e.title = titleView.getText().toString();
+        e.text = textView.getText().toString();
+        e.host = hostView.getText().toString();
+        e.category = categories[categoryIndex];
+        e.date = eventDate.toString();
+        e.startTime = startTimeView.getText().toString();
+        e.endTime = endTimeView.getText().toString();
+        e.place = placeView.getText().toString();
+        e.address = addressView.getText().toString();
+        e.latitude = latitude;
+        e.longitude = longitude;
+        e.numAttendees = 1; // myself
+        e._id = e.hashCode();
+        return e;
     }
 
 }

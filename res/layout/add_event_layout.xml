@@ -23,7 +23,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/form_text"
-                    android:inputType="textAutoComplete"
                     android:hint="@string/host_hint"
                     />
 
@@ -59,7 +58,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingTop="@dimen/card_inner"
+                    android:paddingTop="@dimen/card_spacing"
                     >
 
                 <EditText
@@ -91,6 +90,24 @@
 
             </LinearLayout>
 
+            <AutoCompleteTextView
+                    android:id="@+id/place"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/card_inner"
+                    android:textSize="@dimen/form_text"
+                    android:hint="@string/place_hint"
+                    />
+
+            <AutoCompleteTextView
+                    android:id="@+id/address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/card_inner"
+                    android:textSize="@dimen/form_text"
+                    android:hint="@string/address_hint"
+                    />
+
             <EditText
                     android:id="@+id/text"
                     android:layout_width="match_parent"
@@ -104,8 +121,6 @@
                     />
 
             <!--
-            public String place;
-            public String address;
             public double latitude;
             public double longitude;
             public long numAttendees;
