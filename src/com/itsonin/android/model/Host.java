@@ -1,6 +1,7 @@
 package com.itsonin.android.model;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import java.util.HashSet;
@@ -16,15 +17,12 @@ import java.util.Set;
 public class Host {
 
     private static final String PREF_HOST_NAMES = "hostNames";
+    private static final String PREF_HOST_LAST_NAME = "hostNLastName";
 
-    public Set<String> names;
+    public Set<String> names = new HashSet<String>();
+    public String lastName;
 
     public Host() {
-        names = new HashSet<String>();
-    }
-
-    public Host(Set<String> names) {
-        this.names = names;
     }
 
     public String[] rememberedNames() {
@@ -32,18 +30,21 @@ public class Host {
         return names.toArray(namesArray);
     }
 
+
     public void store(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
                 .putStringSet(PREF_HOST_NAMES, new HashSet<String>())
+                .putString(PREF_HOST_LAST_NAME, lastName)
                 .apply();
     }
 
     public static final Host load(Context context) {
         Host host = new Host();
-        Set<String> names = PreferenceManager.getDefaultSharedPreferences(context)
-                .getStringSet(PREF_HOST_NAMES, new HashSet<String>());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> names = prefs.getStringSet(PREF_HOST_NAMES, new HashSet<String>());
         host.names.addAll(names);
+        host.lastName =  prefs.getString(PREF_HOST_LAST_NAME, null);
         return host;
     }
 

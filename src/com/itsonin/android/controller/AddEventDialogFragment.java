@@ -12,8 +12,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 import com.itsonin.android.R;
 import com.itsonin.android.model.Event;
@@ -34,6 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -59,6 +62,7 @@ public class AddEventDialogFragment extends DialogFragment {
     private static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode";
     private static final String OUT_JSON = "/json";
     private static final String UTF8 = "UTF-8";
+    private static final String DATE_FORMAT_DAY_OF_WEEK = "EEEE";
 
     private Host host;
     private Place place;
@@ -70,6 +74,11 @@ public class AddEventDialogFragment extends DialogFragment {
     private double longitude;
 
     private String[] categories;
+    private ArrayAdapter<String> hostAutoAdapter;
+    private ArrayAdapter<String> placeAutoAdapter;
+    private PlacesAutoCompleteAdapter placesAutoCompleteAdapter;
+    private Location lastLocation;
+
     private View overlay;
     private ProgressBar progressBar;
     private EditText titleView;
@@ -79,11 +88,11 @@ public class AddEventDialogFragment extends DialogFragment {
     private TextView eventDateView;
     private TextView startTimeView;
     private TextView endTimeView;
-    private ArrayAdapter<String> hostAutoAdapter;
-    private ArrayAdapter<String> placeAutoAdapter;
     private AutoCompleteTextView addressView;
-    private PlacesAutoCompleteAdapter placesAutoCompleteAdapter;
-    private Location lastLocation;
+    private View detailsButton;
+    private View detailsExpand;
+    private View detailsCollapse;
+    private View detailsSection;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -108,15 +117,7 @@ public class AddEventDialogFragment extends DialogFragment {
         return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.add_event)
                 .setView(view)
-                .setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                Event e = extractEvent();
-                                if (DEBUG) Log.i(TAG, e.toString());
-                                Toast.makeText(view.getContext(), "Created Event: " + e.title, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                )
+                .setPositiveButton(android.R.string.ok, okListener)
                 .setNegativeButton(android.R.string.cancel,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -125,6 +126,18 @@ public class AddEventDialogFragment extends DialogFragment {
                 )
                 .create();
     }
+
+    private DialogInterface.OnClickListener okListener = new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+            Event e = extractEvent();
+            if (DEBUG) Log.i(TAG, e.toString());
+            Context context = getActivity();
+            if (context != null) {
+                Toast.makeText(getActivity(), "Created Event: " + e.title, Toast.LENGTH_SHORT).show();
+                persistToPrefs(context);
+            }
+        }
+    };
 
     private void restoreBundleVariables(Bundle bundle) {
         if (bundle != null) {
@@ -169,13 +182,16 @@ public class AddEventDialogFragment extends DialogFragment {
                 android.R.layout.simple_dropdown_item_1line, host.rememberedNames());
         hostView = (AutoCompleteTextView)view.findViewById(R.id.host);
         hostView.setAdapter(hostAutoAdapter);
-        hostView.setOnFocusChangeListener(hostListener);
+        hostView.setOnItemClickListener(hostListener);
+        if (host.lastName != null) {
+            hostView.setText(host.lastName);
+        }
 
         placeAutoAdapter = new ArrayAdapter<String>(view.getContext(),
                 android.R.layout.simple_dropdown_item_1line, place.rememberedNames());
         placeView = (AutoCompleteTextView)view.findViewById(R.id.place);
         placeView.setAdapter(placeAutoAdapter);
-        placeView.setOnFocusChangeListener(placeListener);
+        placeView.setOnItemClickListener(placeListener);
 
         placesAutoCompleteAdapter = new PlacesAutoCompleteAdapter(view.getContext(), android.R.layout.simple_spinner_dropdown_item);
         addressView = (AutoCompleteTextView)view.findViewById(R.id.address);
@@ -202,48 +218,45 @@ public class AddEventDialogFragment extends DialogFragment {
         endTimeView.setOnFocusChangeListener(endTimeFocusListener);
         endTimeView.setOnClickListener(endTimeClickListener);
 
+        detailsButton = view.findViewById(R.id.detail_button);
+        detailsSection = view.findViewById(R.id.detail_section);
+        detailsExpand = view.findViewById(R.id.expand_details);
+        detailsCollapse = view.findViewById(R.id.collapse_details);
+        detailsButton.setOnClickListener(detailsButtonListener);
+
         return view;
     }
 
-    private View.OnFocusChangeListener hostListener = new View.OnFocusChangeListener() {
+    private View.OnClickListener detailsButtonListener = new View.OnClickListener() {
         @Override
-        public void onFocusChange(View v, boolean hasFocus) {
-            if (!hasFocus) {
-                String name = ((EditText)v).getText().toString();
-                boolean exist = false;
-                for (int i = 0; i < hostAutoAdapter.getCount(); i++) {
-                    if (name.equals(hostAutoAdapter.getItem(i))) {
-                        exist = true;
-                        break;
-                    }
-                }
-                if (exist) {
-                    hostAutoAdapter.add(name);
-                }
-                host.names.add(name);
-                host.store(v.getContext());
+        public void onClick(View v) {
+            ViewGroup.LayoutParams params = detailsSection.getLayoutParams();
+            if (params.height == 0) {
+                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                detailsExpand.setVisibility(View.GONE);
+                detailsCollapse.setVisibility(View.VISIBLE);
+            }
+            else {
+                params.height = 0;
+                detailsExpand.setVisibility(View.VISIBLE);
+                detailsCollapse.setVisibility(View.GONE);
             }
         }
     };
 
-    private View.OnFocusChangeListener placeListener = new View.OnFocusChangeListener() {
+    private AdapterView.OnItemClickListener hostListener = new AdapterView.OnItemClickListener() {
         @Override
-        public void onFocusChange(View v, boolean hasFocus) {
-            if (!hasFocus) {
-                String name = ((EditText)v).getText().toString();
-                boolean exist = false;
-                for (int i = 0; i < placeAutoAdapter.getCount(); i++) {
-                    if (name.equals(placeAutoAdapter.getItem(i))) {
-                        exist = true;
-                        break;
-                    }
-                }
-                if (exist) {
-                    placeAutoAdapter.add(name);
-                }
-                place.names.add(name);
-                place.store(v.getContext());
-            }
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            String name = (String) parent.getItemAtPosition(position);
+            hostView.setText(name);
+        }
+    };
+
+    private AdapterView.OnItemClickListener placeListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            String name = (String) parent.getItemAtPosition(position);
+            placeView.setText(name);
         }
     };
 
@@ -337,9 +350,7 @@ public class AddEventDialogFragment extends DialogFragment {
                 @Override
                 public void onDateSelected(Date date) {
                     eventDate = date;
-                    DateFormat df = DateFormat.getDateInstance();
-                    String s = df.format(eventDate);
-                    eventDateView.setText(s);
+                    eventDateView.setText(friendlyDate(date));
                     dismissAllowingStateLoss();
                 }
                 @Override
@@ -353,6 +364,38 @@ public class AddEventDialogFragment extends DialogFragment {
         }
     }
 
+    private boolean isTomorrow(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, -1);
+        return DateUtils.isToday(c.getTime().getTime());
+    }
+
+    private boolean isCurrentWeek(Date date) {
+        Calendar c = Calendar.getInstance();
+        int currentWeek = c.get(Calendar.WEEK_OF_YEAR);
+        c.setTime(date);
+        int dateWeek = c.get(Calendar.WEEK_OF_YEAR);
+        return currentWeek == dateWeek;
+    }
+
+    private String friendlyDate(Date date) { // no time component
+        String s;
+        if (DateUtils.isToday(date.getTime())) {
+            s = getString(R.string.today);
+        }
+        else if (isTomorrow(date)) {
+            s = getString(R.string.tomorrow);
+        }
+        else if (isCurrentWeek(date)) {
+            s = new SimpleDateFormat(DATE_FORMAT_DAY_OF_WEEK).format(date);
+        }
+        else {
+            s = DateFormat.getDateInstance().format(date);
+        }
+        return s;
+    }
+
     private void initDates(Context context) {
         initEventDate(context);
         initStartTime(context);
@@ -364,9 +407,7 @@ public class AddEventDialogFragment extends DialogFragment {
         if (eventDate == null) {
             eventDate = today;
         }
-        DateFormat df = DateFormat.getDateInstance();
-        String s = df.format(eventDate);
-        eventDateView.setText(s);
+        eventDateView.setText(friendlyDate(eventDate));
     }
 
     private void initStartTime(Context context) {
@@ -449,10 +490,28 @@ public class AddEventDialogFragment extends DialogFragment {
     @Override
     public void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
+        if (DEBUG) Log.i(TAG, "onSaveInstanceState");
         bundle.putInt(CATEGORY_INDEX_KEY, categoryIndex);
         bundle.putString(EVENT_DATE_KEY, eventDate.toString());
         bundle.putString(START_TIME_KEY, startTime.toString());
         bundle.putString(END_TIME_KEY, endTime.toString());
+    }
+
+    private void persistToPrefs(Context context) {
+        String name = hostView.getText().toString().trim();
+        host.lastName = name;
+        if (!host.names.contains(name)) {
+            host.names.add(name);
+        }
+        host.store(context);
+
+        name = placeView.getText().toString().trim();
+        if (!place.names.contains(name)) {
+            place.names.add(name);
+            if (getActivity() != null) {
+                place.store(context);
+            }
+        }
     }
 
     private ArrayList<String> autocomplete(String input) {

@@ -14,111 +14,181 @@
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/card_inner"
                 android:orientation="vertical"
                 >
-
-            <AutoCompleteTextView
-                    android:id="@+id/host"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/form_text"
-                    android:hint="@string/host_hint"
-                    />
-
-            <EditText
-                    android:id="@+id/title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/form_text"
-                    android:inputType="textAutoComplete"
-                    android:hint="@string/title_hint"
-                    android:paddingTop="@dimen/card_inner"
-                    />
-
-            <Spinner
-                    android:id="@+id/category"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/form_text"
-                    android:paddingTop="@dimen/card_inner"
-                    />
-
-            <EditText
-                    android:id="@+id/date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/card_inner"
-                    android:text="@string/date_hint"
-                    android:textSize="@dimen/form_text"
-                    android:editable="false"
-                    />
 
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:paddingTop="@dimen/card_spacing"
+                    android:paddingLeft="@dimen/card_inner"
+                    android:paddingRight="@dimen/card_inner"
+                    android:orientation="vertical"
                     >
 
-                <EditText
-                        android:id="@+id/start_time"
-                        android:layout_width="wrap_content"
+                <Spinner
+                        android:id="@+id/category"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/start_time_hint"
+                        android:textSize="@dimen/form_text"
+                        android:paddingTop="@dimen/card_inner"
+                        />
+
+                <EditText
+                        android:id="@+id/title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/form_text"
+                        android:inputType="textAutoComplete"
+                        android:hint="@string/title_hint"
+                        android:paddingTop="@dimen/card_inner"
+                        />
+
+                <EditText
+                        android:id="@+id/date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/card_inner"
+                        android:text="@string/date_hint"
                         android:textSize="@dimen/form_text"
                         android:editable="false"
                         />
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="@dimen/card_spacing"
+                        android:paddingBottom="@dimen/card_spacing"
+                        >
+
+                    <EditText
+                            android:id="@+id/start_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/start_time_hint"
+                            android:textSize="@dimen/form_text"
+                            android:editable="false"
+                            />
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/card_inner"
+                            android:text="@string/time_to"
+                            android:textSize="@dimen/form_text"
+                            />
+
+                    <EditText
+                            android:id="@+id/end_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/card_inner"
+                            android:text="@string/end_time_hint"
+                            android:textSize="@dimen/form_text"
+                            android:editable="false"
+                            />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/card_divider"
+                    />
+
+            <FrameLayout
+                    android:id="@+id/detail_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/card_spacing"
+                    android:paddingBottom="@dimen/card_spacing"
+                    android:paddingLeft="@dimen/card_inner"
+                    android:background="@color/card_shadow"
+                    >
 
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/card_inner"
-                        android:text="@string/time_to"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/card_inner_button"
                         android:textSize="@dimen/form_text"
+                        android:text="@string/optional_details"
+                        />
+
+                <ImageView
+                        android:id="@+id/expand_details"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right|center_vertical"
+                        android:layout_marginRight="@dimen/card_inner_button"
+                        android:src="@drawable/ic_action_expand"
+                        />
+
+                <ImageView
+                        android:id="@+id/collapse_details"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right|center_vertical"
+                        android:layout_marginRight="@dimen/card_inner_button"
+                        android:src="@drawable/ic_action_collapse"
+                        android:visibility="gone"
+                        />
+
+            </FrameLayout>
+
+            <LinearLayout
+                    android:id="@+id/detail_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:orientation="vertical"
+                    android:paddingBottom="@dimen/card_inner"
+                    android:paddingLeft="@dimen/card_inner"
+                    android:paddingRight="@dimen/card_inner"
+                    android:background="@color/card_shadow"
+                    >
+
+                <AutoCompleteTextView
+                        android:id="@+id/host"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/form_text"
+                        android:hint="@string/host_hint"
+                        />
+
+                <AutoCompleteTextView
+                        android:id="@+id/place"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/card_inner"
+                        android:textSize="@dimen/form_text"
+                        android:hint="@string/place_hint"
+                        />
+
+                <AutoCompleteTextView
+                        android:id="@+id/address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/card_inner"
+                        android:textSize="@dimen/form_text"
+                        android:hint="@string/address_hint"
                         />
 
                 <EditText
-                        android:id="@+id/end_time"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/text"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/card_inner"
-                        android:text="@string/end_time_hint"
                         android:textSize="@dimen/form_text"
-                        android:editable="false"
+                        android:hint="@string/text_hint"
+                        android:paddingTop="@dimen/card_inner"
+                        android:inputType="textMultiLine"
+                        android:gravity="bottom"
+                        android:maxLines="10"
                         />
 
             </LinearLayout>
-
-            <AutoCompleteTextView
-                    android:id="@+id/place"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/card_inner"
-                    android:textSize="@dimen/form_text"
-                    android:hint="@string/place_hint"
-                    />
-
-            <AutoCompleteTextView
-                    android:id="@+id/address"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/card_inner"
-                    android:textSize="@dimen/form_text"
-                    android:hint="@string/address_hint"
-                    />
-
-            <EditText
-                    android:id="@+id/text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/form_text"
-                    android:hint="@string/text_hint"
-                    android:paddingTop="@dimen/card_inner"
-                    android:inputType="textMultiLine"
-                    android:gravity="bottom"
-                    android:minLines="3"
-                    />
 
             <!--
             public double latitude;

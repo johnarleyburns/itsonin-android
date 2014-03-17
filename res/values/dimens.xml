@@ -9,6 +9,7 @@
     <dimen name="drawer_icon_wrapper_width">46dp</dimen>
 
     <dimen name="card_spacing">8dp</dimen>
+    <dimen name="card_inner_button">12dp</dimen>
     <dimen name="card_inner">16dp</dimen>
     <dimen name="card_title">28dp</dimen>
     <dimen name="card_text">16dp</dimen>
