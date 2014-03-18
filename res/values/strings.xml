@@ -47,7 +47,7 @@
     <string name="start_time_hint">Start time</string>
     <string name="end_time_hint">End time</string>
     <string name="text_hint">More details</string>
-    <string name="time_to">to</string>
+    <string name="ends_at">Ends at</string>
     <string name="place_hint">Where\'s it happening?</string>
     <string name="address_hint">Address</string>
     <string name="hosted_by">hosted by\u0020</string>

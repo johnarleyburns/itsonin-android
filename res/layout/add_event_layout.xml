@@ -44,47 +44,32 @@
                         android:paddingTop="@dimen/card_inner"
                         />
 
-                <EditText
-                        android:id="@+id/date"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="@dimen/card_inner"
-                        android:text="@string/date_hint"
-                        android:textSize="@dimen/form_text"
-                        android:editable="false"
-                        />
-
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:weightSum="2"
                         android:orientation="horizontal"
                         android:paddingTop="@dimen/card_spacing"
                         android:paddingBottom="@dimen/card_spacing"
                         >
 
                     <EditText
-                            android:id="@+id/start_time"
-                            android:layout_width="wrap_content"
+                            android:id="@+id/date"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="@string/start_time_hint"
+                            android:paddingTop="@dimen/card_inner"
+                            android:text="@string/date_hint"
                             android:textSize="@dimen/form_text"
                             android:editable="false"
                             />
 
-                    <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/card_inner"
-                            android:text="@string/time_to"
-                            android:textSize="@dimen/form_text"
-                            />
-
                     <EditText
-                            android:id="@+id/end_time"
-                            android:layout_width="wrap_content"
+                            android:id="@+id/start_time"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/card_inner"
-                            android:text="@string/end_time_hint"
+                            android:text="@string/start_time_hint"
                             android:textSize="@dimen/form_text"
                             android:editable="false"
                             />
@@ -150,8 +135,37 @@
                     android:background="@color/card_shadow"
                     >
 
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="2"
+                        android:orientation="horizontal"
+                        >
+
+                    <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/card_inner_button"
+                            android:text="@string/ends_at"
+                            android:textSize="@dimen/form_text"
+                            />
+
+                    <EditText
+                            android:id="@+id/end_time"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="@string/end_time_hint"
+                            android:textSize="@dimen/form_text"
+                            android:editable="false"
+                            />
+
+                </LinearLayout>
+
                 <AutoCompleteTextView
                         android:id="@+id/host"
+                        android:paddingTop="@dimen/card_inner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/form_text"

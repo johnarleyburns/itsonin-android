@@ -141,7 +141,9 @@ public class AddEventDialogFragment extends DialogFragment {
 
     private void restoreBundleVariables(Bundle bundle) {
         if (bundle != null) {
-            category.setIndex(bundle.getInt(CATEGORY_INDEX_KEY));
+            if (bundle.containsKey(CATEGORY_INDEX_KEY)) {
+                category.setIndex(bundle.getInt(CATEGORY_INDEX_KEY));
+            }
             try {
                 eventDate = DateFormat.getDateInstance().parse(bundle.getString(EVENT_DATE_KEY));
             }
