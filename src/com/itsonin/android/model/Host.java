@@ -17,7 +17,7 @@ import java.util.Set;
 public class Host {
 
     private static final String PREF_HOST_NAMES = "hostNames";
-    private static final String PREF_HOST_LAST_NAME = "hostNLastName";
+    private static final String PREF_HOST_LAST_NAME = "hostLastName";
 
     public Set<String> names = new HashSet<String>();
     public String lastName;

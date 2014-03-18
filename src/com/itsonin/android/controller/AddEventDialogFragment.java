@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.itsonin.android.R;
+import com.itsonin.android.model.Category;
 import com.itsonin.android.model.Event;
 import com.itsonin.android.model.Host;
 import com.itsonin.android.model.Place;
@@ -66,14 +67,13 @@ public class AddEventDialogFragment extends DialogFragment {
 
     private Host host;
     private Place place;
-    private int categoryIndex;
+    private Category category;
     private Date eventDate;
     private Date startTime;
     private Date endTime;
     private double latitude;
     private double longitude;
 
-    private String[] categories;
     private ArrayAdapter<String> hostAutoAdapter;
     private ArrayAdapter<String> placeAutoAdapter;
     private PlacesAutoCompleteAdapter placesAutoCompleteAdapter;
@@ -141,7 +141,7 @@ public class AddEventDialogFragment extends DialogFragment {
 
     private void restoreBundleVariables(Bundle bundle) {
         if (bundle != null) {
-            categoryIndex = bundle.getInt(CATEGORY_INDEX_KEY);
+            category.setIndex(bundle.getInt(CATEGORY_INDEX_KEY));
             try {
                 eventDate = DateFormat.getDateInstance().parse(bundle.getString(EVENT_DATE_KEY));
             }
@@ -172,8 +172,7 @@ public class AddEventDialogFragment extends DialogFragment {
 
         host = Host.load(view.getContext());
         place = Place.load(view.getContext());
-        categories = getResources().getStringArray(R.array.event_categories);
-        categoryIndex = 0;
+        category = Category.load(view.getContext());
 
         titleView = (EditText)view.findViewById(R.id.title);
         textView = (EditText)view.findViewById(R.id.text);
@@ -192,6 +191,9 @@ public class AddEventDialogFragment extends DialogFragment {
         placeView = (AutoCompleteTextView)view.findViewById(R.id.place);
         placeView.setAdapter(placeAutoAdapter);
         placeView.setOnItemClickListener(placeListener);
+        if (place.lastName != null) {
+            placeView.setText(place.lastName);
+        }
 
         placesAutoCompleteAdapter = new PlacesAutoCompleteAdapter(view.getContext(), android.R.layout.simple_spinner_dropdown_item);
         addressView = (AutoCompleteTextView)view.findViewById(R.id.address);
@@ -204,7 +206,8 @@ public class AddEventDialogFragment extends DialogFragment {
         Spinner spinner = (Spinner)view.findViewById(R.id.category);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(eventCategoryListener);
-        spinner.setSelection(categoryIndex);
+        spinner.setSelection(category.getIndex());
+        if (DEBUG) Log.i(TAG, "loaded category=" + category.lastCategory);
 
         eventDateView = (TextView)view.findViewById(R.id.date);
         eventDateView.setOnFocusChangeListener(eventDateFocusListener);
@@ -263,7 +266,7 @@ public class AddEventDialogFragment extends DialogFragment {
     private Spinner.OnItemSelectedListener eventCategoryListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            categoryIndex = position;
+            category.setIndex(position);
         }
         @Override
         public void onNothingSelected(AdapterView<?> parent) {
@@ -491,7 +494,7 @@ public class AddEventDialogFragment extends DialogFragment {
     public void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
         if (DEBUG) Log.i(TAG, "onSaveInstanceState");
-        bundle.putInt(CATEGORY_INDEX_KEY, categoryIndex);
+        bundle.putInt(CATEGORY_INDEX_KEY, category.getIndex());
         bundle.putString(EVENT_DATE_KEY, eventDate.toString());
         bundle.putString(START_TIME_KEY, startTime.toString());
         bundle.putString(END_TIME_KEY, endTime.toString());
@@ -506,12 +509,13 @@ public class AddEventDialogFragment extends DialogFragment {
         host.store(context);
 
         name = placeView.getText().toString().trim();
+        place.lastName = name;
         if (!place.names.contains(name)) {
             place.names.add(name);
-            if (getActivity() != null) {
-                place.store(context);
-            }
         }
+        place.store(context);
+
+        category.store(context);
     }
 
     private ArrayList<String> autocomplete(String input) {
@@ -705,7 +709,7 @@ public class AddEventDialogFragment extends DialogFragment {
         e.title = titleView.getText().toString();
         e.text = textView.getText().toString();
         e.host = hostView.getText().toString();
-        e.category = categories[categoryIndex];
+        e.category = category.lastCategory;
         e.date = eventDate.toString();
         e.startTime = startTimeView.getText().toString();
         e.endTime = endTimeView.getText().toString();

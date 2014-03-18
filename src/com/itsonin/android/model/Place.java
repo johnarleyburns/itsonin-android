@@ -1,6 +1,7 @@
 package com.itsonin.android.model;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import java.util.HashSet;
@@ -16,15 +17,12 @@ import java.util.Set;
 public class Place {
 
     private static final String PREF_PLACE_NAMES = "placeNames";
+    private static final String PREF_PLACE_LAST_NAME = "placeLastName";
 
-    public Set<String> names;
+    public Set<String> names = new HashSet<String>();
+    public String lastName;
 
     public Place() {
-        names = new HashSet<String>();
-    }
-
-    public Place(Set<String> names) {
-        this.names = names;
     }
 
     public String[] rememberedNames() {
@@ -36,14 +34,16 @@ public class Place {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
                 .putStringSet(PREF_PLACE_NAMES, new HashSet<String>())
+                .putString(PREF_PLACE_LAST_NAME, lastName)
                 .apply();
     }
 
     public static final Place load(Context context) {
         Place place = new Place();
-        Set<String> names = PreferenceManager.getDefaultSharedPreferences(context)
-                .getStringSet(PREF_PLACE_NAMES, new HashSet<String>());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> names = prefs.getStringSet(PREF_PLACE_NAMES, new HashSet<String>());
         place.names.addAll(names);
+        place.lastName =  prefs.getString(PREF_PLACE_LAST_NAME, null);
         return place;
     }
 

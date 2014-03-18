@@ -53,7 +53,7 @@
     <string name="hosted_by">hosted by\u0020</string>
     <string name="optional_details">Details (optional)</string>
 
-    <string name="today">today</string>
-    <string name="tomorrow">tomorrow</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
 
 </resources>
