@@ -11,19 +11,36 @@
             android:background="@drawable/card_background_large"
             >
 
-        <TextView
-                android:id="@+id/event_card_title"
-                android:layout_width="wrap_content"
+        <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/card_title"
                 android:paddingTop="@dimen/card_inner"
                 android:paddingLeft="@dimen/card_inner"
                 android:paddingRight="@dimen/card_inner"
-                android:textColor="@color/card_title"
-                />
+                >
+
+            <ImageView
+                    android:id="@+id/event_card_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:src="@drawable/picnic_table"
+                    />
+
+            <TextView
+                    android:id="@+id/event_card_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/event_card_icon"
+                    android:paddingLeft="@dimen/card_inner_button"
+                    android:textSize="@dimen/card_title"
+                    android:textColor="@color/card_title"
+                    />
+        </RelativeLayout>
+
         <TextView
                 android:id="@+id/event_card_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/card_text"
                 android:paddingTop="@dimen/card_inner"
@@ -31,8 +48,9 @@
                 android:paddingRight="@dimen/card_inner"
                 android:textColor="@color/card_text"
                 />
+
         <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingLeft="@dimen/card_inner"
@@ -56,24 +74,29 @@
                     />
         </LinearLayout>
 
-        <TextView
-                android:id="@+id/event_card_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/card_text"
-                android:paddingTop="@dimen/card_inner"
-                android:paddingLeft="@dimen/card_inner"
-                android:paddingRight="@dimen/card_inner"
-                android:textColor="@color/card_date"
-                />
-
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:paddingTop="@dimen/card_inner"
                 android:paddingLeft="@dimen/card_inner"
                 android:paddingRight="@dimen/card_inner"
                 >
+
+            <TextView
+                    android:id="@+id/event_card_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/card_text"
+                    android:textColor="@color/card_date"
+                    />
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/card_text"
+                    android:text=" @ "
+                    android:textColor="@color/card_date"
+                    />
             <TextView
                     android:id="@+id/event_card_start_time"
                     android:layout_width="wrap_content"
@@ -119,11 +142,12 @@
                 />
 
         <ImageView
-            android:id="@+id/event_card_map"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
-            />
+                android:id="@+id/event_card_map"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                />
 
         <!--
         <View
@@ -135,14 +159,14 @@
         -->
 
         <ImageView
-            android:id="@+id/event_card_streetview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
+                android:id="@+id/event_card_streetview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
                 />
         <!-- android:adjustViewBounds="true" -->
-<!--             android:src="@drawable/eigelstein"
--->
+        <!--             android:src="@drawable/eigelstein"
+        -->
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
@@ -169,10 +193,10 @@
         </LinearLayout>
 
         <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/card_divider"
-            />
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/card_divider"
+                />
 
         <LinearLayout
                 android:layout_width="wrap_content"

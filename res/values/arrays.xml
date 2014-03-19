@@ -71,4 +71,16 @@
         <item>@string/other_code</item>
     </array>
 
+    <array name="event_icons">
+        <item>@drawable/beer_mug</item>
+        <item>@drawable/picnic_table</item>
+        <item>@drawable/birthday_cake</item>
+        <item>@drawable/theater_masks</item>
+        <item>@drawable/runner</item>
+        <item>@drawable/film_clapper</item>
+        <item>@drawable/speech_bubble_exclaimation</item>
+        <item>@drawable/skull</item>
+        <item>@drawable/man_woman</item>
+    </array>
+
 </resources>

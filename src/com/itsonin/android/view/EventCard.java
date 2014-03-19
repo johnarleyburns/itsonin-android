@@ -1,6 +1,9 @@
 package com.itsonin.android.view;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.http.AndroidHttpClient;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
@@ -17,6 +20,8 @@ import org.apache.http.Header;
 import org.apache.http.util.EntityUtils;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EventCard {
 
@@ -27,7 +32,7 @@ public class EventCard {
             R.id.event_card_title,
             R.id.event_card_text,
             R.id.event_card_host,
-            0,
+            R.id.event_card_icon,
             R.id.event_card_date,
             R.id.event_card_start_time,
             R.id.event_card_end_time,
@@ -57,6 +62,23 @@ public class EventCard {
 
         public static final String TAG = EventViewBinder.class.getSimpleName();
         public static final boolean DEBUG = true;
+
+        private Map<String, Drawable> eventIconMap = new HashMap<String, Drawable>();
+
+        private void ensureEventIconMap(Context context) {
+            if (eventIconMap.isEmpty()) {
+                synchronized (eventIconMap) {
+                    if (eventIconMap.isEmpty()) {
+                        String[] eventCategories = context.getResources().getStringArray(R.array.event_categories);
+                        TypedArray eventIcons = context.getResources().obtainTypedArray(R.array.event_icons);
+                        for (int i = 0; i < eventCategories.length; i++) {
+                            eventIconMap.put(eventCategories[i], eventIcons.getDrawable(i));
+                        }
+                    }
+                }
+            }
+        }
+
 
         /**
              * Binds the Cursor column defined by the specified index to the specified view.
@@ -104,6 +126,8 @@ public class EventCard {
                 return setEventCardMap((ImageView) view, cursor);
             else if (view.getId() == R.id.event_card_streetview)
                 return setEventCardStreetView((ImageView) view, cursor);
+            else if (view.getId() == R.id.event_card_icon)
+                return setEventCardIcon((ImageView) view, cursor);
             else
                 return false;
         }
@@ -111,16 +135,22 @@ public class EventCard {
         private boolean setEventCardMap(ImageView view, Cursor cursor) {
             double lat = cursor.getDouble(cursor.getColumnIndex(Event.Events.LATITUDE));
             double lng = cursor.getDouble(cursor.getColumnIndex(Event.Events.LONGITUDE));
-            int displayWidth = view.getResources().getDisplayMetrics().widthPixels;
-            int padding = view.getResources().getDimensionPixelSize(R.dimen.card_spacing);
-            int width = displayWidth - padding - padding;
-            int height = width / 2;
-            view.getLayoutParams().width = width;
-            view.getLayoutParams().height = height;
-            view.setBackgroundColor(R.color.card_image_placeholder);
-            String url = String.format(MAPS_IMAGE_URL_FORMAT, width/2, height/2, lat, lng);
-            if (DEBUG) Log.i(TAG, "setting map url=" + url);
-            Picasso.with(view.getContext()).load(url).into(view);
+            if (lat == 0 && lng == 0) {
+                view.setVisibility(View.GONE);
+            }
+            else {
+                int displayWidth = view.getResources().getDisplayMetrics().widthPixels;
+                int padding = view.getResources().getDimensionPixelSize(R.dimen.card_spacing);
+                int width = displayWidth - padding - padding;
+                int height = width / 2;
+                String url = String.format(MAPS_IMAGE_URL_FORMAT, width/2, height/2, lat, lng);
+                view.getLayoutParams().width = width;
+                view.getLayoutParams().height = height;
+                view.setBackgroundColor(R.color.card_image_placeholder);
+                view.setVisibility(View.VISIBLE);
+                if (DEBUG) Log.i(TAG, "setting map url=" + url);
+                Picasso.with(view.getContext()).load(url).into(view);
+            }
             return true;
         }
 
@@ -133,6 +163,14 @@ public class EventCard {
             int height = width / 2;
             view.setImageDrawable(null);
             asyncSetStreetView(new WeakReference<ImageView>(view), width, height, lat, lng);
+            return true;
+        }
+
+        private boolean setEventCardIcon(ImageView view, Cursor cursor) {
+            Context context = view.getContext();
+            ensureEventIconMap(context);
+            String category = cursor.getString(cursor.getColumnIndex(Event.Events.CATEGORY));
+            view.setImageDrawable(eventIconMap.get(category));
             return true;
         }
 
