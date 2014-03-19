@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import com.itsonin.android.R;
+import com.itsonin.android.model.Event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         createDrawer();
-        showFragment(new DiscoverFragment());
+        showFragment(new EventListFragment(Event.Events.EVENTS_CONTENT_URI));
         setDrawerSelected(DISCOVER_POSITION);
     }
 
@@ -171,19 +172,19 @@ public class MainActivity extends FragmentActivity {
         switch (position) {
             default:
             case DISCOVER_POSITION:
-                showFragment(new DiscoverFragment());
+                showFragment(new EventListFragment(Event.Events.EVENTS_CONTENT_URI));
                 setDrawerSelected(position);
                 break;
             case ATTENDING_POSITION:
-                showFragment(new AttendingEventListFragment());
+                showFragment(new EventListFragment(Event.Events.EVENTS_ATTENDING_CONTENT_URI));
                 setDrawerSelected(position);
                 break;
             case HOSTING_POSITION:
-                showFragment(new HostingEventListFragment());
+                showFragment(new EventListFragment(Event.Events.EVENTS_HOSTING_CONTENT_URI));
                 setDrawerSelected(position);
                 break;
             case INVITES_POSITION:
-                showFragment(new InvitesEventListFragment());
+                showFragment(new EventListFragment(Event.Events.EVENTS_INVITES_CONTENT_URI));
                 setDrawerSelected(position);
                 break;
             case SETTINGS_POSITION:

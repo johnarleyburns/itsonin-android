@@ -49,9 +49,9 @@ import java.util.Date;
  * Time: 11:33 AM
  * To change this template use File | Settings | File Templates.
  */
-public class AddEventDialogFragment extends DialogFragment {
+public class CreateEventDialogFragment extends DialogFragment {
 
-    private static final String TAG = AddEventDialogFragment.class.toString();
+    private static final String TAG = CreateEventDialogFragment.class.toString();
     private static final boolean DEBUG = true;
     private static String mApiKey;
 

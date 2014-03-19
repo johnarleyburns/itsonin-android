@@ -25,20 +25,27 @@ import com.itsonin.android.view.EventCard;
 * Time: 11:19 PM
 * To change this template use File | Settings | File Templates.
 */
-public class DiscoverEventListFragment extends Fragment {
+public class EventListFragment extends Fragment {
 
-    public static final String PAGE_TITLE = "pageTitle";
-    public static final String PAGE_DESCRIPTION = "pageDescription";
-    public static final String EVENT_CATEGORY = "eventCategory";
+    public static final String EVENT_DATA_URI = "eventDataUri";
 
     private static final int EVENTS_LOADER = 0;
 
     private String[] mProjection = Event.Events.COLUMNS;
     private Uri mDataUri;
-    private String mEventCategory;
     private ListView mListView;
     private SimpleCursorAdapter mAdapter;
     private View mEmptyView;
+
+    public EventListFragment(Uri dataUri) {
+        super();
+        Bundle b = getArguments();
+        if (b == null) {
+            b = new Bundle();
+        }
+        b.putString(EVENT_DATA_URI, dataUri.toString());
+        setArguments(b);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -46,8 +53,6 @@ public class DiscoverEventListFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.event_list_fragment, container, false);
         Bundle args = getArguments();
-        //((TextView) rootView.findViewById(R.id.title)).setText(args.getString(PAGE_TITLE));
-        //((TextView) rootView.findViewById(R.id.title_desc)).setText(args.getString(PAGE_DESCRIPTION));
 
         mListView = (ListView)rootView.findViewById(R.id.list_view);
         mAdapter = new SimpleCursorAdapter(container.getContext(), EventCard.list_item_layout, null,
@@ -56,9 +61,7 @@ public class DiscoverEventListFragment extends Fragment {
         mAdapter.setViewBinder(new EventCard.EventViewBinder());
         mListView.setAdapter(mAdapter);
         mEmptyView = rootView.findViewById(R.id.empty_message);
-
-        mEventCategory = args.getString(EVENT_CATEGORY);
-        mDataUri = Uri.withAppendedPath(Event.Events.EVENTS_DISCOVER_CONTENT_URI, mEventCategory);
+        mDataUri = Uri.parse(args.getString(EVENT_DATA_URI));
         getLoaderManager().initLoader(EVENTS_LOADER, null, mLoaderCallbacks);
 
         return rootView;

@@ -105,6 +105,8 @@ public class EventsContentProvider extends ContentProvider {
         MatrixCursor c = new MatrixCursor(Events.COLUMNS, 1);
         switch (sUriMatcher.match(uri)) {
             case EVENTS:
+                for (Event e : Event.createTestEvents())
+                    c.addRow(e.makeCursorRow());
                 break;
             case EVENTS_ID:
                 //selection = selection + "_id = " + uri.getLastPathSegment();
