@@ -8,4 +8,6 @@
     <dimen name="drawer_padding_right">16dp</dimen>
     <dimen name="drawer_icon_wrapper_width">46dp</dimen>
 
+    <integer name="event_list_num_columns">3</integer>
+
 </resources>

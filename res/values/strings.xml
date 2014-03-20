@@ -58,4 +58,14 @@
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
 
+    <string name="get_directions">Get directions</string>
+    <string name="attend">Attend</string>
+    <string name="decline">Decline</string>
+    <string name="edit">Edit</string>
+    <string name="share">Share</string>
+
+    <string name="no_network">No network connection</string>
+    <string name="connection_error">Coludn\'t connect to server</string>
+    <string name="created_event">Created event</string>
+
 </resources>

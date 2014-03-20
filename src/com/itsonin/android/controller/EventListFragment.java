@@ -9,6 +9,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.*;
+import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.ListView;
 import com.itsonin.android.R;
@@ -32,9 +33,13 @@ public class EventListFragment extends Fragment {
 
     private String[] mProjection = Event.Events.COLUMNS;
     private Uri mDataUri;
-    private ListView mListView;
+    private AbsListView mListView;
     private SimpleCursorAdapter mAdapter;
     private View mEmptyView;
+
+    public EventListFragment() {
+        super();
+    }
 
     public EventListFragment(Uri dataUri) {
         super();
@@ -59,7 +64,7 @@ public class EventListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.event_list_fragment, container, false);
         Bundle args = getArguments();
 
-        mListView = (ListView)rootView.findViewById(R.id.list_view);
+        mListView = (AbsListView)rootView.findViewById(R.id.list_view);
         mAdapter = new SimpleCursorAdapter(container.getContext(), EventCard.list_item_layout, null,
                 Event.Events.COLUMNS, EventCard.VIEW_IDS,
                 Adapter.NO_SELECTION);

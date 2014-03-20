@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <integer name="event_list_num_columns">4</integer>
-
 </resources>

@@ -14,7 +14,11 @@
     <dimen name="card_title">28dp</dimen>
     <dimen name="card_text">16dp</dimen>
     <dimen name="card_action_text">18dp</dimen>
+    <dimen name="card_action_height">48dp</dimen>
+    <dimen name="card_divider_height">1dp</dimen>
 
     <dimen name="form_text">16dp</dimen>
+
+    <integer name="event_list_num_columns">1</integer>
 
 </resources>

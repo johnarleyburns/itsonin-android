@@ -1,5 +1,6 @@
 package com.itsonin.android.controller;
 
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -44,7 +45,7 @@ public class MainActivity extends FragmentActivity {
     };
 
     private static final String ROW_ID = "rowid";
-    private static final String TEXT = "text";
+    private static final String TEXT = "description";
     private static final String DRAWABLE_ID = "drawableid";
 
     private static final String[] adapterFrom = {
@@ -64,8 +65,15 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         createDrawer();
-        showFragment(new EventListFragment(Event.Events.EVENTS_CONTENT_URI));
+        showEventListFragment(Event.Events.EVENTS_CONTENT_URI);
         setDrawerSelected(DISCOVER_POSITION);
+    }
+
+    private void showEventListFragment(Uri dataUri) {
+        int numColumns = getResources().getInteger(R.integer.event_list_num_columns);
+        //Fragment fragment = numColumns > 1 ? new EventListFragment(dataUri) : new ExpandableEventListFragment(dataUri);
+        Fragment fragment = new EventListFragment(dataUri);
+        showFragment(fragment);
     }
 
     private void createDrawer() {
@@ -106,7 +114,7 @@ public class MainActivity extends FragmentActivity {
         for (int i = 0; i < mDrawerArray.length; i++) {
             String drawerText = mDrawerArray[i];
             int drawableId = mDrawerDrawables[i];
-            if (DEBUG) Log.i(TAG, "row=" + i + " text=" + drawerText + " drawableId=" + drawableId);
+            if (DEBUG) Log.i(TAG, "row=" + i + " description=" + drawerText + " drawableId=" + drawableId);
             HashMap<String, String> map = new HashMap<String, String>();
             map.put(ROW_ID, "" + i);
             map.put(TEXT, drawerText);
@@ -172,19 +180,19 @@ public class MainActivity extends FragmentActivity {
         switch (position) {
             default:
             case DISCOVER_POSITION:
-                showFragment(new EventListFragment(Event.Events.EVENTS_CONTENT_URI));
+                showEventListFragment(Event.Events.EVENTS_CONTENT_URI);
                 setDrawerSelected(position);
                 break;
             case ATTENDING_POSITION:
-                showFragment(new EventListFragment(Event.Events.EVENTS_ATTENDING_CONTENT_URI));
+                showEventListFragment(Event.Events.EVENTS_ATTENDING_CONTENT_URI);
                 setDrawerSelected(position);
                 break;
             case HOSTING_POSITION:
-                showFragment(new EventListFragment(Event.Events.EVENTS_HOSTING_CONTENT_URI));
+                showEventListFragment(Event.Events.EVENTS_HOSTING_CONTENT_URI);
                 setDrawerSelected(position);
                 break;
             case INVITES_POSITION:
-                showFragment(new EventListFragment(Event.Events.EVENTS_INVITES_CONTENT_URI));
+                showEventListFragment(Event.Events.EVENTS_INVITES_CONTENT_URI);
                 setDrawerSelected(position);
                 break;
             case SETTINGS_POSITION:

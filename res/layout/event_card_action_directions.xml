@@ -1,7 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/event_card_action_directions"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/card_action_height"
+        >
 
-</AbsoluteLayout>
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_divider_height"
+            android:background="@color/card_divider"
+            />
+
+    <ImageView
+            android:id="@+id/event_card_directions_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/card_inner"
+            android:layout_marginRight="@dimen/card_inner"
+            android:src="@android:drawable/ic_menu_directions"
+            />
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/card_inner"
+            android:layout_toRightOf="@+id/event_card_directions_icon"
+            android:textSize="@dimen/card_action_text"
+            android:text="@string/get_directions"
+            android:textColor="@color/card_action"
+            />
+
+</RelativeLayout>

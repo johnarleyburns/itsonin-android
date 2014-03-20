@@ -10,16 +10,16 @@ public class Event {
 
     public long _id;
     public String title;
-    public String text;
+    public String description;
     public String host; // name of person hosting the event
     public String category;
     public String date;
     public String startTime;
     public String endTime;
-    public String place;
-    public String address;
-    public double latitude;
-    public double longitude;
+    public String locationTitle;
+    public String locationAddress;
+    public double gpsLat;
+    public double gpsLong;
     public long numAttendees; // how many confirmed attending
 
     public Event() {
@@ -28,31 +28,31 @@ public class Event {
     public Event(
             long _id,
             String title,
-            String text,
+            String description,
             String host,
             String category,
             String date,
             String startTime,
             String endTime,
-            String place,
-            String address,
-            double latitude,
-            double longitude,
+            String locationTitle,
+            String locationAddress,
+            double gpsLat,
+            double gpsLong,
             long numAttendees
     ) {
         this();
         this._id = _id;
         this.title = title;
-        this.text = text;
+        this.description = description;
         this.host = host;
         this.category = category;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.place = place;
-        this.address = address;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.locationTitle = locationTitle;
+        this.locationAddress = locationAddress;
+        this.gpsLat = gpsLat;
+        this.gpsLong = gpsLong;
         this.numAttendees = numAttendees;
     }
     
@@ -237,16 +237,16 @@ public class Event {
         return new Object[] {
                 _id,
                 title,
-                text,
+                description,
                 host,
                 category,
                 date,
                 startTime,
                 endTime,
-                place,
-                address,
-                latitude,
-                longitude,
+                locationTitle,
+                locationAddress,
+                gpsLat,
+                gpsLong,
                 numAttendees
         };
     }
@@ -255,16 +255,16 @@ public class Event {
         return "Event:" + _id
                 + "["
                 + "title=[" + title + "]"
-                + "text=[" + text + "]"
+                + "description=[" + description + "]"
                 + "host=[" + host + "]"
                 + "category=[" + category + "]"
                 + "date=[" + date + "]"
                 + "startTime=[" + startTime + "]"
                 + "endTime=[" + endTime + "]"
-                + "place=[" + place + "]"
-                + "address=[" + address + "]"
-                + "latitude=[" + latitude + "]"
-                + "longitude=[" + longitude + "]"
+                + "locationTitle=[" + locationTitle + "]"
+                + "locationAddress=[" + locationAddress + "]"
+                + "gpsLat=[" + gpsLat + "]"
+                + "gpsLong=[" + gpsLong + "]"
                 + "numAttendees=[" + numAttendees + "]"
                 + "]";
     }
@@ -290,16 +290,16 @@ public class Event {
 
         public static final String EVENT_ID = "_id";
         public static final String TITLE = "title";
-        public static final String TEXT = "text";
+        public static final String TEXT = "description";
         public static final String HOST = "host"; // name of person hosting the event
         public static final String CATEGORY = "category";
         public static final String DATE = "date";
         public static final String START_TIME = "startTime";
         public static final String END_TIME = "endTime";
-        public static final String PLACE = "place";
-        public static final String ADDRESS = "address";
-        public static final String LATITUDE = "latitude";
-        public static final String LONGITUDE = "longitude";
+        public static final String PLACE = "locationTitle";
+        public static final String ADDRESS = "locationAddress";
+        public static final String LATITUDE = "gpsLat";
+        public static final String LONGITUDE = "gpsLong";
         public static final String NUM_ATTENDEES = "numAttendees"; // how many confirmed attending
 
         public static final String[] COLUMNS = {

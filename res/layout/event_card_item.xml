@@ -130,80 +130,20 @@
                 android:visibility="gone"
                 />
 
-        <!--
-        <View
-            android:id="@+id/event_card_streetview_spacer"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/card_inner"
-            android:visibility="gone"
-                />
-        -->
-
         <ImageView
                 android:id="@+id/event_card_streetview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scaleType="centerCrop"
                 />
-        <!-- android:adjustViewBounds="true" -->
-        <!--             android:src="@drawable/eigelstein"
+
+        <include layout="@layout/event_card_action_directions"/>
+        <!--
+        <include layout="@layout/event_card_action_attend"/>
+        <include layout="@layout/event_card_action_decline"/>
+        <include layout="@layout/event_card_action_edit"/>
         -->
-        <LinearLayout
-                android:id="@+id/event_card_directions"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:orientation="horizontal"
-                android:paddingTop="4dp"
-                android:paddingLeft="@dimen/card_inner"
-                android:paddingRight="@dimen/card_inner"
-                android:paddingBottom="4dp"
-                android:gravity="center_vertical"
-                >
-            <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@android:drawable/ic_menu_directions"
-                    />
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="@dimen/card_inner"
-                    android:text="Get directions"
-                    android:textColor="@color/card_action"
-                    android:textSize="@dimen/card_action_text"
-                    />
-        </LinearLayout>
-
-        <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/card_divider"
-                />
-
-        <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:orientation="horizontal"
-                android:paddingTop="4dp"
-                android:paddingLeft="@dimen/card_inner"
-                android:paddingRight="@dimen/card_inner"
-                android:paddingBottom="4dp"
-                android:gravity="center_vertical"
-                >
-            <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@android:drawable/ic_menu_share"
-                    />
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/card_action_text"
-                    android:paddingLeft="@dimen/card_inner"
-                    android:text="Share"
-                    android:textColor="@color/card_action"
-                    />
-        </LinearLayout>
+        <include layout="@layout/event_card_action_share"/>
 
     </LinearLayout>
 

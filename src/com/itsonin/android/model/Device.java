@@ -3,7 +3,16 @@ package com.itsonin.android.model;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import com.itsonin.android.api.ItsoninAPI;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,36 +25,29 @@ import java.util.Set;
  */
 public class Device {
 
-    private static final String PREF_HOST_NAMES = "hostNames";
-    private static final String PREF_HOST_LAST_NAME = "hostLastName";
+    private static final String TAG = Device.class.getSimpleName();
+    private static final boolean DEBUG = true;
 
-    public Set<String> names = new HashSet<String>();
-    public String lastName;
+    private static final String PREF_DEVICE_TOKEN = "deviceToken";
+
+    public String token;
 
     public Device() {
     }
 
-    public String[] rememberedNames() {
-        String[] namesArray = new String[names.size()];
-        return names.toArray(namesArray);
-    }
-
-
     public void store(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
-                .putStringSet(PREF_HOST_NAMES, new HashSet<String>())
-                .putString(PREF_HOST_LAST_NAME, lastName)
+                .putString(PREF_DEVICE_TOKEN, token)
                 .apply();
     }
 
     public static final Device load(Context context) {
-        Device host = new Device();
+        Device device = new Device();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> names = prefs.getStringSet(PREF_HOST_NAMES, new HashSet<String>());
-        host.names.addAll(names);
-        host.lastName =  prefs.getString(PREF_HOST_LAST_NAME, null);
-        return host;
+        device.token = prefs.getString(PREF_DEVICE_TOKEN, null);
+        if (DEBUG) Log.i(TAG, "read stored token=" + device.token);
+        return device;
     }
 
 }

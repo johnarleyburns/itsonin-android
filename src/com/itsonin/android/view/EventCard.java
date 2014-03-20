@@ -46,16 +46,16 @@ public class EventCard {
   /*
             public static final String EVENT_ID = "_id";
         public static final String TITLE = "title";
-        public static final String TEXT = "text";
+        public static final String TEXT = "description";
         public static final String HOST = "host"; // name of person hosting the event
         public static final String CATEGORY = "category";
         public static final String DATE = "date";
         public static final String START_TIME = "startTime";
         public static final String END_TIME = "endTime";
-        public static final String PLACE = "place";
-        public static final String ADDRESS = "address";
-        public static final String LATITUDE = "latitude";
-        public static final String LONGITUDE = "longitude";
+        public static final String PLACE = "locationTitle";
+        public static final String ADDRESS = "locationAddress";
+        public static final String LATITUDE = "gpsLat";
+        public static final String LONGITUDE = "gpsLong";
         public static final String NUM_ATTENDEES = "numAttendees";
      */
 
@@ -126,16 +126,16 @@ public class EventCard {
             switch (view.getId()) {
                 case R.id.event_card_main:
                     return setEventCardMain(view, cursor);
-                case R.id.event_card_map:
-                    return setEventCardMap((ImageView) view, cursor);
-                case R.id.event_card_streetview:
-                    return setEventCardStreetView((ImageView) view, cursor);
+                //case R.id.event_card_map:
+                //    return setEventCardMap((ImageView) view, cursor);
+                //case R.id.event_card_streetview:
+                //    return setEventCardStreetView((ImageView) view, cursor);
                 case R.id.event_card_icon:
                     return setEventCardIcon((ImageView) view, cursor.getString(columnIndex));
                 case R.id.event_card_host:
-                    return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), R.string.hosted_by);
+                    return setEventCardCollapsableText((TextView) view, cursor.getString(columnIndex), R.string.hosted_by);
                 case R.id.event_card_end_time:
-                    return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), R.string.until_time);
+                    return setEventCardCollapsableText((TextView) view, cursor.getString(columnIndex), R.string.until_time);
                 case R.id.event_card_text:
                 case R.id.event_card_place:
                 case R.id.event_card_address:
@@ -146,7 +146,7 @@ public class EventCard {
         }
 
         private boolean setEventCardMain(View view, Cursor cursor) {
-            View directions = view.findViewById(R.id.event_card_directions);
+            View directions = view.findViewById(R.id.event_card_action_directions);
             String address = cursor.getString(cursor.getColumnIndex(Event.Events.ADDRESS));
             if (address == null || address.trim().isEmpty()) {
                 directions.setVisibility(View.GONE);

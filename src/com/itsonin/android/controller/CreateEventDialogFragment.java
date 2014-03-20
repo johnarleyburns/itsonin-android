@@ -1,10 +1,13 @@
 package com.itsonin.android.controller;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -19,10 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.itsonin.android.R;
-import com.itsonin.android.model.Category;
-import com.itsonin.android.model.Event;
-import com.itsonin.android.model.Host;
-import com.itsonin.android.model.Place;
+import com.itsonin.android.api.ItsoninAPI;
+import com.itsonin.android.model.*;
 import com.squareup.timessquare.CalendarPickerView;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -34,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.text.DateFormat;
@@ -60,15 +62,15 @@ public class CreateEventDialogFragment extends DialogFragment {
     private static final String EVENT_DATE_KEY = "eventDate";
     private static final String START_TIME_KEY = "startTime";
     private static final String END_TIME_KEY = "endTime";
-    private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place/autocomplete";
+    private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/locationTitle/autocomplete";
     private static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode";
     private static final String OUT_JSON = "/json";
-    private static final String UTF8 = "UTF-8";
     private static final String DATE_FORMAT_DAY_OF_WEEK = "EEEE";
 
     private Host host;
     private Place place;
     private Category category;
+    private Device device;
     private Date eventDate;
     private Date startTime;
     private Date endTime;
@@ -94,6 +96,8 @@ public class CreateEventDialogFragment extends DialogFragment {
     private View detailsExpand;
     private View detailsCollapse;
     private View detailsSection;
+    private ItsoninAPI itsoninAPI;
+    private AlertDialog dialog;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -122,10 +126,10 @@ public class CreateEventDialogFragment extends DialogFragment {
 
         initDates(view.getContext());
 
-        return new AlertDialog.Builder(getActivity())
+        dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.add_event)
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, okListener)
+                .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -133,16 +137,106 @@ public class CreateEventDialogFragment extends DialogFragment {
                         }
                 )
                 .create();
+        return dialog;
     }
 
-    private DialogInterface.OnClickListener okListener = new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int whichButton) {
+    @Override
+    public void onStart() {
+        super.onStart();
+        Button b = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (b != null) {
+            b.setOnClickListener(okListener);
+        }
+    }
+
+    private BroadcastReceiver apiReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            progressBar.setVisibility(View.GONE);
+            int statusCode = intent.getIntExtra(ItsoninAPI.ITSONIN_API_STATUS_CODE, 0);
+            String path = intent.getStringExtra(ItsoninAPI.ITSONIN_API_PATH);
+            String response = intent.getStringExtra(ItsoninAPI.ITSONIN_API_RESPONSE);
+            if (DEBUG) Log.i(TAG, "received " + statusCode + ": " + response);
+
+            if (response == null || response.isEmpty() || statusCode != 200) {
+                Log.e(TAG, "Empty response statusCode=" + statusCode);
+                notifyAuthenticationError(context);
+                return;
+            }
+
+            ItsoninAPI.REST rest = ItsoninAPI.REST.valueOfPath(path);
+            switch(rest) {
+                case AUTHENTICATE:
+                    handleAuthenticate(context, response);
+                    break;
+                default:
+                    if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
+                    dismiss();
+                    break;
+            }
+        }
+
+        private void handleAuthenticate(Context context, String response) {
+            try {
+                JSONObject jsonObj = new JSONObject(response);
+                String token = jsonObj.getString("token");
+                if (DEBUG) Log.i(TAG, "received token=" + token);
+                if (token == null || token.trim().isEmpty()) {
+                    Log.e(TAG, "Empty token returend");
+                    notifyAuthenticationError(context);
+                    return;
+                }
+                device.token = token;
+                device.store(context);
+                Toast.makeText(context, "authenticated", Toast.LENGTH_SHORT).show();
+                dismiss();
+
+            } catch (JSONException e) {
+                Log.e(TAG, "Cannot process JSON results", e);
+                notifyAuthenticationError(context);
+            }
+
+        }
+
+        private void notifyAuthenticationError(Context context) {
+            Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
+        }
+
+    };
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        itsoninAPI = new ItsoninAPI(activity);
+        itsoninAPI.registerReceiver(apiReceiver);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (itsoninAPI != null) {
+            itsoninAPI.unregisterReceiver(apiReceiver);
+            itsoninAPI = null;
+        }
+    }
+
+    private View.OnClickListener okListener = new View.OnClickListener() {
+        public void onClick(View view) {
             Event e = extractEvent();
             if (DEBUG) Log.i(TAG, e.toString());
             Context context = getActivity();
             if (context != null) {
-                Toast.makeText(getActivity(), "Created Event: " + e.title, Toast.LENGTH_SHORT).show();
                 persistToPrefs(context);
+            }
+            if (device.token != null && !device.token.trim().isEmpty()) {
+                Toast.makeText(context, "Already authenticated token=" + device.token, Toast.LENGTH_LONG).show();
+            }
+            else if (itsoninAPI != null) {
+                progressBar.setVisibility(View.VISIBLE);
+                itsoninAPI.authenticate();
+            }
+            else {
+                Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -183,9 +277,10 @@ public class CreateEventDialogFragment extends DialogFragment {
         host = Host.load(view.getContext());
         place = Place.load(view.getContext());
         category = Category.load(view.getContext());
+        device = Device.load(view.getContext());
 
         titleView = (EditText)view.findViewById(R.id.title);
-        textView = (EditText)view.findViewById(R.id.text);
+        textView = (EditText)view.findViewById(R.id.description);
 
         hostAutoAdapter = new ArrayAdapter<String>(view.getContext(),
                 android.R.layout.simple_dropdown_item_1line, host.rememberedNames());
@@ -198,7 +293,7 @@ public class CreateEventDialogFragment extends DialogFragment {
 
         placeAutoAdapter = new ArrayAdapter<String>(view.getContext(),
                 android.R.layout.simple_dropdown_item_1line, place.rememberedNames());
-        placeView = (AutoCompleteTextView)view.findViewById(R.id.place);
+        placeView = (AutoCompleteTextView)view.findViewById(R.id.locationTitle);
         placeView.setAdapter(placeAutoAdapter);
         placeView.setOnItemClickListener(placeListener);
         if (place.lastName != null) {
@@ -206,7 +301,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
 
         placesAutoCompleteAdapter = new PlacesAutoCompleteAdapter(view.getContext(), android.R.layout.simple_spinner_dropdown_item);
-        addressView = (AutoCompleteTextView)view.findViewById(R.id.address);
+        addressView = (AutoCompleteTextView)view.findViewById(R.id.locationAddress);
         addressView.setAdapter(placesAutoCompleteAdapter);
         addressView.setOnItemClickListener(placesAutoCompleteListener);
 
@@ -532,7 +627,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         ArrayList<String> resultList = null;
         String jsonResults = null;
         try {
-            String placesParams =  "input=" + URLEncoder.encode(input, UTF8);
+            String placesParams =  "input=" + URLEncoder.encode(input, ItsoninAPI.UTF8);
             if (lastLocation != null) {
                 placesParams += "&location=" + lastLocation.getLatitude() + "," + lastLocation.getLongitude();
             }
@@ -625,7 +720,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         String jsonResults = null;
         String input = addressView.getText().toString();
         try {
-            jsonResults = placesJSON(GEOCODE_API_BASE,  "address=" + URLEncoder.encode(input, UTF8));
+            jsonResults = placesJSON(GEOCODE_API_BASE,  "locationAddress=" + URLEncoder.encode(input, ItsoninAPI.UTF8));
             if (jsonResults == null) {
                 if (DEBUG) Log.i(TAG, "no places found for input=" + input);
             }
@@ -658,19 +753,6 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     }
 
-    private boolean isNetworkAvailable() {
-        Context context = getActivity() != null ? getActivity() : null;
-        if (context != null) {
-            ConnectivityManager connectivityManager
-                    = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-        }
-        else {
-            return false;
-        }
-    }
-
     // Define a listener that responds to location updates
     private LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
@@ -685,7 +767,8 @@ public class CreateEventDialogFragment extends DialogFragment {
     private String placesJSON(String apiBase, String inputParam) {
         String jsonResults = null;
 
-        if (!isNetworkAvailable()) {
+        ItsoninAPI api = new ItsoninAPI(getActivity());
+        if (!api.isNetworkAvailable()) {
             if (DEBUG) Log.i(TAG, "No network available for autocomplete");
             return jsonResults;
         }
@@ -703,7 +786,7 @@ public class CreateEventDialogFragment extends DialogFragment {
             HttpGet myConnection = new HttpGet(sb.toString());
             if (DEBUG) Log.i(TAG, "calling url: " + sb.toString());
             response = myClient.execute(myConnection);
-            jsonResults = EntityUtils.toString(response.getEntity(), UTF8);
+            jsonResults = EntityUtils.toString(response.getEntity(), ItsoninAPI.UTF8);
             if (DEBUG) Log.i(TAG, "results: " + jsonResults);
         } catch (MalformedURLException e) {
             Log.e(TAG, "Error processing Places API URL", e);
@@ -717,16 +800,16 @@ public class CreateEventDialogFragment extends DialogFragment {
     private Event extractEvent() {
         Event e = new Event();
         e.title = titleView.getText().toString();
-        e.text = textView.getText().toString();
+        e.description = textView.getText().toString();
         e.host = hostView.getText().toString();
         e.category = category.lastCategory;
         e.date = eventDate.toString();
         e.startTime = startTimeView.getText().toString();
         e.endTime = endTimeView.getText().toString();
-        e.place = placeView.getText().toString();
-        e.address = addressView.getText().toString();
-        e.latitude = latitude;
-        e.longitude = longitude;
+        e.locationTitle = placeView.getText().toString();
+        e.locationAddress = addressView.getText().toString();
+        e.gpsLat = latitude;
+        e.gpsLong = longitude;
         e.numAttendees = 1; // myself
         e._id = e.hashCode();
         return e;

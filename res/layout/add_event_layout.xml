@@ -59,7 +59,7 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:paddingTop="@dimen/card_inner"
-                            android:text="@string/date_hint"
+                            android:hint="@string/date_hint"
                             android:textSize="@dimen/form_text"
                             android:editable="false"
                             />
@@ -69,7 +69,7 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="@string/start_time_hint"
+                            android:hint="@string/start_time_hint"
                             android:textSize="@dimen/form_text"
                             android:editable="false"
                             />
@@ -156,7 +156,7 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="@string/end_time_hint"
+                            android:hint="@string/end_time_hint"
                             android:textSize="@dimen/form_text"
                             android:editable="false"
                             />
@@ -173,7 +173,7 @@
                         />
 
                 <AutoCompleteTextView
-                        android:id="@+id/place"
+                        android:id="@+id/locationTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingTop="@dimen/card_inner"
@@ -182,7 +182,7 @@
                         />
 
                 <AutoCompleteTextView
-                        android:id="@+id/address"
+                        android:id="@+id/locationAddress"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingTop="@dimen/card_inner"
@@ -191,7 +191,7 @@
                         />
 
                 <EditText
-                        android:id="@+id/text"
+                        android:id="@+id/description"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/form_text"
@@ -205,8 +205,8 @@
             </LinearLayout>
 
             <!--
-            public double latitude;
-            public double longitude;
+            public double gpsLat;
+            public double gpsLong;
             public long numAttendees;
             -->
 
