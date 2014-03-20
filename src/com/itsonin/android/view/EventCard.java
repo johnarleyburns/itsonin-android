@@ -11,6 +11,7 @@ import android.util.Xml;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
+import android.widget.TextView;
 import com.itsonin.android.R;
 import com.itsonin.android.model.Event;
 import com.loopj.android.http.AsyncHttpClient;
@@ -122,14 +123,18 @@ public class EventCard {
         // %1$d = image width, %2$d = image_height, %3$f = lat, %4$f = long
 
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-            if (view.getId() == R.id.event_card_map)
-                return setEventCardMap((ImageView) view, cursor);
-            else if (view.getId() == R.id.event_card_streetview)
-                return setEventCardStreetView((ImageView) view, cursor);
-            else if (view.getId() == R.id.event_card_icon)
-                return setEventCardIcon((ImageView) view, cursor);
-            else
-                return false;
+            switch (view.getId()) {
+                case R.id.event_card_map:
+                    return setEventCardMap((ImageView) view, cursor);
+                case R.id.event_card_streetview:
+                    return setEventCardStreetView((ImageView) view, cursor);
+                case R.id.event_card_icon:
+                    return setEventCardIcon((ImageView) view, cursor);
+                case R.id.event_card_host:
+                    return setEventCardHost((TextView)view, cursor);
+                default:
+                    return false;
+            }
         }
 
         private boolean setEventCardMap(ImageView view, Cursor cursor) {
@@ -157,12 +162,17 @@ public class EventCard {
         private boolean setEventCardStreetView(ImageView view, Cursor cursor) {
             double lat = cursor.getDouble(cursor.getColumnIndex(Event.Events.LATITUDE));
             double lng = cursor.getDouble(cursor.getColumnIndex(Event.Events.LONGITUDE));
-            int displayWidth = view.getResources().getDisplayMetrics().widthPixels;
-            int padding = view.getResources().getDimensionPixelSize(R.dimen.card_spacing);
-            int width = displayWidth - padding - padding;
-            int height = width / 2;
-            view.setImageDrawable(null);
-            asyncSetStreetView(new WeakReference<ImageView>(view), width, height, lat, lng);
+            if (lat == 0 && lng == 0) {
+                view.setVisibility(View.GONE);
+            }
+            else {
+                int displayWidth = view.getResources().getDisplayMetrics().widthPixels;
+                int padding = view.getResources().getDimensionPixelSize(R.dimen.card_spacing);
+                int width = displayWidth - padding - padding;
+                int height = width / 2;
+                view.setImageDrawable(null);
+                asyncSetStreetView(new WeakReference<ImageView>(view), width, height, lat, lng);
+            }
             return true;
         }
 
@@ -171,6 +181,20 @@ public class EventCard {
             ensureEventIconMap(context);
             String category = cursor.getString(cursor.getColumnIndex(Event.Events.CATEGORY));
             view.setImageDrawable(eventIconMap.get(category));
+            return true;
+        }
+
+        private boolean setEventCardHost(TextView view, Cursor cursor) {
+            String host = cursor.getString(cursor.getColumnIndex(Event.Events.HOST));
+            if (host == null || host.trim().isEmpty()) {
+                view.setText("");
+                view.setVisibility(View.GONE);
+            }
+            else {
+                String displayHost = view.getResources().getString(R.string.hosted_by) + host;
+                view.setText(displayHost);
+                view.setVisibility(View.VISIBLE);
+            }
             return true;
         }
 

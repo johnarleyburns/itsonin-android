@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -110,7 +111,14 @@ public class CreateEventDialogFragment extends DialogFragment {
         final View view = createLayout(savedInstanceState);
 
         LocationManager locationManager = (LocationManager) view.getContext().getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        if (locationManager != null) {
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            String provider = locationManager.getBestProvider(criteria, true);
+            if (provider != null && !provider.isEmpty()) {
+                locationManager.requestSingleUpdate(provider, locationListener, null);
+            }
+        }
 
         initDates(view.getContext());
 

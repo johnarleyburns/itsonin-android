@@ -7,11 +7,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.Adapter;
 import android.widget.ListView;
 import com.itsonin.android.R;
@@ -27,8 +24,10 @@ import com.itsonin.android.view.EventCard;
 */
 public class EventListFragment extends Fragment {
 
+
     public static final String EVENT_DATA_URI = "eventDataUri";
 
+    private static final String TAG = EventListFragment.class.getSimpleName();
     private static final int EVENTS_LOADER = 0;
 
     private String[] mProjection = Event.Events.COLUMNS;
@@ -45,6 +44,12 @@ public class EventListFragment extends Fragment {
         }
         b.putString(EVENT_DATA_URI, dataUri.toString());
         setArguments(b);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -65,6 +70,24 @@ public class EventListFragment extends Fragment {
         getLoaderManager().initLoader(EVENTS_LOADER, null, mLoaderCallbacks);
 
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.event_list_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle item selection
+        switch (item.getItemId()) {
+            case R.id.add_event:
+                new CreateEventDialogFragment().show(getFragmentManager(), TAG);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     LoaderManager.LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
