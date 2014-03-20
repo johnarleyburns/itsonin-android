@@ -8,7 +8,7 @@
 
     <!-- The ant.properties file can be created by you. It is only edited by the
          'android' tool to add properties to it.
-         This is the place to change some Ant specific build properties.
+         This is the locationTitle to change some Ant specific build properties.
          Here are some properties you may want to change/update:
 
          source.dir
@@ -56,12 +56,12 @@
 
     <!--
         Import per project custom build rules if present at the root of the project.
-        This is the place to put custom intermediary targets such as:
+        This is the locationTitle to put custom intermediary targets such as:
             -pre-build
             -pre-compile
             -post-compile (This is typically used for code obfuscation.
                            Compiled code location: ${out.classes.absolute.dir}
-                           If this is not done in place, override ${out.dex.input.absolute.dir})
+                           If this is not done in locationTitle, override ${out.dex.input.absolute.dir})
             -post-package
             -post-build
             -pre-clean
