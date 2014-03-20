@@ -51,6 +51,8 @@
     <string name="place_hint">Where\'s it happening?</string>
     <string name="address_hint">Address</string>
     <string name="hosted_by">hosted by\u0020</string>
+    <string name="at_time">\u0020@\u0020</string>
+    <string name="until_time">\u0020\u2013\u0020</string>
     <string name="optional_details">Details (optional)</string>
 
     <string name="today">Today</string>

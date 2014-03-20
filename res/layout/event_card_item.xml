@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content">
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/event_card_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -65,6 +67,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingTop="@dimen/card_inner"
+                android:paddingBottom="@dimen/card_inner"
                 android:paddingLeft="@dimen/card_inner"
                 android:paddingRight="@dimen/card_inner"
                 >
@@ -80,7 +83,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/card_text"
-                    android:text=" @ "
+                    android:text="@string/at_time"
                     android:textColor="@color/card_date"
                     />
             <TextView
@@ -88,13 +91,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/card_text"
-                    android:textColor="@color/card_date"
-                    />
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/card_text"
-                    android:text=" - "
                     android:textColor="@color/card_date"
                     />
             <TextView
@@ -111,7 +107,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/card_text"
-                android:paddingTop="@dimen/card_inner"
                 android:paddingLeft="@dimen/card_inner"
                 android:paddingRight="@dimen/card_inner"
                 android:textColor="@color/card_place"
@@ -154,6 +149,7 @@
         <!--             android:src="@drawable/eigelstein"
         -->
         <LinearLayout
+                android:id="@+id/event_card_directions"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:orientation="horizontal"

@@ -29,7 +29,7 @@ public class EventCard {
     public static final int list_item_layout = R.layout.event_card_item;
 
     public static final int[] VIEW_IDS = {
-            0,
+            R.id.event_card_main,
             R.id.event_card_title,
             R.id.event_card_text,
             R.id.event_card_host,
@@ -124,17 +124,37 @@ public class EventCard {
 
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
             switch (view.getId()) {
+                case R.id.event_card_main:
+                    return setEventCardMain(view, cursor);
                 case R.id.event_card_map:
                     return setEventCardMap((ImageView) view, cursor);
                 case R.id.event_card_streetview:
                     return setEventCardStreetView((ImageView) view, cursor);
                 case R.id.event_card_icon:
-                    return setEventCardIcon((ImageView) view, cursor);
+                    return setEventCardIcon((ImageView) view, cursor.getString(columnIndex));
                 case R.id.event_card_host:
-                    return setEventCardHost((TextView)view, cursor);
+                    return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), R.string.hosted_by);
+                case R.id.event_card_end_time:
+                    return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), R.string.until_time);
+                case R.id.event_card_text:
+                case R.id.event_card_place:
+                case R.id.event_card_address:
+                    return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), 0);
                 default:
                     return false;
             }
+        }
+
+        private boolean setEventCardMain(View view, Cursor cursor) {
+            View directions = view.findViewById(R.id.event_card_directions);
+            String address = cursor.getString(cursor.getColumnIndex(Event.Events.ADDRESS));
+            if (address == null || address.trim().isEmpty()) {
+                directions.setVisibility(View.GONE);
+            }
+            else {
+                directions.setVisibility(View.VISIBLE);
+            }
+            return true;
         }
 
         private boolean setEventCardMap(ImageView view, Cursor cursor) {
@@ -176,23 +196,22 @@ public class EventCard {
             return true;
         }
 
-        private boolean setEventCardIcon(ImageView view, Cursor cursor) {
+        private boolean setEventCardIcon(ImageView view, String category) {
             Context context = view.getContext();
             ensureEventIconMap(context);
-            String category = cursor.getString(cursor.getColumnIndex(Event.Events.CATEGORY));
             view.setImageDrawable(eventIconMap.get(category));
             return true;
         }
 
-        private boolean setEventCardHost(TextView view, Cursor cursor) {
-            String host = cursor.getString(cursor.getColumnIndex(Event.Events.HOST));
-            if (host == null || host.trim().isEmpty()) {
+        private boolean setEventCardCollapsableText(TextView view, String text, int prefixStringId) {
+            String prefix = prefixStringId > 0 ? view.getResources().getString(prefixStringId) : "";
+            if (text == null || text.trim().isEmpty()) {
                 view.setText("");
                 view.setVisibility(View.GONE);
             }
             else {
-                String displayHost = view.getResources().getString(R.string.hosted_by) + host;
-                view.setText(displayHost);
+                String displayText = prefix + text;
+                view.setText(displayText);
                 view.setVisibility(View.VISIBLE);
             }
             return true;
