@@ -68,4 +68,6 @@
     <string name="connection_error">Coludn\'t connect to server</string>
     <string name="created_event">Created event</string>
 
+    <string name="this_event_is_private">This event is private</string>
+
 </resources>

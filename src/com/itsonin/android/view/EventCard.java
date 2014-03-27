@@ -4,21 +4,18 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
-import android.net.http.AndroidHttpClient;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.util.Xml;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.itsonin.android.R;
-import com.itsonin.android.model.Event;
+import com.itsonin.android.model.LocalEvent;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 import org.apache.http.Header;
-import org.apache.http.util.EntityUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -147,7 +144,7 @@ public class EventCard {
 
         private boolean setEventCardMain(View view, Cursor cursor) {
             View directions = view.findViewById(R.id.event_card_action_directions);
-            String address = cursor.getString(cursor.getColumnIndex(Event.Events.ADDRESS));
+            String address = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.ADDRESS));
             if (address == null || address.trim().isEmpty()) {
                 directions.setVisibility(View.GONE);
             }
@@ -158,8 +155,8 @@ public class EventCard {
         }
 
         private boolean setEventCardMap(ImageView view, Cursor cursor) {
-            double lat = cursor.getDouble(cursor.getColumnIndex(Event.Events.LATITUDE));
-            double lng = cursor.getDouble(cursor.getColumnIndex(Event.Events.LONGITUDE));
+            double lat = cursor.getDouble(cursor.getColumnIndex(LocalEvent.Events.LATITUDE));
+            double lng = cursor.getDouble(cursor.getColumnIndex(LocalEvent.Events.LONGITUDE));
             if (lat == 0 && lng == 0) {
                 view.setVisibility(View.GONE);
             }
@@ -180,8 +177,8 @@ public class EventCard {
         }
 
         private boolean setEventCardStreetView(ImageView view, Cursor cursor) {
-            double lat = cursor.getDouble(cursor.getColumnIndex(Event.Events.LATITUDE));
-            double lng = cursor.getDouble(cursor.getColumnIndex(Event.Events.LONGITUDE));
+            double lat = cursor.getDouble(cursor.getColumnIndex(LocalEvent.Events.LATITUDE));
+            double lng = cursor.getDouble(cursor.getColumnIndex(LocalEvent.Events.LONGITUDE));
             if (lat == 0 && lng == 0) {
                 view.setVisibility(View.GONE);
             }

@@ -7,8 +7,8 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import java.util.HashMap;
-import com.itsonin.android.model.Event;
-import com.itsonin.android.model.Event.Events;
+import com.itsonin.android.model.LocalEvent;
+import com.itsonin.android.model.LocalEvent.Events;
 
 /**
  * Created with IntelliJ IDEA.
@@ -105,13 +105,14 @@ public class EventsContentProvider extends ContentProvider {
         MatrixCursor c = new MatrixCursor(Events.COLUMNS, 1);
         switch (sUriMatcher.match(uri)) {
             case EVENTS:
-                for (Event e : Event.createTestEvents())
+                for (LocalEvent e : LocalEvent.createTestEvents())
                     c.addRow(e.makeCursorRow());
                 break;
             case EVENTS_ID:
                 //selection = selection + "_id = " + uri.getLastPathSegment();
                 break;
             case EVENTS_HOSTING:
+
                 //selection = selection + "_id = " + uri.getLastPathSegment();
                 break;
             case EVENTS_ATTENDING:
@@ -122,7 +123,7 @@ public class EventsContentProvider extends ContentProvider {
                 break;
             case EVENTS_DISCOVER:
                 String category = uri.getLastPathSegment();
-                for (Event e : Event.createTestEvents())
+                for (LocalEvent e : LocalEvent.createTestEvents())
                     if (category.equals(e.category))
                         c.addRow(e.makeCursorRow());
                 break;

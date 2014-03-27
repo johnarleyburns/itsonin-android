@@ -11,9 +11,8 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.*;
 import android.widget.AbsListView;
 import android.widget.Adapter;
-import android.widget.ListView;
 import com.itsonin.android.R;
-import com.itsonin.android.model.Event;
+import com.itsonin.android.model.LocalEvent;
 import com.itsonin.android.view.EventCard;
 
 /**
@@ -31,7 +30,7 @@ public class EventListFragment extends Fragment {
     private static final String TAG = EventListFragment.class.getSimpleName();
     private static final int EVENTS_LOADER = 0;
 
-    private String[] mProjection = Event.Events.COLUMNS;
+    private String[] mProjection = LocalEvent.Events.COLUMNS;
     private Uri mDataUri;
     private AbsListView mListView;
     private SimpleCursorAdapter mAdapter;
@@ -66,7 +65,7 @@ public class EventListFragment extends Fragment {
 
         mListView = (AbsListView)rootView.findViewById(R.id.list_view);
         mAdapter = new SimpleCursorAdapter(container.getContext(), EventCard.list_item_layout, null,
-                Event.Events.COLUMNS, EventCard.VIEW_IDS,
+                LocalEvent.Events.COLUMNS, EventCard.VIEW_IDS,
                 Adapter.NO_SELECTION);
         mAdapter.setViewBinder(new EventCard.EventViewBinder());
         mListView.setAdapter(mAdapter);

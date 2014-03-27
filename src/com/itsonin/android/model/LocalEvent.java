@@ -1,12 +1,30 @@
 package com.itsonin.android.model;
 
+import android.content.Context;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.format.DateUtils;
+import android.util.Log;
+import com.itsonin.android.entity.Event;
+import com.itsonin.android.entity.EventWithGuest;
+import com.itsonin.android.entity.Guest;
+import com.itsonin.android.enums.EventFlexibility;
+import com.itsonin.android.enums.EventStatus;
+import com.itsonin.android.enums.EventType;
+import com.itsonin.android.enums.EventVisibility;
 import com.itsonin.android.providers.EventsContentProvider;
+import com.itsonin.android.resteasy.CustomDateTimeSerializer;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Random;
 
-public class Event {
+public class LocalEvent {
+
+    private static final String TAG = LocalEvent.class.getSimpleName();
 
     public long _id;
     public String title;
@@ -16,16 +34,17 @@ public class Event {
     public String date;
     public String startTime;
     public String endTime;
+    public boolean privateEvent = true;
     public String locationTitle;
     public String locationAddress;
     public double gpsLat;
     public double gpsLong;
     public long numAttendees; // how many confirmed attending
 
-    public Event() {
+    public LocalEvent() {
     }
 
-    public Event(
+    public LocalEvent(
             long _id,
             String title,
             String description,
@@ -34,6 +53,7 @@ public class Event {
             String date,
             String startTime,
             String endTime,
+            boolean privateEvent,
             String locationTitle,
             String locationAddress,
             double gpsLat,
@@ -49,6 +69,7 @@ public class Event {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.privateEvent = privateEvent;
         this.locationTitle = locationTitle;
         this.locationAddress = locationAddress;
         this.gpsLat = gpsLat;
@@ -58,9 +79,9 @@ public class Event {
     
     private static final Random mRandom = new Random();
 
-    public static Event[] createTestEvents() {
-        return new Event[] {
-                new Event(mRandom.nextLong(),
+    public static LocalEvent[] createTestEvents() {
+        return new LocalEvent[] {
+                new LocalEvent(mRandom.nextLong(),
                         "Wednesday Pubcrawl",
                         "We'll start at Kürzer, grab some brew and a little food, " +
                                 "and hit at least six places before the night's out.",
@@ -69,13 +90,14 @@ public class Event {
                         "Mar 12th, 2014",
                         "18:30",
                         "21:30",
+                        false,
                         "Brauerei Kürzer",
                         "Kurze Straße 18-20, 40213 Dusseldorf, Germany",
                         51.226987,
                         6.773343,
                         5),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "Picnic in the Park this is a really long title you know",
                         "Come and enjoy the wine, sunshine along the Rhine",
                         "Tina",
@@ -83,12 +105,13 @@ public class Event {
                         "April 1st, 2014",
                         "13:00",
                         "19:00",
+                        false,
                         "Rheinpark Golzheim",
                         "40477 Dusseldorf, Germany",
                         51.243717, 6.767661,
                         7),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "bare-bones beer",
                         "",
                         "",
@@ -96,12 +119,13 @@ public class Event {
                         "March 19th, 2014",
                         "19:00",
                         "",
+                        false,
                         "",
                         "",
                         0, 0,
                         0),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "Cricket Picnic",
                         "We will partake of English beer, Australian wine, and perhaps, play some cricket as well.",
                         "Matt",
@@ -109,12 +133,13 @@ public class Event {
                         "April 7th, 2014",
                         "13:00",
                         "19:00",
+                        false,
                         "Nordpark",
                         "Grünewaldstraße 8, 40474 Düsseldorf, Germany",
                         51.254596, 6.748714,
                         9),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "Prawns on the Barbie",
                         "Ozziefest whereby we will imbibe great quantities of Fosters while pretending the Rhine beach is a real beach.",
                         "Sergio",
@@ -122,12 +147,13 @@ public class Event {
                         "April 19th, 2014",
                         "16:00",
                         "22:00",
+                        false,
                         "Rhine Beach",
                         "47 Bremer Straße, Dusseldorf, North Rhine-Westphalia, Germany",
                         51.221575, 6.745924,
                         18),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "Jogging the Hafen",
                         "Use first our legs to make a run, then later some Kolsch to make it fun.  Meet at Eigelsteins in your Addidas track suits.",
                         "John",
@@ -135,13 +161,14 @@ public class Event {
                         "Mar 27th, 2014",
                         "19:00",
                         "21:00",
+                        false,
                         "Eigelstein",
                         "Hammer Straße 17, 40219 Düsseldorf, Germany",
                         51.214666,
                         6.755323,
                         4),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "Insane in the Ukraine",
                         "Support our slavic brethren.  Be a firestarter.",
                         "Alexey",
@@ -149,13 +176,14 @@ public class Event {
                         "Mar 18th, 2014",
                         "12:00",
                         "13:00",
+                        false,
                         "Marktplatz",
                         "Marktplatz 9, 40213 Düsseldorf, Germany",
                         51.225808,
                         6.772028,
                         23),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "Flashmob Rhine",
                         "Take the U-Bahn to Luegplatz, get out on the south side, walk down by the Rhine. " +
                                 "Bring a helium balloon, we're all going to release balloons at once exactly at 12:00. " +
@@ -167,13 +195,14 @@ public class Event {
                         "Mar 12th, 2014",
                         "11:59",
                         "12:01",
+                        false,
                         "Rhine Meadows",
                         "Rheinwiesen 1, 40545 Düsseldorf, Germany",
                         51.230849,
                         6.764037,
                         343),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "John's 38th",
                         "Come celebrate with authentic Chinese food",
                         "John",
@@ -181,13 +210,14 @@ public class Event {
                         "May 24th, 2014",
                         "19:00",
                         "21:00",
+                        false,
                         "Xiu Chinese Restaurant",
                         "Mertensgasse 19, 40213 Dusseldorf, Germany",
                         51.226457,
                         6.773622,
                         11),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "Berezovsky Piano",
                         "Schumannfest piano recital, still some tickets left, " +
                                 "we'll meet in front maybe half an hour early, " +
@@ -197,12 +227,13 @@ public class Event {
                         "May 18th, 2014",
                         "20:00",
                         "22:00",
+                        false,
                         "museum kunst palast / Robert Schumann Saal",
                         "Ehrenhof 4-5, 40479 Düsseldorf",
                         51.233959, 6.771797,
                         3),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "Movie Night",
                         "Come practice your Office Dinglish comprehension with us and enjoy some nachos",
                         "Ralph",
@@ -210,12 +241,13 @@ public class Event {
                         "May 5th, 2014",
                         "19:30",
                         "22:00",
+                        false,
                         "Cinestar",
                         "Hansaallee 245, 40549 Düsseldorf, Germany",
                         51.242643, 6.719789,
                         2),
 
-                new Event(mRandom.nextLong(),
+                new LocalEvent(mRandom.nextLong(),
                         "Zons Tour",
                         "Nestled between Dusseldorf and Cologne is the preserved medieval town of Zons. " +
                                 "We plan to bike down and then go into one of the bars for refreshment. " +
@@ -225,6 +257,7 @@ public class Event {
                         "May 6th, 2014",
                         "16:00",
                         "21:00",
+                        false,
                         "Zons",
                         "Nievenheimer Straße 7, 41541 Dormagen, Germany",
                         51.123135, 6.843747,
@@ -261,6 +294,7 @@ public class Event {
                 + "date=[" + date + "]"
                 + "startTime=[" + startTime + "]"
                 + "endTime=[" + endTime + "]"
+                + "privateEvent=[" + privateEvent + "]"
                 + "locationTitle=[" + locationTitle + "]"
                 + "locationAddress=[" + locationAddress + "]"
                 + "gpsLat=[" + gpsLat + "]"
@@ -318,6 +352,102 @@ public class Event {
                 NUM_ATTENDEES
         };
 
+    }
+
+    public Event toEvent(Context context) {
+        return new Event(
+                mapCategory(),
+                mapPrivate(),
+                EventStatus.ACTIVE,
+                EventFlexibility.NEGOTIABLE,
+                title,
+                description,
+                null,
+                mapStartDate(context),
+                mapEndDate(context),
+                gpsLat,
+                gpsLong,
+                null,
+                locationTitle,
+                locationAddress,
+                new Date()
+        );
+    }
+
+    private EventType mapCategory() {
+        if ("picnic".equals(category)) {
+            return EventType.PICNIC;
+        }
+        else if ("going_out".equals(category)) {
+            return EventType.PARTY;
+        }
+        else if ("rally_protest".equals(category)) {
+            return EventType.RALLY;
+        }
+        else if ("birthday".equals(category)) {
+            return EventType.PARTY;
+        }
+        else if ("festival".equals(category)) {
+            return EventType.PARTY;
+        }
+        else if ("mischief".equals(category)) {
+            return EventType.FLASHMOB;
+        }
+        else if ("sport".equals(category)) {
+            return EventType.EXCERCISE;
+        }
+        else if ("watch_film".equals(category)) {
+            return EventType.PARTY;
+        }
+        else if ("other".equals(category)) {
+            return EventType.PARTY;
+        }
+        else {
+            return EventType.PARTY;
+        }
+    }
+
+    private EventVisibility mapPrivate() {
+        if (privateEvent) {
+            return EventVisibility.PRIVATE;
+        }
+        else {
+            return EventVisibility.PUBLIC;
+        }
+    }
+
+    private Date mapStartDate(Context context) {
+        return mapDateWithTime(context, date, startTime);
+    }
+
+    private Date mapEndDate(Context context) {
+        return mapDateWithTime(context, date, endTime != null && !endTime.isEmpty() ? endTime : startTime);
+    }
+
+    private Date mapDateWithTime(Context context, String date, String time) {
+        try {
+            Date d = new SimpleDateFormat(CustomDateTimeSerializer.ITSONIN_DATES).parse(date);
+            Date t = android.text.format.DateFormat.getTimeFormat(context).parse(time);
+            Calendar c1 = Calendar.getInstance();
+            c1.setTime(d);
+            Calendar c2 = Calendar.getInstance();
+            c2.setTime(t);
+            c1.set(Calendar.HOUR_OF_DAY, c2.get(Calendar.HOUR_OF_DAY));
+            c1.set(Calendar.MINUTE, c2.get(Calendar.MINUTE));
+            return c1.getTime();
+        }
+        catch (ParseException e) {
+            Log.e(TAG, "Exception mapping date", e);
+            return new Date();
+        }
+    }
+
+    public Guest toHostGuest() {
+        return new Guest(host);
+    }
+
+    public EventWithGuest toEventWithGuest(Context context) {
+        return new EventWithGuest(toEvent(context), toHostGuest());
     }
 
 }
