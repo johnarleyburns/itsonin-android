@@ -10,8 +10,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itsonin.android.R;
+import com.itsonin.android.entity.Event;
 import com.itsonin.android.entity.EventWithGuest;
 import com.itsonin.android.model.Device;
 import com.itsonin.android.model.LocalEvent;
@@ -19,13 +21,17 @@ import com.itsonin.android.model.Session;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.ws.rs.HttpMethod;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.HttpCookie;
@@ -50,23 +56,31 @@ public class ItsoninAPI {
     public static final String ITSONIN_API_STATUS_CODE = "statusCode";
     public static final String ITSONIN_API_RESPONSE = "response";
     public static final String UTF8 = "UTF-8";
+    public static final ObjectMapper mapper = new ObjectMapper();
 
     public static enum REST {
-        CREATE_DEVICE("/api/device/create"),
-        AUTHENTICATE("/api/device/%1$s/createDevice/%2$s"),
-        CREATE_EVENT("/api/event/create");                
-        
+        CREATE_DEVICE("/api/device/create", HttpMethod.POST),
+        AUTHENTICATE("/api/device/%1$s/createDevice/%2$s", HttpMethod.GET),
+        CREATE_EVENT("/api/event/create", HttpMethod.POST),
+        LIST_EVENTS("/api/event/list", HttpMethod.GET);
+
         private static final String BASE_URL = "http://itsonin-com.appspot.com";
         public String path;
-        REST(String path) {
+        public String method;
+
+        REST(String path, String method) {
             this.path = path;
+            this.method = method;
         }
+
         public String apiUrl() {
             return BASE_URL + path;
         }
+
         public String apiUrl(String ... args) {
             return BASE_URL + String.format(path, (Object)args);
         }
+
         public static REST valueOfPath(String path) {
             for (REST r : REST.values()) {
                 if (r.path.equals(path)) {
@@ -79,13 +93,13 @@ public class ItsoninAPI {
 
     private static final String JSESSIONID_HEADER = "JSESSIONID";
     private static final String SESSION_TOKEN_HEADER = "token";
-    private static final ObjectMapper mapper = new ObjectMapper();
 
     private WeakReference<Context> context;
 
     private Device device;
     private Session session;
     private LocalEvent pendingLocalEvent;
+    private boolean pendingListEvents;
 
     public ItsoninAPI() {
     }
@@ -149,6 +163,19 @@ public class ItsoninAPI {
         }
     }
 
+    public void listEvents() {
+        pendingListEvents = true;
+        if (context.get() == null) {
+            Log.e(TAG, "null context reference");
+            return;
+        }
+        if (session == null || !session.exists()) {
+            authenticate();
+            return;
+        }
+        asyncApiJSON(REST.LIST_EVENTS, REST.LIST_EVENTS.apiUrl(), "");
+    }
+
     private void asyncApiJSON(final REST rest, final String apiUrl, final String requestJSON) {
         new Thread(new Runnable() {
             @Override
@@ -170,11 +197,23 @@ public class ItsoninAPI {
             String locale = context.get().getResources().getConfiguration().locale.toString();
             HttpResponse response;
             HttpClient myClient = new DefaultHttpClient();
-            HttpPost myConnection = new HttpPost(apiUrl);
+
+            HttpUriRequest myConnection;
+            if (HttpMethod.GET.equals(rest.method)) {
+                myConnection = new HttpGet(apiUrl);
+            }
+            else if (HttpMethod.POST.equals(rest.method)) {
+                HttpPost myPost = new HttpPost(apiUrl);
+                myPost.setEntity(new StringEntity(requestJSON, UTF8));
+                myConnection = myPost;
+            }
+            else {
+                Log.e(TAG, "unsupported method:" + rest.method);
+                return;
+            }
             myConnection.setHeader("Accept", "application/json");
             myConnection.setHeader("Accept-Language", locale);
             myConnection.setHeader("Content-Type", "application/json");
-            myConnection.setEntity(new StringEntity(requestJSON, UTF8));
             if (DEBUG) Log.i(TAG, "calling url: " + apiUrl + " body: " + requestJSON);
 
             response = myClient.execute(myConnection);
@@ -290,6 +329,9 @@ public class ItsoninAPI {
                 case CREATE_EVENT:
                     handleCreateEvent(context, response);
                     break;
+                case LIST_EVENTS:
+                    handleListEvents(context, response);
+                    break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
                     break;
@@ -309,10 +351,7 @@ public class ItsoninAPI {
                 device.token = token;
                 device.store(context);
                 Toast.makeText(context, "authenticated with new device creation", Toast.LENGTH_SHORT).show();
-                if (pendingLocalEvent != null) {
-                    createEvent(pendingLocalEvent);
-                }
-
+                handlePendingEvents();
             } catch (JSONException e) {
                 Log.e(TAG, "Cannot process JSON results", e);
                 notifyAuthenticationError(context);
@@ -320,33 +359,14 @@ public class ItsoninAPI {
         }
 
         private void handleAuthenticate(Context context, String response) {
-            try {
-                JSONObject jsonObj = new JSONObject(response);
-                String token = jsonObj.getString("token");
-                if (DEBUG) Log.i(TAG, "received token=" + token);
-                if (token == null || token.trim().isEmpty()) {
-                    Log.e(TAG, "Empty token returend");
-                    notifyAuthenticationError(context);
-                    return;
-                }
-                device.token = token;
-                device.store(context);
-                Toast.makeText(context, "authenticated", Toast.LENGTH_SHORT).show();
-                if (pendingLocalEvent != null) {
-                    createEvent(pendingLocalEvent);
-                }
-
-            } catch (JSONException e) {
-                Log.e(TAG, "Cannot process JSON results", e);
-                notifyAuthenticationError(context);
-            }
+            if (DEBUG) Log.i(TAG, "received authenticate");
+            handlePendingEvents();
         }
 
         private void handleCreateEvent(Context context, String response) {
             try {
                 JSONObject jsonObj = new JSONObject(response);
                 if (DEBUG) Log.i(TAG, "received create event response=" + jsonObj);
-                Toast.makeText(context, "created event", Toast.LENGTH_SHORT).show();
                 if (pendingLocalEvent != null) {
                     pendingLocalEvent = null;
                 }
@@ -357,8 +377,24 @@ public class ItsoninAPI {
             }
         }
 
+        private void handleListEvents(Context context, String response) {
+            if (DEBUG) Log.i(TAG, "received list events response");
+            if (pendingListEvents) {
+                pendingListEvents = false;
+            }
+        }
+
         private void notifyAuthenticationError(Context context) {
             Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
+        }
+
+        private void handlePendingEvents() {
+            if (pendingLocalEvent != null) {
+                createEvent(pendingLocalEvent);
+            }
+            if (pendingListEvents) {
+                listEvents();
+            }
         }
 
     };

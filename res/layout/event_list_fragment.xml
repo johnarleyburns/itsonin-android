@@ -8,41 +8,29 @@
         android:background="@color/PaletteCardListBg"
         >
 
-    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/list_view"
+    <uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout
+            android:id="@+id/pull_to_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:padding="@dimen/card_spacing"
-            android:background="@color/PaletteCardListBg"
-            android:smoothScrollbar="false"
-            android:scrollbarStyle="outsideOverlay"
-            android:listSelector="@drawable/null_selector_bg"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="@dimen/card_spacing"
-            android:clipToPadding="false"
-            android:stretchMode="none"
-        />
+            >
 
-    <!--
-            android:numColumns="@integer/event_list_num_columns"
-            android:stretchMode="columnWidth"
-            android:verticalSpacing="@dimen/card_spacing"
-            android:horizontalSpacing="@dimen/card_spacing"
-    -->
-    <!--
-    <com.etsy.android.grid.StaggeredGridView
-            android:id="@+id/list_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:item_margin="@dimen/card_spacing"
-            app:column_count="@integer/event_list_num_columns"
-            app:grid_paddingLeft="@dimen/card_spacing"
-            app:grid_paddingRight="@dimen/card_spacing"
-            app:grid_paddingTop="@dimen/card_spacing"
-            app:grid_paddingBottom="@dimen/card_spacing"
-        />
-    -->
+        <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:id="@+id/list_view"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_gravity="start"
+                  android:padding="@dimen/card_spacing"
+                  android:background="@color/PaletteCardListBg"
+                  android:smoothScrollbar="false"
+                  android:scrollbarStyle="outsideOverlay"
+                  android:listSelector="@drawable/null_selector_bg"
+                  android:divider="@android:color/transparent"
+                  android:dividerHeight="@dimen/card_spacing"
+                  android:clipToPadding="false"
+                  android:stretchMode="none"
+                />
+
+    </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>
 
     <TextView
         android:id="@+id/empty_message"
@@ -54,5 +42,14 @@
         android:text="@string/no_events_found"
         android:visibility="gone"
         />
+
+    <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone"
+            />
 
 </FrameLayout>

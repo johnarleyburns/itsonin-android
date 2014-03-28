@@ -63,7 +63,6 @@ public class CreateEventDialogFragment extends DialogFragment {
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/locationTitle/autocomplete";
     private static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode";
     private static final String OUT_JSON = "/json";
-    private static final String DATE_FORMAT_DAY_OF_WEEK = "EEEE";
 
     private LocalEvent localEvent;
     private Host host;
@@ -167,7 +166,7 @@ public class CreateEventDialogFragment extends DialogFragment {
             switch(rest) {
                 case CREATE_EVENT:
                     handleCreateEvent(context, response);
-                    break;
+                    Toast.makeText(context, "created event", Toast.LENGTH_SHORT).show();
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
                     dismiss();
@@ -440,7 +439,7 @@ public class CreateEventDialogFragment extends DialogFragment {
                 @Override
                 public void onDateSelected(Date date) {
                     eventDate = date;
-                    eventDateView.setText(friendlyDate(date));
+                    eventDateView.setText(LocalEvent.friendlyDate(getActivity(), date));
                     dismissAllowingStateLoss();
                 }
                 @Override
@@ -454,38 +453,6 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     }
 
-    private boolean isTomorrow(Date date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.DATE, -1);
-        return DateUtils.isToday(c.getTime().getTime());
-    }
-
-    private boolean isCurrentWeek(Date date) {
-        Calendar c = Calendar.getInstance();
-        int currentWeek = c.get(Calendar.WEEK_OF_YEAR);
-        c.setTime(date);
-        int dateWeek = c.get(Calendar.WEEK_OF_YEAR);
-        return currentWeek == dateWeek;
-    }
-
-    private String friendlyDate(Date date) { // no time component
-        String s;
-        if (DateUtils.isToday(date.getTime())) {
-            s = getString(R.string.today);
-        }
-        else if (isTomorrow(date)) {
-            s = getString(R.string.tomorrow);
-        }
-        else if (isCurrentWeek(date)) {
-            s = new SimpleDateFormat(DATE_FORMAT_DAY_OF_WEEK).format(date);
-        }
-        else {
-            s = DateFormat.getDateInstance().format(date);
-        }
-        return s;
-    }
-
     private void initDates(Context context) {
         initEventDate(context);
         initStartTime(context);
@@ -497,7 +464,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         if (eventDate == null) {
             eventDate = today;
         }
-        eventDateView.setText(friendlyDate(eventDate));
+        eventDateView.setText(LocalEvent.friendlyDate(context, eventDate));
     }
 
     private void initStartTime(Context context) {
@@ -505,9 +472,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         c.roll(Calendar.HOUR, 1);
         c.set(Calendar.MINUTE, 0);
         startTime = c.getTime();
-        DateFormat df = android.text.format.DateFormat.getTimeFormat(context);
-        String s = df.format(startTime);
-        startTimeView.setText(s);
+        startTimeView.setText(LocalEvent.friendlyTime(context, startTime));
     }
 
     private void initEndTime(Context context) {
@@ -515,9 +480,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         c.setTime(startTime);
         c.roll(Calendar.HOUR, 1);
         endTime = c.getTime();
-        DateFormat df = android.text.format.DateFormat.getTimeFormat(context);
-        String s = df.format(endTime);
-        endTimeView.setText(s);
+        endTimeView.setText(LocalEvent.friendlyTime(context, endTime));
     }
 
     private class StartTimeDialog extends DialogFragment

@@ -6,7 +6,12 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
+import com.itsonin.android.entity.Event;
 import com.itsonin.android.model.LocalEvent;
 import com.itsonin.android.model.LocalEvent.Events;
 
@@ -42,6 +47,12 @@ public class EventsContentProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher;
     private static HashMap<String, String> eventsProjectionMap;
+
+    private static List<Event> discoverEvents = new ArrayList<Event>();
+
+    public static void setDiscoverEvents(List<Event> events) {
+        discoverEvents = events;
+    }
 
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
@@ -105,14 +116,15 @@ public class EventsContentProvider extends ContentProvider {
         MatrixCursor c = new MatrixCursor(Events.COLUMNS, 1);
         switch (sUriMatcher.match(uri)) {
             case EVENTS:
-                for (LocalEvent e : LocalEvent.createTestEvents())
-                    c.addRow(e.makeCursorRow());
+                for (Event e : discoverEvents) {
+                    LocalEvent le = new LocalEvent(getContext(), e);
+                    c.addRow(le.makeCursorRow());
+                }
                 break;
             case EVENTS_ID:
                 //selection = selection + "_id = " + uri.getLastPathSegment();
                 break;
             case EVENTS_HOSTING:
-
                 //selection = selection + "_id = " + uri.getLastPathSegment();
                 break;
             case EVENTS_ATTENDING:
@@ -123,9 +135,12 @@ public class EventsContentProvider extends ContentProvider {
                 break;
             case EVENTS_DISCOVER:
                 String category = uri.getLastPathSegment();
-                for (LocalEvent e : LocalEvent.createTestEvents())
-                    if (category.equals(e.category))
-                        c.addRow(e.makeCursorRow());
+                for (Event e : discoverEvents) {
+                    LocalEvent le = new LocalEvent(getContext(), e);
+                    if (category.equals(le.category)) {
+                        c.addRow(le.makeCursorRow());
+                    }
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);

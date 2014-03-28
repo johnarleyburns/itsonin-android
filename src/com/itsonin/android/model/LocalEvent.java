@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.DateUtils;
 import android.util.Log;
+import com.itsonin.android.R;
 import com.itsonin.android.entity.Event;
 import com.itsonin.android.entity.EventWithGuest;
 import com.itsonin.android.entity.Guest;
@@ -76,7 +77,76 @@ public class LocalEvent {
         this.gpsLong = gpsLong;
         this.numAttendees = numAttendees;
     }
-    
+
+    public LocalEvent(Context c, Event e) {
+        this();
+        this._id = e.getEventId();
+        this.title = e.getTitle();
+        this.description = e.getDescription();
+        this.host = null;
+        this.category = mapEventType(e.getType());
+        this.date = friendlyDate(c, e.getStartTime());
+        this.startTime = friendlyTime(c, e.getStartTime());
+        this.endTime = friendlyTime(c, e.getEndTime());
+        this.privateEvent = mapVisibility(e.getVisibility());
+        this.locationTitle = e.getLocationTitle();
+        this.locationAddress = e.getLocationAddress();
+        this.gpsLat = e.getGpsLat();
+        this.gpsLong = e.getGpsLong();
+        this.numAttendees = 0;
+    }
+
+    private static boolean isTomorrow(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, -1);
+        return DateUtils.isToday(c.getTime().getTime());
+    }
+
+    private static boolean isCurrentWeek(Date date) {
+        Calendar c = Calendar.getInstance();
+        int currentWeek = c.get(Calendar.WEEK_OF_YEAR);
+        c.setTime(date);
+        int dateWeek = c.get(Calendar.WEEK_OF_YEAR);
+        return currentWeek == dateWeek;
+    }
+
+    private static boolean isCurrentYear(Date date) {
+        Calendar c = Calendar.getInstance();
+        int currentYear = c.get(Calendar.YEAR);
+        c.setTime(date);
+        int dateYear = c.get(Calendar.YEAR);
+        return currentYear == dateYear;
+    }
+
+    private static final String DATE_FORMAT_DAY_OF_WEEK = "EEEE";
+    private static final String DATE_FORMAT_THIS_YEAR = "EEE, MMM d";
+
+    public static String friendlyDate(Context context, Date date) { // no time component
+        String s;
+        if (DateUtils.isToday(date.getTime())) {
+            s = context.getString(R.string.today);
+        }
+        else if (isTomorrow(date)) {
+            s = context.getString(R.string.tomorrow);
+        }
+        else if (isCurrentWeek(date)) {
+            s = new SimpleDateFormat(DATE_FORMAT_DAY_OF_WEEK).format(date);
+        }
+        else if (isCurrentYear(date)) {
+            s = new SimpleDateFormat(DATE_FORMAT_THIS_YEAR).format(date);
+        }
+        else {
+            s = DateFormat.getDateInstance().format(date);
+        }
+        return s;
+    }
+
+    public static String friendlyTime(Context context, Date time) {
+        DateFormat df = android.text.format.DateFormat.getTimeFormat(context);
+        return df.format(time);
+    }
+
     private static final Random mRandom = new Random();
 
     public static LocalEvent[] createTestEvents() {
@@ -374,6 +444,25 @@ public class LocalEvent {
         );
     }
 
+    private String mapEventType(EventType e) {
+        switch (e) {
+            case PICNIC:
+                return "picnic";
+            case PARTY:
+                return "going_out";
+            case EXCERCISE:
+                return "sport";
+            case FLASHMOB:
+                return "mischief";
+            case PROTEST:
+                return "rally_protest";
+            case RALLY:
+                return "rally_protest";
+            default:
+                return "other";
+        }
+    }
+
     private EventType mapCategory() {
         if ("picnic".equals(category)) {
             return EventType.PICNIC;
@@ -413,6 +502,17 @@ public class LocalEvent {
         }
         else {
             return EventVisibility.PUBLIC;
+        }
+    }
+
+    private boolean mapVisibility(EventVisibility v) {
+        switch (v) {
+            case PUBLIC:
+                return false;
+            case PRIVATE:
+            case FRIENDSONLY:
+            default:
+                return true;
         }
     }
 

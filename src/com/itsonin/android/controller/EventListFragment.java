@@ -1,19 +1,39 @@
 package com.itsonin.android.controller;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.*;
-import android.widget.AbsListView;
-import android.widget.Adapter;
+import android.widget.*;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.itsonin.android.R;
+import com.itsonin.android.api.ItsoninAPI;
+import com.itsonin.android.entity.Event;
 import com.itsonin.android.model.LocalEvent;
+import com.itsonin.android.providers.EventsContentProvider;
 import com.itsonin.android.view.EventCard;
+import org.json.JSONException;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
 * Created with IntelliJ IDEA.
@@ -28,6 +48,7 @@ public class EventListFragment extends Fragment {
     public static final String EVENT_DATA_URI = "eventDataUri";
 
     private static final String TAG = EventListFragment.class.getSimpleName();
+    private static final boolean DEBUG = true;
     private static final int EVENTS_LOADER = 0;
 
     private String[] mProjection = LocalEvent.Events.COLUMNS;
@@ -35,6 +56,10 @@ public class EventListFragment extends Fragment {
     private AbsListView mListView;
     private SimpleCursorAdapter mAdapter;
     private View mEmptyView;
+    private ProgressBar progressBar;
+    private ItsoninAPI itsoninAPI;
+    private Handler handler;
+    private PullToRefreshLayout mPullToRefreshLayout;
 
     public EventListFragment() {
         super();
@@ -70,11 +95,125 @@ public class EventListFragment extends Fragment {
         mAdapter.setViewBinder(new EventCard.EventViewBinder());
         mListView.setAdapter(mAdapter);
         mEmptyView = rootView.findViewById(R.id.empty_message);
+        progressBar = (ProgressBar)rootView.findViewById(R.id.progress);
+        mPullToRefreshLayout = (PullToRefreshLayout)rootView.findViewById(R.id.pull_to_refresh);
         mDataUri = Uri.parse(args.getString(EVENT_DATA_URI));
-        getLoaderManager().initLoader(EVENTS_LOADER, null, mLoaderCallbacks);
+
+        ActionBarPullToRefresh.from(getActivity())
+                .allChildrenArePullable()
+                .listener(pullToRefreshListener)
+                .setup(mPullToRefreshLayout);
+
+        progressBar.setVisibility(View.VISIBLE);
+        itsoninAPI.listEvents();
 
         return rootView;
     }
+
+    private OnRefreshListener pullToRefreshListener = new OnRefreshListener() {
+        @Override
+        public void onRefreshStarted(View view) {
+            Toast.makeText(getActivity(), "foo", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        itsoninAPI = new ItsoninAPI(activity.getApplicationContext());
+        itsoninAPI.registerReceiver(apiReceiver);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        handler = new Handler();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        handler = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (itsoninAPI != null) {
+            itsoninAPI.unregisterReceiver(apiReceiver);
+            itsoninAPI.onDestroy();
+            itsoninAPI = null;
+        }
+    }
+
+    private BroadcastReceiver apiReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            progressBar.setVisibility(View.GONE);
+            int statusCode = intent.getIntExtra(ItsoninAPI.ITSONIN_API_STATUS_CODE, 0);
+            String path = intent.getStringExtra(ItsoninAPI.ITSONIN_API_PATH);
+            String response = intent.getStringExtra(ItsoninAPI.ITSONIN_API_RESPONSE);
+            if (DEBUG) Log.i(TAG, "received " + statusCode + ": " + response);
+
+            if (response == null || response.isEmpty() || statusCode != 200) {
+                Log.e(TAG, "Empty response statusCode=" + statusCode);
+                notifyAuthenticationError(context);
+                return;
+            }
+
+            ItsoninAPI.REST rest = ItsoninAPI.REST.valueOfPath(path);
+            switch(rest) {
+                case LIST_EVENTS:
+                    handleListEvents(context, response);
+                    break;
+                default:
+                    if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
+                    break;
+            }
+        }
+
+        private void handleListEvents(final Context context, final String response) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        List<Event> events = ItsoninAPI.mapper.readValue(response, new TypeReference<List<Event>>(){});
+                        if (DEBUG) Log.i(TAG, "handleListEvents() events count=" + events.size());
+                        EventsContentProvider.setDiscoverEvents(events);
+                        if (handler != null) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    getLoaderManager().initLoader(EVENTS_LOADER, null, mLoaderCallbacks);
+                                }
+                            });
+                        }
+                    } catch (JsonParseException e) {
+                        Log.e(TAG, "Cannot parse JSON results", e);
+                        notifyAuthenticationError(context);
+                    } catch (JsonMappingException e) {
+                        Log.e(TAG, "Cannot map JSON results", e);
+                        notifyAuthenticationError(context);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Cannot read JSON results", e);
+                        notifyAuthenticationError(context);
+                    }
+                }
+            }).start();
+        }
+
+        private void notifyAuthenticationError(final Context context) {
+            if (handler != null) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+
+    };
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -110,7 +249,8 @@ public class EventListFragment extends Fragment {
                 default:
                     // An invalid id was passed in
                     return null;
-            } }
+            }
+        }
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
