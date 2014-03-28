@@ -56,7 +56,6 @@ public class EventListFragment extends Fragment {
     private AbsListView mListView;
     private SimpleCursorAdapter mAdapter;
     private View mEmptyView;
-    private ProgressBar progressBar;
     private ItsoninAPI itsoninAPI;
     private Handler handler;
     private PullToRefreshLayout mPullToRefreshLayout;
@@ -95,7 +94,6 @@ public class EventListFragment extends Fragment {
         mAdapter.setViewBinder(new EventCard.EventViewBinder());
         mListView.setAdapter(mAdapter);
         mEmptyView = rootView.findViewById(R.id.empty_message);
-        progressBar = (ProgressBar)rootView.findViewById(R.id.progress);
         mPullToRefreshLayout = (PullToRefreshLayout)rootView.findViewById(R.id.pull_to_refresh);
         mDataUri = Uri.parse(args.getString(EVENT_DATA_URI));
 
@@ -104,16 +102,20 @@ public class EventListFragment extends Fragment {
                 .listener(pullToRefreshListener)
                 .setup(mPullToRefreshLayout);
 
-        progressBar.setVisibility(View.VISIBLE);
-        itsoninAPI.listEvents();
+        reloadEvents();
 
         return rootView;
+    }
+
+    private void reloadEvents() {
+        mPullToRefreshLayout.setRefreshing(true);
+        itsoninAPI.listEvents();
     }
 
     private OnRefreshListener pullToRefreshListener = new OnRefreshListener() {
         @Override
         public void onRefreshStarted(View view) {
-            Toast.makeText(getActivity(), "foo", Toast.LENGTH_SHORT).show();
+            reloadEvents();
         }
     };
 
@@ -149,7 +151,7 @@ public class EventListFragment extends Fragment {
     private BroadcastReceiver apiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            progressBar.setVisibility(View.GONE);
+            mPullToRefreshLayout.setRefreshComplete();
             int statusCode = intent.getIntExtra(ItsoninAPI.ITSONIN_API_STATUS_CODE, 0);
             String path = intent.getStringExtra(ItsoninAPI.ITSONIN_API_PATH);
             String response = intent.getStringExtra(ItsoninAPI.ITSONIN_API_RESPONSE);
@@ -165,6 +167,9 @@ public class EventListFragment extends Fragment {
             switch(rest) {
                 case LIST_EVENTS:
                     handleListEvents(context, response);
+                    break;
+                case CREATE_EVENT:
+                    reloadEvents();
                     break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
@@ -184,7 +189,7 @@ public class EventListFragment extends Fragment {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    getLoaderManager().initLoader(EVENTS_LOADER, null, mLoaderCallbacks);
+                                    getLoaderManager().restartLoader(EVENTS_LOADER, null, mLoaderCallbacks);
                                 }
                             });
                         }
@@ -221,12 +226,14 @@ public class EventListFragment extends Fragment {
         inflater.inflate(R.menu.event_list_menu, menu);
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle item selection
         switch (item.getItemId()) {
             case R.id.add_event:
-                new CreateEventDialogFragment().show(getFragmentManager(), TAG);
+                CreateEventDialogFragment d = new CreateEventDialogFragment();
+                d.show(getFragmentManager(), TAG);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

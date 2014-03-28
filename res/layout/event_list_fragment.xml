@@ -43,6 +43,7 @@
         android:visibility="gone"
         />
 
+    <!--
     <ProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"
@@ -51,5 +52,6 @@
             android:indeterminate="true"
             android:visibility="gone"
             />
+    -->
 
 </FrameLayout>
