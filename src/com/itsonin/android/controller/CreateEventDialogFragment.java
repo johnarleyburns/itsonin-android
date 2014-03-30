@@ -150,6 +150,7 @@ public class CreateEventDialogFragment extends DialogFragment {
     private BroadcastReceiver apiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            overlay.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
             int statusCode = intent.getIntExtra(ItsoninAPI.ITSONIN_API_STATUS_CODE, 0);
             String path = intent.getStringExtra(ItsoninAPI.ITSONIN_API_PATH);
@@ -188,7 +189,8 @@ public class CreateEventDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        itsoninAPI = new ItsoninAPI(activity.getApplicationContext());
+        itsoninAPI = ItsoninAPI.instance(activity.getApplicationContext());
+        itsoninAPI.unregisterReceiver(apiReceiver);
         itsoninAPI.registerReceiver(apiReceiver);
     }
 
@@ -197,7 +199,6 @@ public class CreateEventDialogFragment extends DialogFragment {
         super.onDestroy();
         if (itsoninAPI != null) {
             itsoninAPI.unregisterReceiver(apiReceiver);
-            itsoninAPI.onDestroy();
             itsoninAPI = null;
         }
     }
@@ -215,6 +216,7 @@ public class CreateEventDialogFragment extends DialogFragment {
                 Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
             }
             else {
+                overlay.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.VISIBLE);
                 itsoninAPI.createEvent(localEvent);
             }
@@ -715,8 +717,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         if (getActivity() == null) {
             return null;
         }
-        ItsoninAPI api = new ItsoninAPI(getActivity().getApplicationContext());
-        if (!api.isNetworkAvailable()) {
+        if (!itsoninAPI.isNetworkAvailable()) {
             if (DEBUG) Log.i(TAG, "No network available for autocomplete");
             return jsonResults;
         }

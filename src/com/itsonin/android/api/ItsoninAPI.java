@@ -101,14 +101,23 @@ public class ItsoninAPI {
     private LocalEvent pendingLocalEvent;
     private boolean pendingListEvents;
 
-    public ItsoninAPI() {
+    private static final ItsoninAPI instance = new ItsoninAPI();
+
+    private ItsoninAPI() {
     }
 
-    public ItsoninAPI(Context context) {
+    private void init(Context context) {
         this.context = new WeakReference<Context>(context);
         device = Device.load(context);
         session = Session.load(context);
         registerReceiver(apiReceiver);
+    }
+
+    public static synchronized ItsoninAPI instance(Context context) {
+        if (instance.context == null) {
+            instance.init(context);
+        }
+        return instance;
     }
 
     public void onDestroy() {

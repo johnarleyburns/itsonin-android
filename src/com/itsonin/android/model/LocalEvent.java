@@ -381,12 +381,8 @@ public class LocalEvent {
                 + EventsContentProvider.AUTHORITY + "/" + EventsContentProvider.EVENTS_TABLE_NAME);
         public static final Uri EVENTS_ID_CONTENT_URI = Uri.parse("content://"
                 + EventsContentProvider.AUTHORITY + "/" + EventsContentProvider.EVENTS_ID_PATH);
-        public static final Uri EVENTS_ATTENDING_CONTENT_URI = Uri.parse("content://"
-                + EventsContentProvider.AUTHORITY + "/" + EventsContentProvider.EVENTS_ATTENDING_PATH);
-        public static final Uri EVENTS_HOSTING_CONTENT_URI = Uri.parse("content://"
-                + EventsContentProvider.AUTHORITY + "/" + EventsContentProvider.EVENTS_HOSTING_PATH);
-        public static final Uri EVENTS_INVITES_CONTENT_URI = Uri.parse("content://"
-                + EventsContentProvider.AUTHORITY + "/" + EventsContentProvider.EVENTS_INVITES_PATH);
+        public static final Uri EVENTS_PRIVATE_CONTENT_URI = Uri.parse("content://"
+                + EventsContentProvider.AUTHORITY + "/" + EventsContentProvider.EVENTS_PRIVATE_PATH);
         public static final Uri EVENTS_DISCOVER_CONTENT_URI = Uri.parse("content://"
                 + EventsContentProvider.AUTHORITY + "/" + EventsContentProvider.EVENTS_DISCOVER_PATH);
 

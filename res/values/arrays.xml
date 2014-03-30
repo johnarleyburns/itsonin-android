@@ -3,9 +3,7 @@
 
     <array name="drawer_array">
         <item>@string/discover</item>
-        <item>@string/attending</item>
-        <item>@string/hosting</item>
-        <item>@string/invites</item>
+        <item>@string/my_events</item>
         <item>@string/settings</item>
         <item>@string/send_feedback</item>
         <item>@string/purchase</item>

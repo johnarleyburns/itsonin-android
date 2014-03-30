@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +60,8 @@ public class EventListFragment extends Fragment {
     private View mEmptyView;
     private ItsoninAPI itsoninAPI;
     private Handler handler;
-    private PullToRefreshLayout mPullToRefreshLayout;
+    private WeakReference<PullToRefreshLayout> mPullToRefreshLayout;
+    private boolean scheduleReload;
 
     public EventListFragment() {
         super();
@@ -78,12 +81,15 @@ public class EventListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setRetainInstance(true);
+        scheduleReload = true;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        if (DEBUG) Log.i(TAG, "onCreateView()");
         View rootView = inflater.inflate(R.layout.event_list_fragment, container, false);
         Bundle args = getArguments();
 
@@ -94,21 +100,28 @@ public class EventListFragment extends Fragment {
         mAdapter.setViewBinder(new EventCard.EventViewBinder());
         mListView.setAdapter(mAdapter);
         mEmptyView = rootView.findViewById(R.id.empty_message);
-        mPullToRefreshLayout = (PullToRefreshLayout)rootView.findViewById(R.id.pull_to_refresh);
+        mPullToRefreshLayout = new WeakReference<PullToRefreshLayout>(
+                (PullToRefreshLayout)rootView.findViewById(R.id.pull_to_refresh));
         mDataUri = Uri.parse(args.getString(EVENT_DATA_URI));
 
         ActionBarPullToRefresh.from(getActivity())
                 .allChildrenArePullable()
                 .listener(pullToRefreshListener)
-                .setup(mPullToRefreshLayout);
+                .setup(mPullToRefreshLayout.get());
 
-        reloadEvents();
+        if (scheduleReload) {
+            scheduleReload = false;
+            reloadEvents();
+        }
 
         return rootView;
     }
 
     private void reloadEvents() {
-        mPullToRefreshLayout.setRefreshing(true);
+        if (DEBUG) Log.i(TAG, "reloadEvents()");
+        if (mPullToRefreshLayout.get() != null) {
+            mPullToRefreshLayout.get().setRefreshing(true);
+        }
         itsoninAPI.listEvents();
     }
 
@@ -122,19 +135,22 @@ public class EventListFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        itsoninAPI = new ItsoninAPI(activity.getApplicationContext());
+        itsoninAPI = ItsoninAPI.instance(activity.getApplicationContext());
+        itsoninAPI.unregisterReceiver(apiReceiver);
         itsoninAPI.registerReceiver(apiReceiver);
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        if (DEBUG) Log.i(TAG, "onStart()");
         handler = new Handler();
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        if (DEBUG) Log.i(TAG, "onStop()");
         handler = null;
     }
 
@@ -143,7 +159,6 @@ public class EventListFragment extends Fragment {
         super.onDestroy();
         if (itsoninAPI != null) {
             itsoninAPI.unregisterReceiver(apiReceiver);
-            itsoninAPI.onDestroy();
             itsoninAPI = null;
         }
     }
@@ -151,7 +166,9 @@ public class EventListFragment extends Fragment {
     private BroadcastReceiver apiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mPullToRefreshLayout.setRefreshComplete();
+            if (mPullToRefreshLayout.get() != null) {
+                mPullToRefreshLayout.get().setRefreshComplete();
+            }
             int statusCode = intent.getIntExtra(ItsoninAPI.ITSONIN_API_STATUS_CODE, 0);
             String path = intent.getStringExtra(ItsoninAPI.ITSONIN_API_PATH);
             String response = intent.getStringExtra(ItsoninAPI.ITSONIN_API_RESPONSE);
@@ -272,4 +289,21 @@ public class EventListFragment extends Fragment {
         }
     };
 
+    /*
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Get a layout inflater (inflater from getActivity() or getSupportActivity() works as well)
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View newView = inflater.inflate(R.layout.event_list_fragment, null);
+        // This just inflates the view but doesn't add it to any thing.
+        // You need to add it to the root view of the fragment
+        ViewGroup rootView = (ViewGroup) getView();
+        // Remove all the existing views from the root view.
+        // This is also a good place to recycle any resources you won't need anymore
+        rootView.removeAllViews();
+        rootView.addView(newView);
+        // Viola, you have the new view setup
+    }
+    */
 }

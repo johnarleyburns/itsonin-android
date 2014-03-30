@@ -7,11 +7,11 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
+import android.text.format.DateUtils;
 import com.itsonin.android.entity.Event;
+import com.itsonin.android.enums.EventVisibility;
 import com.itsonin.android.model.LocalEvent;
 import com.itsonin.android.model.LocalEvent.Events;
 
@@ -32,18 +32,14 @@ public class EventsContentProvider extends ContentProvider {
     public static final String EVENTS_TABLE_NAME = "events";
     public static final String EVENTS_ID_PATH = EVENTS_TABLE_NAME + "/event/";
     public static final String EVENTS_ID_PATH_MATCH = EVENTS_ID_PATH + "*";
-    public static final String EVENTS_ATTENDING_PATH = EVENTS_TABLE_NAME + "/attending/";
-    public static final String EVENTS_HOSTING_PATH = EVENTS_TABLE_NAME + "/hosting/";
-    public static final String EVENTS_INVITES_PATH = EVENTS_TABLE_NAME + "/invites/";
+    public static final String EVENTS_PRIVATE_PATH = EVENTS_TABLE_NAME + "/private/";
     public static final String EVENTS_DISCOVER_PATH = EVENTS_TABLE_NAME + "/discover/";
     public static final String EVENTS_DISCOVER_PATH_MATCH = EVENTS_DISCOVER_PATH + "*";
 
     private static final int EVENTS = 1;
     private static final int EVENTS_ID = 2;
-    private static final int EVENTS_ATTENDING = 3;
-    private static final int EVENTS_HOSTING = 4;
-    private static final int EVENTS_INVITES = 5;
-    private static final int EVENTS_DISCOVER = 6;
+    private static final int EVENTS_PRIVATE = 3;
+    private static final int EVENTS_DISCOVER = 4;
 
     private static final UriMatcher sUriMatcher;
     private static HashMap<String, String> eventsProjectionMap;
@@ -64,9 +60,7 @@ public class EventsContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case EVENTS:
             case EVENTS_ID:
-            case EVENTS_HOSTING:
-            case EVENTS_ATTENDING:
-            case EVENTS_INVITES:
+            case EVENTS_PRIVATE:
             case EVENTS_DISCOVER:
                 return Events.CONTENT_TYPE;
             default:
@@ -106,6 +100,33 @@ public class EventsContentProvider extends ContentProvider {
         return true;
     }
 
+    private boolean isEventCurrent(Event e, Date now) {
+        if (e.getEndTime() != null && e.getEndTime().before(now)) {
+            return false;
+        }
+        else if (e.getStartTime() == null) {
+            return true;
+        }
+        else if (e.getStartTime().after(now)) {
+            return true;
+        }
+        else if (DateUtils.isToday(e.getStartTime().getTime())) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private boolean isEventPrivate(Event e) {
+        if (e.getVisibility() == EventVisibility.PUBLIC) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         /*
@@ -116,22 +137,24 @@ public class EventsContentProvider extends ContentProvider {
         MatrixCursor c = new MatrixCursor(Events.COLUMNS, 1);
         switch (sUriMatcher.match(uri)) {
             case EVENTS:
+                Date now = new Date();
                 for (Event e : discoverEvents) {
-                    LocalEvent le = new LocalEvent(getContext(), e);
-                    c.addRow(le.makeCursorRow());
+                    if (isEventCurrent(e, now)) {
+                        LocalEvent le = new LocalEvent(getContext(), e);
+                        c.addRow(le.makeCursorRow());
+                    }
                 }
                 break;
             case EVENTS_ID:
                 //selection = selection + "_id = " + uri.getLastPathSegment();
                 break;
-            case EVENTS_HOSTING:
-                //selection = selection + "_id = " + uri.getLastPathSegment();
-                break;
-            case EVENTS_ATTENDING:
-                //selection = selection + "_id = " + uri.getLastPathSegment();
-                break;
-            case EVENTS_INVITES:
-                //selection = selection + "_id = " + uri.getLastPathSegment();
+            case EVENTS_PRIVATE:
+                for (Event e : discoverEvents) {
+                    if (isEventPrivate(e)) {
+                        LocalEvent le = new LocalEvent(getContext(), e);
+                        c.addRow(le.makeCursorRow());
+                    }
+                }
                 break;
             case EVENTS_DISCOVER:
                 String category = uri.getLastPathSegment();
@@ -177,9 +200,7 @@ public class EventsContentProvider extends ContentProvider {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(AUTHORITY, EVENTS_TABLE_NAME, EVENTS);
         sUriMatcher.addURI(AUTHORITY, EVENTS_ID_PATH_MATCH, EVENTS_ID);
-        sUriMatcher.addURI(AUTHORITY, EVENTS_ATTENDING_PATH, EVENTS_ATTENDING);
-        sUriMatcher.addURI(AUTHORITY, EVENTS_HOSTING_PATH, EVENTS_HOSTING);
-        sUriMatcher.addURI(AUTHORITY, EVENTS_INVITES_PATH, EVENTS_INVITES);
+        sUriMatcher.addURI(AUTHORITY, EVENTS_PRIVATE_PATH, EVENTS_PRIVATE);
         sUriMatcher.addURI(AUTHORITY, EVENTS_DISCOVER_PATH_MATCH, EVENTS_DISCOVER);
 
         eventsProjectionMap = new HashMap<String, String>();

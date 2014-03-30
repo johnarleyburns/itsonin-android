@@ -65,12 +65,19 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         createDrawer();
-        showEventListFragment(LocalEvent.Events.EVENTS_CONTENT_URI);
-        setDrawerSelected(DISCOVER_POSITION);
+        //if (!hasFragment()) {
+            showEventListFragment(LocalEvent.Events.EVENTS_CONTENT_URI);
+            setDrawerSelected(DISCOVER_POSITION);
+        //}
     }
 
+    //private boolean hasFragment() {
+    //    FrameLayout frame = (FrameLayout)findViewById(R.id.content_frame);
+    //    return frame != null && frame.getChildCount() > 0;
+    //}
+
     private void showEventListFragment(Uri dataUri) {
-        int numColumns = getResources().getInteger(R.integer.event_list_num_columns);
+        //int numColumns = getResources().getInteger(R.integer.event_list_num_columns);
         //Fragment fragment = numColumns > 1 ? new EventListFragment(dataUri) : new ExpandableEventListFragment(dataUri);
         Fragment fragment = new EventListFragment(dataUri);
         showFragment(fragment);
@@ -166,12 +173,10 @@ public class MainActivity extends FragmentActivity {
     }
 
     private static final int DISCOVER_POSITION = 0;
-    private static final int ATTENDING_POSITION = 1;
-    private static final int HOSTING_POSITION = 2;
-    private static final int INVITES_POSITION = 3;
-    private static final int SETTINGS_POSITION = 4;
-    private static final int SEND_FEEDBACK_POSITION = 5;
-    private static final int PURCHASE_POSITION = 6;
+    private static final int PRIVATE_POSITION = 1;
+    private static final int SETTINGS_POSITION = 2;
+    private static final int SEND_FEEDBACK_POSITION = 3;
+    private static final int PURCHASE_POSITION = 4;
 
     /** Swaps fragments in the main content view */
     private void selectItem(int position) {
@@ -183,16 +188,8 @@ public class MainActivity extends FragmentActivity {
                 showEventListFragment(LocalEvent.Events.EVENTS_CONTENT_URI);
                 setDrawerSelected(position);
                 break;
-            case ATTENDING_POSITION:
-                showEventListFragment(LocalEvent.Events.EVENTS_ATTENDING_CONTENT_URI);
-                setDrawerSelected(position);
-                break;
-            case HOSTING_POSITION:
-                showEventListFragment(LocalEvent.Events.EVENTS_HOSTING_CONTENT_URI);
-                setDrawerSelected(position);
-                break;
-            case INVITES_POSITION:
-                showEventListFragment(LocalEvent.Events.EVENTS_INVITES_CONTENT_URI);
+            case PRIVATE_POSITION:
+                showEventListFragment(LocalEvent.Events.EVENTS_PRIVATE_CONTENT_URI);
                 setDrawerSelected(position);
                 break;
             case SETTINGS_POSITION:

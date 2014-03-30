@@ -13,9 +13,7 @@
     <string name="watch_film_code">watch_film</string>
     <string name="other_code">other</string>
 
-    <string name="attending_code">hosting</string>
-    <string name="hosting_code">hosting</string>
-    <string name="invited_code">invited</string>
+    <string name="private_code">private</string>
 
     <string name="api_key">AIzaSyAAoWQp_EJGsBec70vhuHF_H9xR-gKn6qk</string> <!-- currently just debug key -->
     <string name="debug_api_key">AIzaSyAAoWQp_EJGsBec70vhuHF_H9xR-gKn6qk</string>
