@@ -11,6 +11,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/card_background_large"
+            android:paddingBottom="@dimen/card_inner"
             >
 
         <RelativeLayout
@@ -111,39 +112,6 @@
                 android:paddingRight="@dimen/card_inner"
                 android:textColor="@color/card_place"
                 />
-        <TextView
-                android:id="@+id/event_card_address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/card_text"
-                android:paddingLeft="@dimen/card_inner"
-                android:paddingRight="@dimen/card_inner"
-                android:textColor="@color/card_place"
-                android:paddingBottom="@dimen/card_inner"
-                />
-
-        <ImageView
-                android:id="@+id/event_card_map"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scaleType="centerCrop"
-                android:visibility="gone"
-                />
-
-        <ImageView
-                android:id="@+id/event_card_streetview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scaleType="centerCrop"
-                />
-
-        <include layout="@layout/event_card_action_directions"/>
-        <!--
-        <include layout="@layout/event_card_action_attend"/>
-        <include layout="@layout/event_card_action_decline"/>
-        <include layout="@layout/event_card_action_edit"/>
-        -->
-        <include layout="@layout/event_card_action_share"/>
 
     </LinearLayout>
 

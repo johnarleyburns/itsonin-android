@@ -62,7 +62,8 @@ public class ItsoninAPI {
         CREATE_DEVICE("/api/device/create", HttpMethod.POST),
         AUTHENTICATE("/api/device/%1$s/createDevice/%2$s", HttpMethod.GET),
         CREATE_EVENT("/api/event/create", HttpMethod.POST),
-        LIST_EVENTS("/api/event/list", HttpMethod.GET);
+        LIST_EVENTS("/api/event/list", HttpMethod.GET),
+        EVENT_INFO("/api/event/%1$s/info", HttpMethod.GET);
 
         private static final String BASE_URL = "http://itsonin-com.appspot.com";
         public String path;
@@ -78,7 +79,7 @@ public class ItsoninAPI {
         }
 
         public String apiUrl(String ... args) {
-            return BASE_URL + String.format(path, (Object)args);
+            return BASE_URL + String.format(path, (Object[])args);
         }
 
         public static REST valueOfPath(String path) {
@@ -99,6 +100,7 @@ public class ItsoninAPI {
     private Device device;
     private Session session;
     private LocalEvent pendingLocalEvent;
+    private String pendingEventInfoId;
     private boolean pendingListEvents;
 
     private static final ItsoninAPI instance = new ItsoninAPI();
@@ -183,6 +185,19 @@ public class ItsoninAPI {
             return;
         }
         asyncApiJSON(REST.LIST_EVENTS, REST.LIST_EVENTS.apiUrl(), "");
+    }
+
+    public void eventInfo(String eventId) {
+        pendingEventInfoId = eventId;
+        if (context.get() == null) {
+            Log.e(TAG, "null context reference");
+            return;
+        }
+        if (session == null || !session.exists()) {
+            authenticate();
+            return;
+        }
+        asyncApiJSON(REST.EVENT_INFO, REST.EVENT_INFO.apiUrl(eventId), "");
     }
 
     private void asyncApiJSON(final REST rest, final String apiUrl, final String requestJSON) {
@@ -341,6 +356,9 @@ public class ItsoninAPI {
                 case LIST_EVENTS:
                     handleListEvents(context, response);
                     break;
+                case EVENT_INFO:
+                    handleEventInfo(context, response);
+                    break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
                     break;
@@ -376,10 +394,7 @@ public class ItsoninAPI {
             try {
                 JSONObject jsonObj = new JSONObject(response);
                 if (DEBUG) Log.i(TAG, "received create event response=" + jsonObj);
-                if (pendingLocalEvent != null) {
-                    pendingLocalEvent = null;
-                }
-
+                pendingLocalEvent = null;
             } catch (JSONException e) {
                 Log.e(TAG, "Cannot process JSON results", e);
                 notifyAuthenticationError(context);
@@ -388,9 +403,12 @@ public class ItsoninAPI {
 
         private void handleListEvents(Context context, String response) {
             if (DEBUG) Log.i(TAG, "received list events response");
-            if (pendingListEvents) {
-                pendingListEvents = false;
-            }
+            pendingListEvents = false;
+        }
+
+        private void handleEventInfo(Context context, String response) {
+            if (DEBUG) Log.i(TAG, "received list events response");
+            pendingEventInfoId = null;
         }
 
         private void notifyAuthenticationError(Context context) {
@@ -400,6 +418,9 @@ public class ItsoninAPI {
         private void handlePendingEvents() {
             if (pendingLocalEvent != null) {
                 createEvent(pendingLocalEvent);
+            }
+            if (pendingEventInfoId != null) {
+                eventInfo(pendingEventInfoId);
             }
             if (pendingListEvents) {
                 listEvents();

@@ -10,6 +10,7 @@ import android.net.Uri;
 import java.util.*;
 
 import android.text.format.DateUtils;
+import android.util.Log;
 import com.itsonin.android.entity.Event;
 import com.itsonin.android.enums.EventVisibility;
 import com.itsonin.android.model.LocalEvent;
@@ -25,7 +26,7 @@ import com.itsonin.android.model.LocalEvent.Events;
 public class EventsContentProvider extends ContentProvider {
 
     private static final String TAG = EventsContentProvider.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     public static final String AUTHORITY = "com.itsonin.android.providers.EventsContentProvider";
 
@@ -44,10 +45,16 @@ public class EventsContentProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher;
     private static HashMap<String, String> eventsProjectionMap;
 
-    private static List<Event> discoverEvents = new ArrayList<Event>();
+    private static List<Event> discoverEvents = Collections.synchronizedList(new ArrayList<Event>());
+    private static Map<String, Event> cachedEvents = Collections.synchronizedMap(new HashMap<String, Event>());
 
-    public static void setDiscoverEvents(List<Event> events) {
-        discoverEvents = events;
+    public static synchronized void setDiscoverEvents(List<Event> events) {
+        discoverEvents.clear();
+        discoverEvents.addAll(events);
+    }
+
+    public static void cacheEvent(Event event) {
+        cachedEvents.put(event.getEventId().toString(), event);
     }
 
     @Override
@@ -129,6 +136,7 @@ public class EventsContentProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        if (DEBUG) Log.i(TAG, "query() uri=" + uri);
         /*
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(NOTES_TABLE_NAME);
@@ -146,22 +154,29 @@ public class EventsContentProvider extends ContentProvider {
                 }
                 break;
             case EVENTS_ID:
+                String eventId = uri.getLastPathSegment();
+                Event cached = cachedEvents.get(eventId);
+                if (DEBUG) Log.i(TAG, "matched EVENTS_ID id=" + eventId + " cached=" + cached);
+                if (cached != null) {
+                    LocalEvent le = new LocalEvent(getContext(), cached);
+                    c.addRow(le.makeCursorRow());
+                }
                 //selection = selection + "_id = " + uri.getLastPathSegment();
                 break;
             case EVENTS_PRIVATE:
                 for (Event e : discoverEvents) {
                     if (isEventPrivate(e)) {
-                        LocalEvent le = new LocalEvent(getContext(), e);
-                        c.addRow(le.makeCursorRow());
+                        LocalEvent me = new LocalEvent(getContext(), e);
+                        c.addRow(me.makeCursorRow());
                     }
                 }
                 break;
             case EVENTS_DISCOVER:
                 String category = uri.getLastPathSegment();
                 for (Event e : discoverEvents) {
-                    LocalEvent le = new LocalEvent(getContext(), e);
-                    if (category.equals(le.category)) {
-                        c.addRow(le.makeCursorRow());
+                    LocalEvent de = new LocalEvent(getContext(), e);
+                    if (category.equals(de.category)) {
+                        c.addRow(de.makeCursorRow());
                     }
                 }
                 break;

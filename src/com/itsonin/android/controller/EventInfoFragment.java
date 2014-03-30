@@ -9,30 +9,29 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.*;
-import android.widget.*;
+import android.widget.AbsListView;
+import android.widget.Adapter;
+import android.widget.Toast;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.itsonin.android.R;
 import com.itsonin.android.api.ItsoninAPI;
 import com.itsonin.android.entity.Event;
 import com.itsonin.android.model.LocalEvent;
 import com.itsonin.android.providers.EventsContentProvider;
-import com.itsonin.android.view.EventListCard;
+import com.itsonin.android.view.EventInfoCard;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
 * Created with IntelliJ IDEA.
@@ -41,13 +40,13 @@ import java.util.List;
 * Time: 11:19 PM
 * To change this template use File | Settings | File Templates.
 */
-public class EventListFragment extends Fragment {
+public class EventInfoFragment extends Fragment {
 
-    public static final String EVENT_LIST_DATA_URI = "eventListDataUri";
+    public static final String EVENT_INFO_DATA_URI = "eventInfoDataUri";
 
-    private static final String TAG = EventListFragment.class.getSimpleName();
+    private static final String TAG = EventInfoFragment.class.getSimpleName();
     private static final boolean DEBUG = true;
-    private static final int EVENTS_LOADER = 0;
+    private static final int EVENT_LOADER = 0;
 
     private String[] mProjection = LocalEvent.Events.COLUMNS;
     private Uri mDataUri;
@@ -58,24 +57,32 @@ public class EventListFragment extends Fragment {
     private Handler handler;
     private WeakReference<PullToRefreshLayout> mPullToRefreshLayout;
     private boolean scheduleReload;
+    private String eventId;
 
-    public EventListFragment() {
+    public EventInfoFragment() {
         super();
     }
 
-    public EventListFragment(Uri dataUri) {
+    public EventInfoFragment(Uri dataUri) {
         super();
         Bundle b = getArguments();
         if (b == null) {
             b = new Bundle();
         }
-        b.putString(EVENT_LIST_DATA_URI, dataUri.toString());
+        b.putString(EVENT_INFO_DATA_URI, dataUri.toString());
+        if (DEBUG) Log.i(TAG, "EventInfoFragment() uri=" + dataUri.toString());
+        eventId = dataUri.getLastPathSegment();
         setArguments(b);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(EVENT_INFO_DATA_URI)) {
+            String dataUrl = savedInstanceState.getString(EVENT_INFO_DATA_URI);
+            Uri dataUri = Uri.parse(dataUrl);
+            eventId = dataUri.getLastPathSegment();
+        }
         setHasOptionsMenu(true);
         setRetainInstance(true);
         scheduleReload = true;
@@ -86,21 +93,19 @@ public class EventListFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         if (DEBUG) Log.i(TAG, "onCreateView()");
-        View rootView = inflater.inflate(R.layout.event_list_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.event_info_fragment, container, false);
         Bundle args = getArguments();
 
         mListView = (AbsListView)rootView.findViewById(R.id.list_view);
-        mListView.setOnItemClickListener(eventInfoListener);
-
-        mAdapter = new SimpleCursorAdapter(container.getContext(), EventListCard.list_item_layout, null,
-                LocalEvent.Events.COLUMNS, EventListCard.VIEW_IDS,
+        mAdapter = new SimpleCursorAdapter(container.getContext(), EventInfoCard.list_item_layout, null,
+                LocalEvent.Events.COLUMNS, EventInfoCard.VIEW_IDS,
                 Adapter.NO_SELECTION);
-        mAdapter.setViewBinder(new EventListCard.EventViewBinder());
+        mAdapter.setViewBinder(new EventInfoCard.EventViewBinder());
         mListView.setAdapter(mAdapter);
         mEmptyView = rootView.findViewById(R.id.empty_message);
         mPullToRefreshLayout = new WeakReference<PullToRefreshLayout>(
                 (PullToRefreshLayout)rootView.findViewById(R.id.pull_to_refresh));
-        mDataUri = Uri.parse(args.getString(EVENT_LIST_DATA_URI));
+        mDataUri = Uri.parse(args.getString(EVENT_INFO_DATA_URI));
 
         ActionBarPullToRefresh.from(getActivity())
                 .allChildrenArePullable()
@@ -109,24 +114,24 @@ public class EventListFragment extends Fragment {
 
         if (scheduleReload) {
             scheduleReload = false;
-            reloadEvents();
+            reloadEvent();
         }
 
         return rootView;
     }
 
-    private void reloadEvents() {
-        if (DEBUG) Log.i(TAG, "reloadEvents()");
+    private void reloadEvent() {
+        if (DEBUG) Log.i(TAG, "reloadEvent()");
         if (mPullToRefreshLayout.get() != null) {
             mPullToRefreshLayout.get().setRefreshing(true);
         }
-        itsoninAPI.listEvents();
+        itsoninAPI.eventInfo(eventId);
     }
 
     private OnRefreshListener pullToRefreshListener = new OnRefreshListener() {
         @Override
         public void onRefreshStarted(View view) {
-            reloadEvents();
+            reloadEvent();
         }
     };
 
@@ -180,11 +185,8 @@ public class EventListFragment extends Fragment {
 
             ItsoninAPI.REST rest = ItsoninAPI.REST.valueOfPath(path);
             switch(rest) {
-                case LIST_EVENTS:
-                    handleListEvents(context, response);
-                    break;
-                case CREATE_EVENT:
-                    reloadEvents();
+                case EVENT_INFO:
+                    handleListEvent(context, response);
                     break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
@@ -192,19 +194,21 @@ public class EventListFragment extends Fragment {
             }
         }
 
-        private void handleListEvents(final Context context, final String response) {
+        private void handleListEvent(final Context context, final String response) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        List<Event> events = ItsoninAPI.mapper.readValue(response, new TypeReference<List<Event>>(){});
-                        if (DEBUG) Log.i(TAG, "handleListEvents() events count=" + events.size());
-                        EventsContentProvider.setDiscoverEvents(events);
+                        Event event = ItsoninAPI.mapper.readValue(response, Event.class);
+                        if (DEBUG) Log.i(TAG, "handleListEvent() event=" + event);
+                        if (event != null) {
+                            EventsContentProvider.cacheEvent(event);
+                        }
                         if (handler != null) {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    getLoaderManager().restartLoader(EVENTS_LOADER, null, mLoaderCallbacks);
+                                    getLoaderManager().restartLoader(EVENT_LOADER, null, mLoaderCallbacks);
                                 }
                             });
                         }
@@ -259,7 +263,7 @@ public class EventListFragment extends Fragment {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             switch (id) {
-                case EVENTS_LOADER:
+                case EVENT_LOADER:
                     return new CursorLoader(
                             getActivity(),   // Parent activity context
                             mDataUri,        // Table to query
@@ -284,21 +288,6 @@ public class EventListFragment extends Fragment {
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
             mAdapter.swapCursor(null);
-        }
-    };
-
-    private AdapterView.OnItemClickListener eventInfoListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            String eventId = String.valueOf(id); // temporary
-            Toast.makeText(getActivity(), "event id=" + eventId, Toast.LENGTH_SHORT).show();
-            Uri dataUri = LocalEvent.Events.EVENTS_ID_CONTENT_URI.buildUpon().appendPath(eventId).build();
-            Fragment fragment = new EventInfoFragment(dataUri);
-            FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction()
-                    .addToBackStack(dataUri.toString())
-                    .add(R.id.content_frame, fragment)
-                    .commit();
         }
     };
 

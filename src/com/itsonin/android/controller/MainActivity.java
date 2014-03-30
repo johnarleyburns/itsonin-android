@@ -80,7 +80,10 @@ public class MainActivity extends FragmentActivity {
         //int numColumns = getResources().getInteger(R.integer.event_list_num_columns);
         //Fragment fragment = numColumns > 1 ? new EventListFragment(dataUri) : new ExpandableEventListFragment(dataUri);
         Fragment fragment = new EventListFragment(dataUri);
-        showFragment(fragment);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
     }
 
     private void createDrawer() {
@@ -211,14 +214,6 @@ public class MainActivity extends FragmentActivity {
         setTitle(mDrawerArray[position]);
         mDrawerLastTitle = mDrawerTitle;
 
-    }
-
-    private void showFragment(Fragment fragment) {
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
     }
 
     @Override

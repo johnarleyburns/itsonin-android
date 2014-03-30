@@ -21,9 +21,9 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EventCard {
+public class EventInfoCard {
 
-    public static final int list_item_layout = R.layout.event_card_item;
+    public static final int list_item_layout = R.layout.event_card_info_item;
 
     public static final int[] VIEW_IDS = {
             R.id.event_card_main,
@@ -123,10 +123,10 @@ public class EventCard {
             switch (view.getId()) {
                 case R.id.event_card_main:
                     return setEventCardMain(view, cursor);
-                //case R.id.event_card_map:
-                //    return setEventCardMap((ImageView) view, cursor);
-                //case R.id.event_card_streetview:
-                //    return setEventCardStreetView((ImageView) view, cursor);
+                case R.id.event_card_map:
+                    return setEventCardMap((ImageView) view, cursor);
+                case R.id.event_card_streetview:
+                    return setEventCardStreetView((ImageView) view, cursor);
                 case R.id.event_card_icon:
                     return setEventCardIcon((ImageView) view, cursor.getString(columnIndex));
                 case R.id.event_card_host:

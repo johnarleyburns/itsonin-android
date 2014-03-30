@@ -60,9 +60,8 @@ public class CreateEventDialogFragment extends DialogFragment {
     private static final String EVENT_DATE_KEY = "eventDate";
     private static final String START_TIME_KEY = "startTime";
     private static final String END_TIME_KEY = "endTime";
-    private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/locationTitle/autocomplete";
-    private static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode";
-    private static final String OUT_JSON = "/json";
+    private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
+    private static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode/json";
 
     private LocalEvent localEvent;
     private Host host;
@@ -461,17 +460,24 @@ public class CreateEventDialogFragment extends DialogFragment {
         initEndTime(context);
     }
 
+    private static final int LAST_HOUR_OF_DAY = 23;
+
     private void initEventDate(Context context) {
-        Date today = new Date();
         if (eventDate == null) {
-            eventDate = today;
+            Date today = new Date();
+            Calendar c = Calendar.getInstance();
+            c.setTime(today);
+            if (c.get(Calendar.HOUR_OF_DAY) >= LAST_HOUR_OF_DAY) {
+                c.roll(Calendar.DAY_OF_YEAR, 1);
+            }
+            eventDate = c.getTime();
         }
         eventDateView.setText(LocalEvent.friendlyDate(context, eventDate));
     }
 
     private void initStartTime(Context context) {
         Calendar c = Calendar.getInstance();
-        c.roll(Calendar.HOUR, 1);
+        c.roll(Calendar.HOUR_OF_DAY, 1);
         c.set(Calendar.MINUTE, 0);
         startTime = c.getTime();
         startTimeView.setText(LocalEvent.friendlyTime(context, startTime));
@@ -480,7 +486,7 @@ public class CreateEventDialogFragment extends DialogFragment {
     private void initEndTime(Context context) {
         Calendar c = Calendar.getInstance();
         c.setTime(startTime);
-        c.roll(Calendar.HOUR, 1);
+        c.roll(Calendar.HOUR_OF_DAY, 1);
         endTime = c.getTime();
         endTimeView.setText(LocalEvent.friendlyTime(context, endTime));
     }
@@ -578,6 +584,7 @@ public class CreateEventDialogFragment extends DialogFragment {
             if (lastLocation != null) {
                 placesParams += "&location=" + lastLocation.getLatitude() + "," + lastLocation.getLongitude();
             }
+            placesParams += "&types=establishment";
             //String countryCode = getResources().getConfiguration().locale.getCountry();
             //sb.append("&components=country:" + countryCode);
 
@@ -593,6 +600,7 @@ public class CreateEventDialogFragment extends DialogFragment {
             // Extract the Place descriptions from the results
             resultList = new ArrayList<String>(predsJsonArray.length());
             for (int i = 0; i < predsJsonArray.length(); i++) {
+                //String id = predsJsonArray.getJSONObject(i).getString("id");
                 String s = predsJsonArray.getJSONObject(i).getString("description");
                 resultList.add(s);
                 if (DEBUG) Log.i(TAG, "found result:" + s);
@@ -667,7 +675,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         String jsonResults = null;
         String input = addressView.getText().toString();
         try {
-            jsonResults = placesJSON(GEOCODE_API_BASE,  "locationAddress=" + URLEncoder.encode(input, ItsoninAPI.UTF8));
+            jsonResults = placesJSON(GEOCODE_API_BASE,  "address=" + URLEncoder.encode(input, ItsoninAPI.UTF8));
             if (jsonResults == null) {
                 if (DEBUG) Log.i(TAG, "no places found for input=" + input);
             }
@@ -724,7 +732,7 @@ public class CreateEventDialogFragment extends DialogFragment {
 
         try {
             String languageCode = getResources().getConfiguration().locale.getLanguage();
-            StringBuilder sb = new StringBuilder(apiBase + OUT_JSON);
+            StringBuilder sb = new StringBuilder(apiBase);
             sb.append("?sensor=true");
             sb.append("&key=" + mApiKey);
             sb.append("&language=" + languageCode);
