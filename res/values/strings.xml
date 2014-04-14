@@ -71,4 +71,13 @@
     <string name="guests_title">GUESTS</string>
     <string name="comments_title">COMMENTS</string>
 
+    <string name="delete_information">Delete private information</string>
+    <string name="delete_information_summary">Remove connection to all private events</string>
+    <string name="delete_information_summary_verify">
+        Remove connection to all private events?
+        You will no longer have access to your private events.
+        This cannot be undone.
+    </string>
+    <string name="deleted_information">Deleted private information</string>
+
 </resources>

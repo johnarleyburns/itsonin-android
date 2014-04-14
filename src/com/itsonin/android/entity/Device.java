@@ -1,22 +1,23 @@
 package com.itsonin.android.entity;
 
+import java.io.Serializable;
+import java.util.Date;
+
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 import com.itsonin.android.enums.DeviceLevel;
 import com.itsonin.android.enums.DeviceType;
 import com.itsonin.android.resteasy.CustomDateTimeSerializer;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author nkislitsin
  *
  */
-public class Device implements Serializable {
+public class Device implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	
-	private java.lang.Long deviceId;
+	private Long deviceId;
 	private DeviceType type;
 	private String token;
 	private DeviceLevel level;
@@ -64,7 +65,7 @@ public class Device implements Serializable {
 	}
 
 	@JsonSerialize(using = CustomDateTimeSerializer.class)
-	public java.util.Date getCreated() {
+	public Date getCreated() {
 		return created;
 	}
 
@@ -74,7 +75,7 @@ public class Device implements Serializable {
 	}
 
 	@JsonSerialize(using = CustomDateTimeSerializer.class)
-	public java.util.Date getLastLogin() {
+	public Date getLastLogin() {
 		return lastLogin;
 	}
 

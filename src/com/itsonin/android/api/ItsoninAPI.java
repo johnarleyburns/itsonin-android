@@ -17,7 +17,6 @@ import com.itsonin.android.entity.Event;
 import com.itsonin.android.entity.EventWithGuest;
 import com.itsonin.android.model.Device;
 import com.itsonin.android.model.LocalEvent;
-import com.itsonin.android.model.Session;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -59,10 +58,8 @@ public class ItsoninAPI {
     public static final ObjectMapper mapper = new ObjectMapper();
 
     public static enum REST {
-        CREATE_DEVICE("/api/device/create", HttpMethod.POST),
-        AUTHENTICATE("/api/device/%1$s/createDevice/%2$s", HttpMethod.GET),
         CREATE_EVENT("/api/event/create", HttpMethod.POST),
-        LIST_EVENTS("/api/event/list", HttpMethod.GET),
+        LIST_EVENTS("/api/event/list?allEvents=true", HttpMethod.GET),
         EVENT_INFO("/api/event/%1$s/info", HttpMethod.GET);
 
         private static final String BASE_URL = "http://itsonin-com.appspot.com";
@@ -92,13 +89,11 @@ public class ItsoninAPI {
         }
     }
 
-    private static final String JSESSIONID_HEADER = "JSESSIONID";
-    private static final String SESSION_TOKEN_HEADER = "token";
+    private static final String DEVICE_TOKEN_HEADER = "token";
 
     private WeakReference<Context> context;
 
     private Device device;
-    private Session session;
     private LocalEvent pendingLocalEvent;
     private String pendingEventInfoId;
     private boolean pendingListEvents;
@@ -111,7 +106,6 @@ public class ItsoninAPI {
     private void init(Context context) {
         this.context = new WeakReference<Context>(context);
         device = Device.load(context);
-        session = Session.load(context);
         registerReceiver(apiReceiver);
     }
 
@@ -125,44 +119,10 @@ public class ItsoninAPI {
     public void onDestroy() {
         unregisterReceiver(apiReceiver);
     }
-
-    public void createDevice() {
-        if (context.get() == null) {
-            Log.e(TAG, "null context reference");
-            return;
-        }
-        try {
-            JSONObject request = new JSONObject();
-            request.put("type", "APPLICATION");
-            String requestJSON = request.toString();
-            asyncApiJSON(REST.CREATE_DEVICE, REST.CREATE_DEVICE.apiUrl(), requestJSON);
-        }
-        catch (JSONException e) {
-            Log.e(TAG, "Exception in createDevice()", e);
-        }
-    }
-
-    public void authenticate() {
-        if (context.get() == null) {
-            Log.e(TAG, "null context reference");
-            return;
-        }
-        if (device == null || !device.exists()) {
-            createDevice();
-        }
-        else {
-            asyncApiJSON(REST.AUTHENTICATE, REST.AUTHENTICATE.apiUrl(device.id, device.token), "");
-        }
-    }
-
     public void createEvent(LocalEvent localEvent) {
         pendingLocalEvent = localEvent;
         if (context.get() == null) {
             Log.e(TAG, "null context reference");
-            return;
-        }
-        if (session == null || !session.exists()) {
-            authenticate();
             return;
         }
         try {
@@ -180,10 +140,6 @@ public class ItsoninAPI {
             Log.e(TAG, "null context reference");
             return;
         }
-        if (session == null || !session.exists()) {
-            authenticate();
-            return;
-        }
         asyncApiJSON(REST.LIST_EVENTS, REST.LIST_EVENTS.apiUrl(), "");
     }
 
@@ -191,10 +147,6 @@ public class ItsoninAPI {
         pendingEventInfoId = eventId;
         if (context.get() == null) {
             Log.e(TAG, "null context reference");
-            return;
-        }
-        if (session == null || !session.exists()) {
-            authenticate();
             return;
         }
         asyncApiJSON(REST.EVENT_INFO, REST.EVENT_INFO.apiUrl(eventId), "");
@@ -238,15 +190,19 @@ public class ItsoninAPI {
             myConnection.setHeader("Accept", "application/json");
             myConnection.setHeader("Accept-Language", locale);
             myConnection.setHeader("Content-Type", "application/json");
+            if (device.token != null && !device.token.isEmpty()) {
+                myConnection.setHeader("Cookie", "token=" + device.token);
+                if (DEBUG) Log.i(TAG, "cookie:token=" + device.token);
+            }
+
             if (DEBUG) Log.i(TAG, "calling url: " + apiUrl + " body: " + requestJSON);
 
             response = myClient.execute(myConnection);
             handleCookies(response);
-            if (response.getStatusLine().getStatusCode() == 401) {
-                if (DEBUG) Log.i(TAG, "need to re-authenticate");
-                authenticate();
-                return;
-            }
+            //if (response.getStatusLine().getStatusCode() == 401) {
+            //    if (DEBUG) Log.i(TAG, "need to re-authenticate");
+            //    return;
+            //}
 
             String jsonResults = EntityUtils.toString(response.getEntity(), UTF8);
             if (DEBUG) Log.i(TAG, "results: " + jsonResults);
@@ -276,18 +232,14 @@ public class ItsoninAPI {
         boolean matched = false;
         for (HttpCookie cookie : cookies) {
             if (DEBUG) Log.i(TAG, "cookie name=" + cookie.getName() + " value=" + cookie.getValue());
-            if (JSESSIONID_HEADER.equals(cookie.getName())) {
-                session.sessionId = cookie.getValue();
-                matched = true;
-            }
-            else if (SESSION_TOKEN_HEADER.equals(cookie.getName())) {
-                session.sessionToken = cookie.getValue();
+            if (DEVICE_TOKEN_HEADER.equals(cookie.getName())) {
+                device.token = cookie.getValue();
                 matched = true;
             }
         }
 
         if (matched && context.get() != null) {
-            session.store(context.get());
+            device.store(context.get());
         }
     }
 
@@ -336,20 +288,13 @@ public class ItsoninAPI {
             String response = intent.getStringExtra(ItsoninAPI.ITSONIN_API_RESPONSE);
             if (DEBUG) Log.i(TAG, "received " + statusCode + ": " + response);
 
-            if (response == null || response.isEmpty() || statusCode != 200) {
-                Log.e(TAG, "Empty response statusCode=" + statusCode);
-                notifyAuthenticationError(context);
+            if (isError(statusCode, response)) {
+                Log.e(TAG, "error received code=" + statusCode + " response=" + response);
                 return;
             }
 
             ItsoninAPI.REST rest = ItsoninAPI.REST.valueOfPath(path);
             switch(rest) {
-                case CREATE_DEVICE:
-                    handleCreateDevice(context, response);
-                    break;
-                case AUTHENTICATE:
-                    handleAuthenticate(context, response);
-                    break;
                 case CREATE_EVENT:
                     handleCreateEvent(context, response);
                     break;
@@ -365,29 +310,8 @@ public class ItsoninAPI {
             }
         }
 
-        private void handleCreateDevice(Context context, String response) {
-            try {
-                JSONObject jsonObj = new JSONObject(response);
-                String token = jsonObj.getString("token");
-                if (DEBUG) Log.i(TAG, "received device token=" + token);
-                if (token == null || token.trim().isEmpty()) {
-                    Log.e(TAG, "Empty device token returned");
-                    notifyAuthenticationError(context);
-                    return;
-                }
-                device.token = token;
-                device.store(context);
-                Toast.makeText(context, "authenticated with new device creation", Toast.LENGTH_SHORT).show();
-                handlePendingEvents();
-            } catch (JSONException e) {
-                Log.e(TAG, "Cannot process JSON results", e);
-                notifyAuthenticationError(context);
-            }
-        }
-
-        private void handleAuthenticate(Context context, String response) {
-            if (DEBUG) Log.i(TAG, "received authenticate");
-            handlePendingEvents();
+        private boolean isError(int statusCode, String response) {
+            return response == null || response.isEmpty() || statusCode != 200;
         }
 
         private void handleCreateEvent(Context context, String response) {
@@ -397,7 +321,6 @@ public class ItsoninAPI {
                 pendingLocalEvent = null;
             } catch (JSONException e) {
                 Log.e(TAG, "Cannot process JSON results", e);
-                notifyAuthenticationError(context);
             }
         }
 
@@ -409,10 +332,6 @@ public class ItsoninAPI {
         private void handleEventInfo(Context context, String response) {
             if (DEBUG) Log.i(TAG, "received list events response");
             pendingEventInfoId = null;
-        }
-
-        private void notifyAuthenticationError(Context context) {
-            Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
         }
 
         private void handlePendingEvents() {

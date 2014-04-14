@@ -1,0 +1,3 @@
+[submodule "library/android-support-v4-preferencefragment"]
+	path = library/android-support-v4-preferencefragment
+	url = https://github.com/kolavar/android-support-v4-preferencefragment

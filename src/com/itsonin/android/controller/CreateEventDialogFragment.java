@@ -19,8 +19,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.itsonin.android.R;
 import com.itsonin.android.api.ItsoninAPI;
+import com.itsonin.android.entity.ApiError;
+import com.itsonin.android.entity.Event;
 import com.itsonin.android.model.*;
 import com.itsonin.android.resteasy.CustomDateTimeSerializer;
 import com.squareup.timessquare.CalendarPickerView;
@@ -42,6 +45,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -86,7 +90,6 @@ public class CreateEventDialogFragment extends DialogFragment {
     private AutoCompleteTextView placeView;
     private TextView eventDateView;
     private TextView startTimeView;
-    private CheckBox publicPrivateView;
     private TextView endTimeView;
     private AutoCompleteTextView addressView;
     private View detailsButton;
@@ -156,22 +159,27 @@ public class CreateEventDialogFragment extends DialogFragment {
             String response = intent.getStringExtra(ItsoninAPI.ITSONIN_API_RESPONSE);
             if (DEBUG) Log.i(TAG, "received " + statusCode + ": " + response);
 
-            if (response == null || response.isEmpty() || statusCode != 200) {
-                Log.e(TAG, "Empty response statusCode=" + statusCode);
-                notifyAuthenticationError(context);
-                return;
-            }
-
             ItsoninAPI.REST rest = ItsoninAPI.REST.valueOfPath(path);
             switch(rest) {
                 case CREATE_EVENT:
-                    handleCreateEvent(context, response);
-                    Toast.makeText(context, "created event", Toast.LENGTH_SHORT).show();
+                    if (isError(statusCode, response)) {
+                        notifyAuthenticationError(context, response);
+                    }
+                    else {
+                        handleCreateEvent(context, response);
+                        Toast.makeText(context, "created event", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
                     dismiss();
                     break;
             }
+
+        }
+
+        private boolean isError(int statusCode, String response) {
+            return response == null || response.isEmpty() || statusCode != 200;
         }
 
         private void handleCreateEvent(Context context, String response) {
@@ -181,6 +189,22 @@ public class CreateEventDialogFragment extends DialogFragment {
 
         private void notifyAuthenticationError(Context context) {
             Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
+        }
+
+        private void notifyAuthenticationError(Context context, String response) {
+            if (response == null) {
+                notifyAuthenticationError(context);
+            }
+            else {
+                try {
+                    ApiError apiError = ItsoninAPI.mapper.readValue(response, ApiError.class);
+                    Toast.makeText(context, apiError.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception e) {
+                    Log.e(TAG, "error handling error", e);
+                    Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
+                }
+            }
         }
 
     };
@@ -305,8 +329,6 @@ public class CreateEventDialogFragment extends DialogFragment {
         endTimeView = (TextView)view.findViewById(R.id.end_time);
         endTimeView.setOnFocusChangeListener(endTimeFocusListener);
         endTimeView.setOnClickListener(endTimeClickListener);
-
-        publicPrivateView = (CheckBox)view.findViewById(R.id.public_private);
 
         detailsButton = view.findViewById(R.id.detail_button);
         detailsSection = view.findViewById(R.id.detail_section);
@@ -763,7 +785,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         e.date = new SimpleDateFormat(CustomDateTimeSerializer.ITSONIN_DATES).format(eventDate);
         e.startTime = startTimeView.getText().toString();
         e.endTime = endTimeView.getText().toString();
-        e.privateEvent = publicPrivateView.isChecked();
+        e.privateEvent = true; // can only create private events via interface
         e.locationTitle = placeView.getText().toString();
         e.locationAddress = addressView.getText().toString();
         e.gpsLat = latitude;

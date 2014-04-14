@@ -9,10 +9,7 @@ import com.itsonin.android.R;
 import com.itsonin.android.entity.Event;
 import com.itsonin.android.entity.EventWithGuest;
 import com.itsonin.android.entity.Guest;
-import com.itsonin.android.enums.EventFlexibility;
-import com.itsonin.android.enums.EventStatus;
-import com.itsonin.android.enums.EventType;
-import com.itsonin.android.enums.EventVisibility;
+import com.itsonin.android.enums.*;
 import com.itsonin.android.providers.EventsContentProvider;
 import com.itsonin.android.resteasy.CustomDateTimeSerializer;
 
@@ -32,6 +29,7 @@ public class LocalEvent {
     public String description;
     public String host; // name of person hosting the event
     public String category;
+    public String sharability;
     public String date;
     public String startTime;
     public String endTime;
@@ -51,6 +49,7 @@ public class LocalEvent {
             String description,
             String host,
             String category,
+            String sharability,
             String date,
             String startTime,
             String endTime,
@@ -67,6 +66,7 @@ public class LocalEvent {
         this.description = description;
         this.host = host;
         this.category = category;
+        this.sharability = sharability;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -85,14 +85,15 @@ public class LocalEvent {
         this.description = e.getDescription();
         this.host = null;
         this.category = mapEventType(e.getType());
+        this.sharability = e.getSharability().toString();
         this.date = friendlyDate(c, e.getStartTime());
         this.startTime = friendlyTime(c, e.getStartTime());
         this.endTime = friendlyTime(c, e.getEndTime());
         this.privateEvent = mapVisibility(e.getVisibility());
         this.locationTitle = e.getLocationTitle();
         this.locationAddress = e.getLocationAddress();
-        this.gpsLat = e.getGpsLat();
-        this.gpsLong = e.getGpsLong();
+        this.gpsLat = e.getGpsLat() == null ? 0 : e.getGpsLat();
+        this.gpsLong = e.getGpsLong() == null ? 0 : e.getGpsLong();
         this.numAttendees = 0;
     }
 
@@ -124,6 +125,9 @@ public class LocalEvent {
 
     public static String friendlyDate(Context context, Date date) { // no time component
         String s;
+        if (date == null) {
+            return null;
+        }
         if (DateUtils.isToday(date.getTime())) {
             s = context.getString(R.string.today);
         }
@@ -143,12 +147,16 @@ public class LocalEvent {
     }
 
     public static String friendlyTime(Context context, Date time) {
+        if (time == null) {
+            return null;
+        }
         DateFormat df = android.text.format.DateFormat.getTimeFormat(context);
         return df.format(time);
     }
 
     private static final Random mRandom = new Random();
 
+    /*
     public static LocalEvent[] createTestEvents() {
         return new LocalEvent[] {
                 new LocalEvent(mRandom.nextLong(),
@@ -335,6 +343,7 @@ public class LocalEvent {
 
         };
     }
+    */
 
     public Object[] makeCursorRow() {
         return new Object[] {
@@ -343,6 +352,7 @@ public class LocalEvent {
                 description,
                 host,
                 category,
+                sharability,
                 date,
                 startTime,
                 endTime,
@@ -361,6 +371,7 @@ public class LocalEvent {
                 + "description=[" + description + "]"
                 + "host=[" + host + "]"
                 + "category=[" + category + "]"
+                + "sharability=[" + sharability + "]"
                 + "date=[" + date + "]"
                 + "startTime=[" + startTime + "]"
                 + "endTime=[" + endTime + "]"
@@ -393,6 +404,7 @@ public class LocalEvent {
         public static final String TEXT = "description";
         public static final String HOST = "host"; // name of person hosting the event
         public static final String CATEGORY = "category";
+        public static final String SHARABILITY = "sharability";
         public static final String DATE = "date";
         public static final String START_TIME = "startTime";
         public static final String END_TIME = "endTime";
@@ -408,6 +420,7 @@ public class LocalEvent {
                 TEXT,
                 HOST,
                 CATEGORY,
+                SHARABILITY,
                 DATE,
                 START_TIME,
                 END_TIME,
@@ -423,6 +436,7 @@ public class LocalEvent {
     public Event toEvent(Context context) {
         return new Event(
                 mapCategory(),
+                mapSharability(),
                 mapPrivate(),
                 EventStatus.ACTIVE,
                 EventFlexibility.NEGOTIABLE,
@@ -456,6 +470,19 @@ public class LocalEvent {
                 return "rally_protest";
             default:
                 return "other";
+        }
+    }
+
+    private EventSharability mapSharability() {
+        if (sharability == null) {
+            return EventSharability.NORMAL;
+        }
+        EventSharability e = EventSharability.valueOf(sharability);
+        if (e == null) {
+            return EventSharability.NORMAL;
+        }
+        else {
+            return e;
         }
     }
 

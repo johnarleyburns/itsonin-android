@@ -44,45 +44,13 @@
                         android:paddingTop="@dimen/card_inner"
                         />
 
-                <LinearLayout
+                <AutoCompleteTextView
+                        android:id="@+id/host"
+                        android:paddingTop="@dimen/card_inner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:weightSum="2"
-                        android:orientation="horizontal"
-                        android:paddingTop="0dp"
-                        android:paddingBottom="@dimen/card_spacing"
-                        >
-
-                    <EditText
-                            android:id="@+id/date"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:paddingTop="@dimen/card_inner"
-                            android:hint="@string/date_hint"
-                            android:textSize="@dimen/form_text"
-                            android:editable="false"
-                            />
-
-                    <EditText
-                            android:id="@+id/start_time"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/start_time_hint"
-                            android:textSize="@dimen/form_text"
-                            android:editable="false"
-                            />
-
-                </LinearLayout>
-
-                <CheckBox
-                        android:id="@+id/public_private"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/card_spacing"
-                        android:text="@string/this_event_is_private"
-                        android:checked="true"
+                        android:textSize="@dimen/form_text"
+                        android:hint="@string/host_hint"
                         />
 
             </LinearLayout>
@@ -151,6 +119,38 @@
                         android:orientation="horizontal"
                         >
 
+                    <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:weightSum="2"
+                            android:orientation="horizontal"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="@dimen/card_spacing"
+                            >
+
+                        <EditText
+                                android:id="@+id/date"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:paddingTop="@dimen/card_inner"
+                                android:hint="@string/date_hint"
+                                android:textSize="@dimen/form_text"
+                                android:editable="false"
+                                />
+
+                        <EditText
+                                android:id="@+id/start_time"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/start_time_hint"
+                                android:textSize="@dimen/form_text"
+                                android:editable="false"
+                                />
+
+                    </LinearLayout>
+
                     <TextView
                             android:layout_width="0dp"
                             android:layout_weight="1"
@@ -171,15 +171,6 @@
                             />
 
                 </LinearLayout>
-
-                <AutoCompleteTextView
-                        android:id="@+id/host"
-                        android:paddingTop="@dimen/card_inner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/form_text"
-                        android:hint="@string/host_hint"
-                        />
 
                 <AutoCompleteTextView
                         android:id="@+id/locationTitle"

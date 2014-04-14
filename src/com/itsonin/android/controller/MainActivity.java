@@ -10,6 +10,8 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
@@ -76,13 +78,15 @@ public class MainActivity extends FragmentActivity {
     //    return frame != null && frame.getChildCount() > 0;
     //}
 
-    private void showEventListFragment(Uri dataUri) {
-        //int numColumns = getResources().getInteger(R.integer.event_list_num_columns);
-        //Fragment fragment = numColumns > 1 ? new EventListFragment(dataUri) : new ExpandableEventListFragment(dataUri);
-        Fragment fragment = new EventListFragment(dataUri);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
+   private void showEventListFragment(Uri dataUri) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, new EventListFragment(dataUri))
+                .commit();
+    }
+
+    private void showSettingsFragment() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, new SettingsFragment())
                 .commit();
     }
 
@@ -155,15 +159,27 @@ public class MainActivity extends FragmentActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.event_list_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        // Handle your other action bar items...
-
-        return super.onOptionsItemSelected(item);
+        else {
+            switch (item.getItemId()) {
+                case R.id.add_event:
+                    CreateEventDialogFragment d = new CreateEventDialogFragment();
+                    d.show(getSupportFragmentManager(), TAG);
+                    return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
+        }
     }
 
 
@@ -196,7 +212,8 @@ public class MainActivity extends FragmentActivity {
                 setDrawerSelected(position);
                 break;
             case SETTINGS_POSITION:
-                Toast.makeText(this, R.string.not_implemented, Toast.LENGTH_SHORT).show();
+                showSettingsFragment();
+                setDrawerSelected(position);
                 break;
             case SEND_FEEDBACK_POSITION:
                 SendFeedback.email(this);

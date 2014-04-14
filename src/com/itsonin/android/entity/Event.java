@@ -1,14 +1,16 @@
 package com.itsonin.android.entity;
 
+import java.io.Serializable;
+import java.util.Date;
+
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 import com.itsonin.android.enums.EventFlexibility;
+import com.itsonin.android.enums.EventSharability;
 import com.itsonin.android.enums.EventStatus;
 import com.itsonin.android.enums.EventType;
 import com.itsonin.android.enums.EventVisibility;
 import com.itsonin.android.resteasy.CustomDateTimeSerializer;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author nkislitsin
@@ -18,8 +20,9 @@ public class Event implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	private java.lang.Long eventId;
+	private Long eventId;
 	private EventType type;
+	private EventSharability sharability;
 	private EventVisibility visibility;
 	private EventStatus status;
 	private EventFlexibility flexibility;
@@ -33,16 +36,17 @@ public class Event implements Serializable {
 	private String locationUrl;
 	private String locationTitle;
 	private String locationAddress;
-	private Date created;
+	private Date created;	
 	
 	@SuppressWarnings("unused")
 	private Event(){}
 
-	public Event(EventType type, EventVisibility visibility, 
+	public Event(EventType type, EventSharability sharability, EventVisibility visibility, 
 			EventStatus status,	EventFlexibility flexibility, String title, String description,
-			String notes, Date startTime, Date endTime, Double gpsLat,Double gpsLong,
+			String notes, Date startTime, Date endTime, Double gpsLat,Double gpsLong, 
 			String locationUrl, String locationTitle, String locationAddress, Date created) {
 		this.type = type;
+		this.sharability = sharability;
 		this.visibility = visibility;
 		this.status = status;
 		this.flexibility = flexibility;
@@ -73,6 +77,14 @@ public class Event implements Serializable {
 
 	public void setType(EventType type) {
 		this.type = type;
+	}
+
+	public EventSharability getSharability() {
+		return sharability;
+	}
+
+	public void setSharability(EventSharability sharability) {
+		this.sharability = sharability;
 	}
 
 	public EventVisibility getVisibility() {
@@ -124,7 +136,7 @@ public class Event implements Serializable {
 	}
 
 	@JsonSerialize(using = CustomDateTimeSerializer.class)
-	public java.util.Date getStartTime() {
+	public Date getStartTime() {
 		return startTime;
 	}
 
@@ -134,7 +146,7 @@ public class Event implements Serializable {
 	}
 
 	@JsonSerialize(using = CustomDateTimeSerializer.class)
-	public java.util.Date getEndTime() {
+	public Date getEndTime() {
 		return endTime;
 	}
 
@@ -184,7 +196,7 @@ public class Event implements Serializable {
 	}
 
 	@JsonSerialize(using = CustomDateTimeSerializer.class)
-	public java.util.Date getCreated() {
+	public Date getCreated() {
 		return created;
 	}
 
@@ -192,6 +204,5 @@ public class Event implements Serializable {
 	public void setCreated(Date created) {
 		this.created = created;
 	}
-
 
 }

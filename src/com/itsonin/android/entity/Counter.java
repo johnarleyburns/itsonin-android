@@ -6,7 +6,7 @@ package com.itsonin.android.entity;
  */
 public class Counter {
 	
-	private java.lang.String name;
+	private String name;
 	private long value;
 	
 	@SuppressWarnings("unused")

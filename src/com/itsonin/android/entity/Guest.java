@@ -1,10 +1,12 @@
 package com.itsonin.android.entity;
 
-import com.itsonin.android.enums.GuestType;
-import com.itsonin.android.resteasy.CustomDateTimeSerializer;
+import java.util.Date;
+
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import java.util.Date;
+import com.itsonin.android.enums.GuestStatus;
+import com.itsonin.android.enums.GuestType;
+import com.itsonin.android.resteasy.CustomDateTimeSerializer;
 
 /**
  * @author nkislitsin
@@ -12,12 +14,14 @@ import java.util.Date;
  */
 public class Guest {
 
-	private java.lang.String id;
+	private String id;
+	private Long deviceId;
 	private Long guestId;
 	private Long eventId;
 	private Long parentGuestId;
 	private String name;
 	private GuestType type;
+	private GuestStatus status;
 	private Date created;
 	
 	@SuppressWarnings("unused")
@@ -27,12 +31,15 @@ public class Guest {
 		this.name = name;
 	}
 
-	public Guest(Long guestId, Long eventId, String name, GuestType type, Date created) {
-		this.id = eventId + "_" + guestId;
+	public Guest(Long deviceId, Long guestId, Long eventId, String name, GuestType type, 
+			GuestStatus status, Date created) {
+		this.id = eventId + "_" + guestId + "_" + deviceId;
+		this.deviceId = deviceId;
 		this.guestId = guestId;
 		this.eventId = eventId;
 		this.name = name;
 		this.type = type;
+		this.setStatus(status);
 		this.created = created;
 	}
 
@@ -42,6 +49,14 @@ public class Guest {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+	
+	public Long getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(Long deviceId) {
+		this.deviceId = deviceId;
 	}
 
 	public Long getGuestId() {
@@ -85,12 +100,20 @@ public class Guest {
 	}
 
 	@JsonSerialize(using = CustomDateTimeSerializer.class)
-	public java.util.Date getCreated() {
+	public Date getCreated() {
 		return created;
 	}
 
 	public void setCreated(Date created) {
 		this.created = created;
+	}
+
+	public GuestStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(GuestStatus status) {
+		this.status = status;
 	}
 
 }

@@ -5,5 +5,5 @@ package com.itsonin.android.enums;
  *
  */
 public enum EventType {
-	PICNIC, PARTY, FLASHMOB, RALLY, PROTEST, EXCERCISE;
+	PICNIC, PARTY, FLASHMOB, RALLY, PROTEST, EXCERCISE, VACATION, BIRTHDAY, CLUBBING, DINNER;
 }

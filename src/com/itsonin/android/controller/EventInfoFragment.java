@@ -19,6 +19,7 @@ import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.Toast;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.itsonin.android.R;
 import com.itsonin.android.api.ItsoninAPI;
@@ -32,6 +33,7 @@ import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
 * Created with IntelliJ IDEA.
@@ -84,7 +86,7 @@ public class EventInfoFragment extends Fragment {
             eventId = dataUri.getLastPathSegment();
         }
         setHasOptionsMenu(true);
-        setRetainInstance(true);
+        //setRetainInstance(true);
         scheduleReload = true;
     }
 
@@ -177,16 +179,16 @@ public class EventInfoFragment extends Fragment {
             String response = intent.getStringExtra(ItsoninAPI.ITSONIN_API_RESPONSE);
             if (DEBUG) Log.i(TAG, "received " + statusCode + ": " + response);
 
-            if (response == null || response.isEmpty() || statusCode != 200) {
-                Log.e(TAG, "Empty response statusCode=" + statusCode);
-                notifyAuthenticationError(context);
-                return;
-            }
-
             ItsoninAPI.REST rest = ItsoninAPI.REST.valueOfPath(path);
             switch(rest) {
                 case EVENT_INFO:
-                    handleListEvent(context, response);
+                    if (isError(statusCode, response)) {
+                        mListView.setEmptyView(mEmptyView);
+                        notifyAuthenticationError(context);
+                    }
+                    else {
+                        handleListEvent(context, response);
+                    }
                     break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
@@ -194,12 +196,17 @@ public class EventInfoFragment extends Fragment {
             }
         }
 
+        private boolean isError(int statusCode, String response) {
+            return response == null || response.isEmpty() || statusCode != 200;
+        }
+
         private void handleListEvent(final Context context, final String response) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        Event event = ItsoninAPI.mapper.readValue(response, Event.class);
+                        List<Event> events = ItsoninAPI.mapper.readValue(response, new TypeReference<List<Event>>(){});
+                        Event event = (events == null || events.size() == 0) ? null : events.get(0);
                         if (DEBUG) Log.i(TAG, "handleListEvent() event=" + event);
                         if (event != null) {
                             EventsContentProvider.cacheEvent(event);
@@ -239,26 +246,6 @@ public class EventInfoFragment extends Fragment {
 
     };
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.event_list_menu, menu);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // handle item selection
-        switch (item.getItemId()) {
-            case R.id.add_event:
-                CreateEventDialogFragment d = new CreateEventDialogFragment();
-                d.show(getFragmentManager(), TAG);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     LoaderManager.LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -281,8 +268,6 @@ public class EventInfoFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             mAdapter.swapCursor(data);
-            if (mListView.getEmptyView() == null)
-                mListView.setEmptyView(mEmptyView);
         }
 
         @Override

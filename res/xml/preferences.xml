@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.itsonin.android.preference.DeletePreference
+            android:key="pref_delete_information"
+            android:title="@string/delete_information"
+            android:summary="@string/delete_information_summary" />
+
+</PreferenceScreen>

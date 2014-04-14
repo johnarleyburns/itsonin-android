@@ -76,7 +76,7 @@ public class EventListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        //setHasOptionsMenu(true);
         setRetainInstance(true);
         scheduleReload = true;
     }
@@ -91,13 +91,13 @@ public class EventListFragment extends Fragment {
 
         mListView = (AbsListView)rootView.findViewById(R.id.list_view);
         mListView.setOnItemClickListener(eventInfoListener);
+        mEmptyView = rootView.findViewById(R.id.empty_message);
 
         mAdapter = new SimpleCursorAdapter(container.getContext(), EventListCard.list_item_layout, null,
                 LocalEvent.Events.COLUMNS, EventListCard.VIEW_IDS,
                 Adapter.NO_SELECTION);
         mAdapter.setViewBinder(new EventListCard.EventViewBinder());
         mListView.setAdapter(mAdapter);
-        mEmptyView = rootView.findViewById(R.id.empty_message);
         mPullToRefreshLayout = new WeakReference<PullToRefreshLayout>(
                 (PullToRefreshLayout)rootView.findViewById(R.id.pull_to_refresh));
         mDataUri = Uri.parse(args.getString(EVENT_LIST_DATA_URI));
@@ -172,24 +172,30 @@ public class EventListFragment extends Fragment {
             String response = intent.getStringExtra(ItsoninAPI.ITSONIN_API_RESPONSE);
             if (DEBUG) Log.i(TAG, "received " + statusCode + ": " + response);
 
-            if (response == null || response.isEmpty() || statusCode != 200) {
-                Log.e(TAG, "Empty response statusCode=" + statusCode);
-                notifyAuthenticationError(context);
-                return;
-            }
-
             ItsoninAPI.REST rest = ItsoninAPI.REST.valueOfPath(path);
             switch(rest) {
                 case LIST_EVENTS:
-                    handleListEvents(context, response);
+                    if (isError(statusCode, response)) {
+                        mListView.setEmptyView(mEmptyView);
+                        notifyAuthenticationError(context);
+                    }
+                    else {
+                        handleListEvents(context, response);
+                    }
                     break;
                 case CREATE_EVENT:
-                    reloadEvents();
+                    if (!isError(statusCode, response)) {
+                        reloadEvents();
+                    }
                     break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
                     break;
             }
+        }
+
+        private boolean isError(int statusCode, String response) {
+            return response == null || response.isEmpty() || statusCode != 200;
         }
 
         private void handleListEvents(final Context context, final String response) {
@@ -235,26 +241,6 @@ public class EventListFragment extends Fragment {
 
     };
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.event_list_menu, menu);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // handle item selection
-        switch (item.getItemId()) {
-            case R.id.add_event:
-                CreateEventDialogFragment d = new CreateEventDialogFragment();
-                d.show(getFragmentManager(), TAG);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     LoaderManager.LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -277,8 +263,6 @@ public class EventListFragment extends Fragment {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
             mAdapter.swapCursor(data);
-            if (mListView.getEmptyView() == null)
-                mListView.setEmptyView(mEmptyView);
         }
 
         @Override

@@ -1,9 +1,10 @@
 package com.itsonin.android.entity;
 
-import com.itsonin.android.resteasy.CustomDateTimeSerializer;
+import java.util.Date;
+
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import java.util.Date;
+import com.itsonin.android.resteasy.CustomDateTimeSerializer;
 
 /**
  * @author nkislitsin
@@ -11,7 +12,7 @@ import java.util.Date;
  */
 public class Comment {
 
-	private java.lang.Long commentId;
+	private Long commentId;
 	private Long eventId;
 	private Long guestId;
 	private Long parentCommentId;
@@ -71,7 +72,7 @@ public class Comment {
 	}
 
 	@JsonSerialize(using = CustomDateTimeSerializer.class)
-	public java.util.Date getCreated() {
+	public Date getCreated() {
 		return created;
 	}
 

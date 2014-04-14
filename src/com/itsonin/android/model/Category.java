@@ -14,7 +14,6 @@ import com.itsonin.android.R;
  */
 public class Category {
 
-    private static final String PREF_LAST_CATEGORY = "lastCategory";
     private static final int DEFAULT_CATEGORY_INDEX = 0;
 
     public String lastCategory;
@@ -26,7 +25,7 @@ public class Category {
     public void store(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
-                .putString(PREF_LAST_CATEGORY, lastCategory)
+                .putString(SavedPreference.PREF_LAST_CATEGORY, lastCategory)
                 .apply();
     }
 
@@ -34,7 +33,7 @@ public class Category {
         Category category = new Category();
         category.categories = context.getResources().getStringArray(R.array.event_categories);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        category.lastCategory =  prefs.getString(PREF_LAST_CATEGORY, category.categories[DEFAULT_CATEGORY_INDEX]);
+        category.lastCategory =  prefs.getString(SavedPreference.PREF_LAST_CATEGORY, category.categories[DEFAULT_CATEGORY_INDEX]);
         return category;
     }
 

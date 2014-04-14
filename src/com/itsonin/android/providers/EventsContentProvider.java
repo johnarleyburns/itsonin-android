@@ -146,37 +146,45 @@ public class EventsContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case EVENTS:
                 Date now = new Date();
-                for (Event e : discoverEvents) {
-                    if (isEventCurrent(e, now)) {
-                        LocalEvent le = new LocalEvent(getContext(), e);
-                        c.addRow(le.makeCursorRow());
+                synchronized (discoverEvents) {
+                    for (Event e : discoverEvents) {
+                        if (isEventCurrent(e, now)) {
+                            LocalEvent le = new LocalEvent(getContext(), e);
+                            c.addRow(le.makeCursorRow());
+                        }
                     }
                 }
                 break;
             case EVENTS_ID:
                 String eventId = uri.getLastPathSegment();
-                Event cached = cachedEvents.get(eventId);
-                if (DEBUG) Log.i(TAG, "matched EVENTS_ID id=" + eventId + " cached=" + cached);
-                if (cached != null) {
-                    LocalEvent le = new LocalEvent(getContext(), cached);
-                    c.addRow(le.makeCursorRow());
+                synchronized (cachedEvents) {
+                    Event cached = cachedEvents.get(eventId);
+                    if (DEBUG) Log.i(TAG, "matched EVENTS_ID id=" + eventId + " cached=" + cached);
+                    if (cached != null) {
+                        LocalEvent le = new LocalEvent(getContext(), cached);
+                        c.addRow(le.makeCursorRow());
+                    }
+                    //selection = selection + "_id = " + uri.getLastPathSegment();
                 }
-                //selection = selection + "_id = " + uri.getLastPathSegment();
                 break;
             case EVENTS_PRIVATE:
-                for (Event e : discoverEvents) {
-                    if (isEventPrivate(e)) {
-                        LocalEvent me = new LocalEvent(getContext(), e);
-                        c.addRow(me.makeCursorRow());
+                synchronized (discoverEvents) {
+                    for (Event e : discoverEvents) {
+                        if (isEventPrivate(e)) {
+                            LocalEvent me = new LocalEvent(getContext(), e);
+                            c.addRow(me.makeCursorRow());
+                        }
                     }
                 }
                 break;
             case EVENTS_DISCOVER:
                 String category = uri.getLastPathSegment();
-                for (Event e : discoverEvents) {
-                    LocalEvent de = new LocalEvent(getContext(), e);
-                    if (category.equals(de.category)) {
-                        c.addRow(de.makeCursorRow());
+                synchronized (discoverEvents) {
+                    for (Event e : discoverEvents) {
+                        LocalEvent de = new LocalEvent(getContext(), e);
+                        if (category.equals(de.category)) {
+                            c.addRow(de.makeCursorRow());
+                        }
                     }
                 }
                 break;
