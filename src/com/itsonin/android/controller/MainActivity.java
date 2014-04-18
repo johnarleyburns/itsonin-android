@@ -96,6 +96,8 @@ public class MainActivity extends FragmentActivity {
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
+        mDrawerArray[0] += " " + "Dusseldorf";
+
         // Set the adapter for the list view
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 

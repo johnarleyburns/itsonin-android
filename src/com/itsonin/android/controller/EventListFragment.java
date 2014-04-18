@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.itsonin.android.R;
 import com.itsonin.android.api.ItsoninAPI;
 import com.itsonin.android.entity.Event;
+import com.itsonin.android.model.Device;
 import com.itsonin.android.model.LocalEvent;
 import com.itsonin.android.providers.EventsContentProvider;
 import com.itsonin.android.view.EventListCard;
@@ -54,6 +55,7 @@ public class EventListFragment extends Fragment {
     private AbsListView mListView;
     private SimpleCursorAdapter mAdapter;
     private View mEmptyView;
+    private View mWelcomeScreen;
     private ItsoninAPI itsoninAPI;
     private Handler handler;
     private WeakReference<PullToRefreshLayout> mPullToRefreshLayout;
@@ -92,6 +94,13 @@ public class EventListFragment extends Fragment {
         mListView = (AbsListView)rootView.findViewById(R.id.list_view);
         mListView.setOnItemClickListener(eventInfoListener);
         mEmptyView = rootView.findViewById(R.id.empty_message);
+        mWelcomeScreen = rootView.findViewById(R.id.welcome_screen);
+
+        String token = Device.load(getActivity()).token;
+        if (DEBUG) Log.i(TAG, "token:" + token);
+        //if (Device.load(getActivity()).token != null) {
+            displayWelcomeScreen();
+        //}
 
         mAdapter = new SimpleCursorAdapter(container.getContext(), EventListCard.list_item_layout, null,
                 LocalEvent.Events.COLUMNS, EventListCard.VIEW_IDS,
@@ -136,6 +145,18 @@ public class EventListFragment extends Fragment {
         itsoninAPI = ItsoninAPI.instance(activity.getApplicationContext());
         itsoninAPI.unregisterReceiver(apiReceiver);
         itsoninAPI.registerReceiver(apiReceiver);
+    }
+
+    private void displayWelcomeScreen() {
+        mWelcomeScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getActionBar().show();
+                mWelcomeScreen.setVisibility(View.GONE);
+            }
+        });
+        getActivity().getActionBar().hide();
+        mWelcomeScreen.setVisibility(View.VISIBLE);
     }
 
     @Override
