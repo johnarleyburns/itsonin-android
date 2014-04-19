@@ -98,9 +98,9 @@ public class EventListFragment extends Fragment {
 
         String token = Device.load(getActivity()).token;
         if (DEBUG) Log.i(TAG, "token:" + token);
-        //if (Device.load(getActivity()).token != null) {
+        if (token == null) {
             displayWelcomeScreen();
-        //}
+        }
 
         mAdapter = new SimpleCursorAdapter(container.getContext(), EventListCard.list_item_layout, null,
                 LocalEvent.Events.COLUMNS, EventListCard.VIEW_IDS,

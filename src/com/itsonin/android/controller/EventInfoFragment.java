@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.itsonin.android.R;
 import com.itsonin.android.api.ItsoninAPI;
 import com.itsonin.android.entity.Event;
+import com.itsonin.android.entity.EventInfo;
 import com.itsonin.android.model.LocalEvent;
 import com.itsonin.android.providers.EventsContentProvider;
 import com.itsonin.android.view.EventInfoCard;
@@ -205,11 +206,10 @@ public class EventInfoFragment extends Fragment {
                 @Override
                 public void run() {
                     try {
-                        List<Event> events = ItsoninAPI.mapper.readValue(response, new TypeReference<List<Event>>(){});
-                        Event event = (events == null || events.size() == 0) ? null : events.get(0);
-                        if (DEBUG) Log.i(TAG, "handleListEvent() event=" + event);
-                        if (event != null) {
-                            EventsContentProvider.cacheEvent(event);
+                        EventInfo eventInfo = ItsoninAPI.mapper.readValue(response, EventInfo.class);
+                        if (DEBUG) Log.i(TAG, "handleListEvent() eventInfo=" + eventInfo);
+                        if (eventInfo != null) {
+                            EventsContentProvider.cacheEvent(eventInfo.getEvent());
                         }
                         if (handler != null) {
                             handler.post(new Runnable() {
