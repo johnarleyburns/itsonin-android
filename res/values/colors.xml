@@ -122,11 +122,18 @@
 	<color name="popup_text_color">#FFFFFF</color>
 
 
+    <color name="itsonin_primary_brand">#00A6B5</color>
+    <color name="itsonin_secondary_brand_subhead">#B9BF33</color>
+    <color name="itsonin_secondary_brand_action_button">#C51F4B</color>
+    <color name="itsonin_secondary_brand_header_text">#002939</color>
+    <color name="itsonin_white_text">#fefefe</color>
+    <color name="itsonin_white_background">#fefefe</color>
+
     <color name="pager_title_strip_bg">#1fbba6</color>
     <color name="pager_title_strip_text">#fefefe</color>
-    <color name="drawer_bg">#323a45</color>
-    <color name="drawer_item_text">#f1f1f3</color>
-    <color name="card_title">#5e6d81</color>
+    <color name="drawer_bg">@color/itsonin_primary_brand</color>
+    <color name="drawer_item_text">@color/itsonin_white_text</color>
+    <color name="card_title">@color/itsonin_secondary_brand_header_text</color>
     <!-- <color name="card_text">#c5cad1</color> -->
     <color name="card_text">#9ea7b3</color>
     <color name="card_date">#f27935</color>
@@ -136,7 +143,7 @@
     <color name="card_shadow">#dbe1e8</color>
     <color name="card_image_placeholder">#9ea7b3</color>
     <color name="card_attention">#f27935</color>
-    <color name="card_text_white">#fefefe</color>
-    <color name="card_background_color">#FEFEFE</color>
+    <color name="card_text_white">@color/itsonin_white_text</color>
+    <color name="card_background_color">@color/itsonin_white_background</color>
 
 </resources>
