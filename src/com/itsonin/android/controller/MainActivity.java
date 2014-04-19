@@ -28,13 +28,17 @@ public class MainActivity extends FragmentActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final boolean DEBUG = true;
 
+    private static final CharSequence DEFAULT_LOCATION = "DÜSSELDORF";
+
     private String[] mDrawerArray;
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mDrawerTitle;
+    private CharSequence mDrawerSubtitle;
     private CharSequence mDrawerLastTitle;
     private CharSequence mTitle;
+    private CharSequence mSubtitle;
     private SimpleAdapter mDrawerAdapter;
     private int[] mDrawerDrawables = {
         R.drawable.binoculars,
@@ -90,25 +94,29 @@ public class MainActivity extends FragmentActivity {
                 .commit();
     }
 
+    private CharSequence getSubtitle() {
+        return DEFAULT_LOCATION; // harcoded for now
+    }
+
     private void createDrawer() {
         mDrawerArray = getResources().getStringArray(R.array.drawer_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        mDrawerArray[0] += " " + "Dusseldorf";
-
-        // Set the adapter for the list view
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         mTitle = mDrawerTitle = mDrawerLastTitle = getTitle();
+        mDrawerSubtitle = getSubtitle();
+        mSubtitle = getSubtitle();
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+                R.drawable.ic_navigation_drawer, R.string.drawer_open, R.string.drawer_close) {
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 getActionBar().setTitle(mTitle);
+                getActionBar().setSubtitle(mSubtitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
@@ -116,6 +124,7 @@ public class MainActivity extends FragmentActivity {
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 getActionBar().setTitle(mDrawerTitle);
+                getActionBar().setSubtitle(mDrawerSubtitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
@@ -230,14 +239,26 @@ public class MainActivity extends FragmentActivity {
 
     private void setDrawerSelected(int position) {
         mDrawerList.setItemChecked(position, true);
-        setTitle(mDrawerArray[position]);
+        CharSequence subtitle = position == DISCOVER_POSITION ? mDrawerSubtitle : null;
+        setTitle(mDrawerArray[position], subtitle);
         mDrawerLastTitle = mDrawerTitle;
-
     }
 
     @Override
     public void setTitle(CharSequence title) {
+        setTitle(title, getSubtitle());
+    }
+
+    private void setTitle(CharSequence title, CharSequence subtitle) {
+        if (DEBUG) Log.i(TAG, "setTitle() title=" + title + " sub=" + subtitle);
         mTitle = title;
+        mSubtitle = subtitle;
+        if (mSubtitle == null) {
+            getActionBar().setSubtitle(null);
+        }
+        else {
+            getActionBar().setSubtitle(mSubtitle);
+        }
         getActionBar().setTitle(mTitle);
     }
 

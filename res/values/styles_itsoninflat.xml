@@ -17,6 +17,20 @@
      limitations under the License.
 -->
 
+        <!--
+        <style name="Theme.YourTheme" parent="android:style/Theme">
+    <item name="android:actionBarStyle">@style/Theme.YourTheme.Styled.ActionBar</item>
+</style>
+
+<style name="Theme.YourTheme.Styled.ActionBar">
+    <item name="android:titleTextStyle">@style/Theme.Viadeo.Styled.YourTheme.TitleTextStyle</item>
+</style>
+
+<style name="Theme.YourTheme.Styled.ActionBar.TitleTextStyle" parent="@android:style/Widget.TextView">
+    <item name="android:textSize">12sp</item>
+</style>
+-->
+
 <resources>
 
     <style name="Theme.Itsoninflat" parent="@android:style/Theme.Holo.Light.DarkActionBar">
@@ -29,7 +43,7 @@
         <item name="android:actionModeBackground">@drawable/cab_background_top_itsoninflat</item>
         <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_itsoninflat</item>
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Itsoninflat</item>
-        
+
                 <!-- Light.DarkActionBar specific -->
         <item name="android:actionBarWidgetTheme">@style/Theme.Itsoninflat.Widget</item>
 
@@ -40,6 +54,18 @@
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_itsoninflat</item>
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid_itsoninflat</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Itsoninflat</item>
+        <item name="android:titleTextStyle">@style/TitleTextStyle.Itsoninflat</item>
+        <item name="android:subtitleTextStyle">@style/SubtitleTextStyle.Itsoninflat</item>
+    </style>
+
+    <style name="TitleTextStyle.Itsoninflat" parent="@android:style/Widget.TextView">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/card_text_white</item>
+    </style>
+
+    <style name="SubtitleTextStyle.Itsoninflat" parent="@android:style/Widget.TextView">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/card_text_white</item>
     </style>
 
     <style name="ActionBar.Transparent.Itsoninflat" parent="@android:style/Widget.Holo.ActionBar">
