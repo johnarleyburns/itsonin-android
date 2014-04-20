@@ -44,7 +44,7 @@
         <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_itsoninflat</item>
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Itsoninflat</item>
 
-                <!-- Light.DarkActionBar specific -->
+        <!-- Light.DarkActionBar specific -->
         <item name="android:actionBarWidgetTheme">@style/Theme.Itsoninflat.Widget</item>
 
     </style>
@@ -64,7 +64,7 @@
     </style>
 
     <style name="SubtitleTextStyle.Itsoninflat" parent="@android:style/Widget.TextView">
-        <item name="android:textSize">10sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/card_text_white</item>
     </style>
 
@@ -103,6 +103,7 @@
     <style name="Theme.Itsoninflat.Widget" parent="@android:style/Theme.Holo">
         <item name="android:popupMenuStyle">@style/PopupMenu.Itsoninflat</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Itsoninflat</item>
+        <item name="android:textColorHint">@android:color/white</item>
     </style>
 
 </resources>
