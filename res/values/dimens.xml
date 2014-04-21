@@ -12,7 +12,9 @@
     <dimen name="card_inner_button">12dp</dimen>
     <dimen name="card_list_outer_height">112dp</dimen>
     <dimen name="card_list_height">96dp</dimen>
+    <dimen name="card_title_height">48dp</dimen>
     <dimen name="card_inner">16dp</dimen>
+    <dimen name="card_inner_time">8dp</dimen>
     <dimen name="card_inner_top">12dp</dimen>
     <dimen name="card_inner_second_icon_top">48dp</dimen>
     <dimen name="card_inner_second_line_top">36dp</dimen>
@@ -28,8 +30,9 @@
     <dimen name="card_action_height">48dp</dimen>
     <dimen name="card_divider_height">1dp</dimen>
     <dimen name="card_box_title">28dp</dimen>
-    <dimen name="card_box_text">@dimen/card_text</dimen>
-    <dimen name="card_box_inner">@dimen/card_spacing</dimen>
+    <dimen name="card_box_text">16dp</dimen>
+    <dimen name="card_box_inner">4dp</dimen>
+    <dimen name="card_box_height">96dp</dimen>
 
     <dimen name="form_text">16dp</dimen>
 

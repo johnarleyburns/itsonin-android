@@ -300,9 +300,9 @@ public class CreateEventDialogFragment extends DialogFragment {
         placeView = (AutoCompleteTextView)view.findViewById(R.id.locationTitle);
         placeView.setAdapter(placeAutoAdapter);
         placeView.setOnItemClickListener(placeListener);
-        if (place.lastName != null) {
-            placeView.setText(place.lastName);
-        }
+        //if (place.lastName != null) {
+        //    placeView.setText(place.lastName);
+        //}
 
         placesAutoCompleteAdapter = new PlacesAutoCompleteAdapter(view.getContext(), android.R.layout.simple_spinner_dropdown_item);
         addressView = (AutoCompleteTextView)view.findViewById(R.id.locationAddress);

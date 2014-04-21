@@ -71,6 +71,8 @@
     <string name="venue_title">VENUE</string>
     <string name="guests_title">GUESTS</string>
     <string name="comments_title">COMMENTS</string>
+    <string name="guests_lower_title">guests</string>
+    <string name="comments_lower_title">comments</string>
 
     <string name="delete_information">Delete private information</string>
     <string name="delete_information_summary">Remove connection to all private events</string>
