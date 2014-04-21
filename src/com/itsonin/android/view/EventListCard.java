@@ -28,18 +28,23 @@ public class EventListCard {
     public static final int[] VIEW_IDS = {
             R.id.event_card_main,
             R.id.event_card_title,
-            0, // null
-            0, // null
+            0,
+            0,
             R.id.event_card_icon,
             R.id.event_card_pyramid_icon,
             R.id.event_card_date,
             R.id.event_card_start_time,
             R.id.event_card_end_time,
             0,
-            0, // null
-            0, // null
-            0, // null
-            0 // null
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
     };
   /*
                  EVENT_ID,
@@ -56,6 +61,12 @@ public class EventListCard {
                 LATITUDE,
                 LONGITUDE,
                 NUM_ATTENDEES
+                                NUM_DECLINED,
+                NUM_COMMENTS,
+                ATTENDING_TEXT,
+                DECLINED_TEXT,
+                COMMENTS_TEXT
+
      */
 
     public static class EventViewBinder implements SimpleCursorAdapter.ViewBinder {

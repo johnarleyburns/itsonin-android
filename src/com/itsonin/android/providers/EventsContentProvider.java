@@ -12,6 +12,7 @@ import java.util.*;
 import android.text.format.DateUtils;
 import android.util.Log;
 import com.itsonin.android.entity.Event;
+import com.itsonin.android.entity.EventInfo;
 import com.itsonin.android.enums.EventVisibility;
 import com.itsonin.android.model.LocalEvent;
 import com.itsonin.android.model.LocalEvent.Events;
@@ -43,18 +44,16 @@ public class EventsContentProvider extends ContentProvider {
     private static final int EVENTS_DISCOVER = 4;
 
     private static final UriMatcher sUriMatcher;
-    //private static HashMap<String, String> eventsProjectionMap;
-
     private static List<Event> discoverEvents = Collections.synchronizedList(new ArrayList<Event>());
-    private static Map<String, Event> cachedEvents = Collections.synchronizedMap(new HashMap<String, Event>());
+    private static Map<String, EventInfo> cachedEventInfo = Collections.synchronizedMap(new HashMap<String, EventInfo>());
 
     public static synchronized void setDiscoverEvents(List<Event> events) {
         discoverEvents.clear();
         discoverEvents.addAll(events);
     }
 
-    public static void cacheEvent(Event event) {
-        cachedEvents.put(event.getEventId().toString(), event);
+    public static void cacheEventInfo(EventInfo eventInfo) {
+        cachedEventInfo.put(eventInfo.getEvent().getEventId().toString(), eventInfo);
     }
 
     @Override
@@ -157,8 +156,8 @@ public class EventsContentProvider extends ContentProvider {
                 break;
             case EVENTS_ID:
                 String eventId = uri.getLastPathSegment();
-                synchronized (cachedEvents) {
-                    Event cached = cachedEvents.get(eventId);
+                synchronized (cachedEventInfo) {
+                    EventInfo cached = cachedEventInfo.get(eventId);
                     if (DEBUG) Log.i(TAG, "matched EVENTS_ID id=" + eventId + " cached=" + cached);
                     if (cached != null) {
                         LocalEvent le = new LocalEvent(getContext(), cached);
@@ -225,24 +224,6 @@ public class EventsContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, EVENTS_ID_PATH_MATCH, EVENTS_ID);
         sUriMatcher.addURI(AUTHORITY, EVENTS_PRIVATE_PATH, EVENTS_PRIVATE);
         sUriMatcher.addURI(AUTHORITY, EVENTS_DISCOVER_PATH_MATCH, EVENTS_DISCOVER);
-
-        /*
-        eventsProjectionMap = new HashMap<String, String>();
-        eventsProjectionMap.put(Events.EVENT_ID, Events.EVENT_ID);
-        eventsProjectionMap.put(Events.TITLE, Events.TITLE);
-        eventsProjectionMap.put(Events.TEXT, Events.TEXT);
-        eventsProjectionMap.put(Events.HOST, Events.HOST);
-        eventsProjectionMap.put(Events.CATEGORY, Events.CATEGORY);
-        eventsProjectionMap.put(Events.SHARABILITY, Events.SHARABILITY);
-        eventsProjectionMap.put(Events.DATE, Events.DATE);
-        eventsProjectionMap.put(Events.START_TIME, Events.START_TIME);
-        eventsProjectionMap.put(Events.END_TIME, Events.END_TIME);
-        eventsProjectionMap.put(Events.LOCATION_TITLE, Events.LOCATION_TITLE);
-        eventsProjectionMap.put(Events.LOCATION_ADDRESS, Events.LOCATION_ADDRESS);
-        eventsProjectionMap.put(Events.LATITUDE, Events.LATITUDE);
-        eventsProjectionMap.put(Events.LONGITUDE, Events.LONGITUDE);
-        eventsProjectionMap.put(Events.NUM_ATTENDEES, Events.NUM_ATTENDEES);
-        */
     }
 
 }

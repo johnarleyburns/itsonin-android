@@ -6,9 +6,7 @@ import android.provider.BaseColumns;
 import android.text.format.DateUtils;
 import android.util.Log;
 import com.itsonin.android.R;
-import com.itsonin.android.entity.Event;
-import com.itsonin.android.entity.EventWithGuest;
-import com.itsonin.android.entity.Guest;
+import com.itsonin.android.entity.*;
 import com.itsonin.android.enums.*;
 import com.itsonin.android.providers.EventsContentProvider;
 import com.itsonin.android.resteasy.CustomDateTimeSerializer;
@@ -18,6 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 public class LocalEvent {
@@ -40,43 +39,13 @@ public class LocalEvent {
     public double gpsLat;
     public double gpsLong;
     public long numAttendees; // how many confirmed attending
+    public long numDeclined;
+    public long numComments;
+    public String attendingText;
+    public String declinedText;
+    public String commentsText;
 
     public LocalEvent() {
-    }
-
-    public LocalEvent(
-            long _id,
-            String title,
-            String description,
-            String host,
-            String category,
-            String sharability,
-            String date,
-            String startTime,
-            String endTime,
-            boolean privateEvent,
-            String locationTitle,
-            String locationAddress,
-            double gpsLat,
-            double gpsLong,
-            long numAttendees
-    ) {
-        this();
-        this._id = _id;
-        this.title = title;
-        this.description = description;
-        this.host = host;
-        this.category = category;
-        this.sharability = sharability;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.privateEvent = privateEvent;
-        this.locationTitle = locationTitle;
-        this.locationAddress = locationAddress;
-        this.gpsLat = gpsLat;
-        this.gpsLong = gpsLong;
-        this.numAttendees = numAttendees;
     }
 
     public LocalEvent(Context c, Event e) {
@@ -96,6 +65,61 @@ public class LocalEvent {
         this.gpsLat = e.getGpsLat() == null ? 0 : e.getGpsLat();
         this.gpsLong = e.getGpsLong() == null ? 0 : e.getGpsLong();
         this.numAttendees = 0;
+        this.numDeclined = 0;
+        this.numComments = 0;
+        this.attendingText = null;
+        this.declinedText = null;
+        this.commentsText = null;
+    }
+
+    public LocalEvent(Context c, EventInfo eventInfo) {
+        this(c, eventInfo.getEvent());
+        
+        List<Guest> guests = eventInfo.getGuests();
+        for (Guest guest : guests) {
+            switch (guest.getStatus()) {
+                case ATTENDING:
+                    numAttendees++;
+                    if (attendingText == null) {
+                        attendingText = "";
+                    }
+                    else {
+                        attendingText += "<br />";
+                    }
+                    attendingText += guest.getName();
+                    if (guest.getType() == GuestType.HOST) {
+                        attendingText += " <b>(" + GuestType.HOST + ")</b>";
+                    }
+                    break;
+                case DECLINED:
+                    numDeclined++;
+                    if (declinedText == null) {
+                        declinedText = "";
+                    }
+                    else {
+                        declinedText += "<br />";
+                    }
+                    if (guest.getType() == GuestType.HOST) {
+                        attendingText += "<b>" + GuestType.HOST + "</b> ";
+                    }
+                    declinedText += guest.getName();
+                    break;
+                default:
+                    ;
+            }
+        }
+        
+        List<Comment> comments = eventInfo.getComments();
+        for (Comment comment: comments) {
+            numComments++;
+            if (commentsText == null) {
+                commentsText = "";
+            }
+            else {
+                commentsText += "<br />";
+            }
+            commentsText += "<b>" + comment.getCreated().toString() + "</b> " + comment.getComment();
+        }
     }
 
     private static boolean isTomorrow(Date date) {
@@ -362,7 +386,12 @@ public class LocalEvent {
                 locationAddress,
                 gpsLat,
                 gpsLong,
-                numAttendees
+                numAttendees,
+                numDeclined,
+                numComments,
+                attendingText,
+                declinedText,
+                commentsText
         };
     }
 
@@ -383,6 +412,11 @@ public class LocalEvent {
                 + "gpsLat=[" + gpsLat + "]"
                 + "gpsLong=[" + gpsLong + "]"
                 + "numAttendees=[" + numAttendees + "]"
+                + "numDeclined=[" + numDeclined + "]"
+                + "numComments=[" + numComments + "]"
+                + "attendingText=[" + attendingText + "]"
+                + "declinedText=[" + declinedText + "]"
+                + "commentsText=[" + commentsText + "]"
                 + "]";
     }
 
@@ -415,6 +449,11 @@ public class LocalEvent {
         public static final String LATITUDE = "gpsLat";
         public static final String LONGITUDE = "gpsLong";
         public static final String NUM_ATTENDEES = "numAttendees"; // how many confirmed attending
+        public static final String NUM_DECLINED = "numDeclined"; // how many confirmed attending
+        public static final String NUM_COMMENTS = "numComments"; // how many confirmed attending
+        public static final String ATTENDING_TEXT = "attendingText"; // how many confirmed attending
+        public static final String DECLINED_TEXT = "declinedText"; // how many confirmed attending
+        public static final String COMMENTS_TEXT = "commentsText"; // how many confirmed attending
 
         public static final String[] COLUMNS = {
                 EVENT_ID,
@@ -430,7 +469,12 @@ public class LocalEvent {
                 LOCATION_ADDRESS,
                 LATITUDE,
                 LONGITUDE,
-                NUM_ATTENDEES
+                NUM_ATTENDEES,
+                NUM_DECLINED,
+                NUM_COMMENTS,
+                ATTENDING_TEXT,
+                DECLINED_TEXT,
+                COMMENTS_TEXT
         };
 
     }

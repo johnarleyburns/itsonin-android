@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.text.Html;
 import android.util.Log;
 import android.util.Xml;
 import android.view.View;
@@ -39,7 +40,12 @@ public class EventInfoCard {
             R.id.event_card_address,
             R.id.event_card_map,
             R.id.event_card_streetview,
-            0
+            R.id.event_card_num_attendees,
+            0,
+            R.id.event_card_num_comments,
+            R.id.event_card_attending_text,
+            0,
+            R.id.event_card_comments_text
     };
     /*
     EVENT_ID,
@@ -56,7 +62,12 @@ public class EventInfoCard {
     LATITUDE,
     LONGITUDE,
     NUM_ATTENDEES
-     */
+                 NUM_DECLINED,
+                NUM_COMMENTS,
+                ATTENDING_TEXT,
+                DECLINED_TEXT,
+                COMMENTS_TEXT
+    */
 
     public static class EventViewBinder implements SimpleCursorAdapter.ViewBinder {
 
@@ -140,6 +151,13 @@ public class EventInfoCard {
                 case R.id.event_card_place:
                 case R.id.event_card_address:
                     return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), 0);
+                case R.id.event_card_num_attendees:
+                case R.id.event_card_num_comments:
+                    return setEventCardZeroableText((TextView)view, cursor.getString(columnIndex));
+                case R.id.event_card_attending_text:
+                    return setEventCardHandleEmptyHtmlText((TextView)view, cursor.getString(columnIndex), R.string.no_guests_attending);
+                case R.id.event_card_comments_text:
+                    return setEventCardHandleEmptyHtmlText((TextView)view, cursor.getString(columnIndex), R.string.no_comments);
                 default:
                     return false;
             }
@@ -165,6 +183,21 @@ public class EventInfoCard {
             else {
                 directions.setVisibility(View.GONE);
             }
+
+            View declinedTitle = view.findViewById(R.id.event_card_declined_title);
+            TextView declinedTextView = (TextView)view.findViewById(R.id.event_card_declined_text);
+            String declinedText = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.DECLINED_TEXT));
+            if (declinedText == null || declinedText.trim().isEmpty()) {
+                declinedTitle.setVisibility(View.GONE);
+                declinedTextView.setVisibility(View.GONE);
+                declinedTextView.setText("");
+            }
+            else {
+                declinedTitle.setVisibility(View.VISIBLE);
+                declinedTextView.setVisibility(View.VISIBLE);
+                setEventCardHandleEmptyHtmlText(declinedTextView, declinedText, R.string.no_guests_declined);
+            }
+
             return true;
         }
 
@@ -235,6 +268,26 @@ public class EventInfoCard {
                 String displayText = prefix + text;
                 view.setText(displayText);
                 view.setVisibility(View.VISIBLE);
+            }
+            return true;
+        }
+
+        private boolean setEventCardZeroableText(TextView view, String text) {
+            if (text == null || text.trim().isEmpty() || text.equals("0")) {
+                view.setText("0");
+            }
+            else {
+                view.setText(text);
+            }
+            return true;
+        }
+
+        private boolean setEventCardHandleEmptyHtmlText(TextView view, String text, int emptyStringId) {
+            if (text == null || text.trim().isEmpty()) {
+                view.setText(emptyStringId);
+            }
+            else {
+                view.setText(Html.fromHtml(text));
             }
             return true;
         }

@@ -51,7 +51,6 @@ public class EventInfoFragment extends Fragment {
     private static final boolean DEBUG = true;
     private static final int EVENT_LOADER = 0;
 
-    private String[] mProjection = LocalEvent.Events.COLUMNS;
     private Uri mDataUri;
     private AbsListView mListView;
     private SimpleCursorAdapter mAdapter;
@@ -188,7 +187,7 @@ public class EventInfoFragment extends Fragment {
                         notifyAuthenticationError(context);
                     }
                     else {
-                        handleListEvent(context, response);
+                        handleEventInfo(context, response);
                     }
                     break;
                 default:
@@ -201,15 +200,15 @@ public class EventInfoFragment extends Fragment {
             return response == null || response.isEmpty() || statusCode != 200;
         }
 
-        private void handleListEvent(final Context context, final String response) {
+        private void handleEventInfo(final Context context, final String response) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         EventInfo eventInfo = ItsoninAPI.mapper.readValue(response, EventInfo.class);
-                        if (DEBUG) Log.i(TAG, "handleListEvent() eventInfo=" + eventInfo);
+                        if (DEBUG) Log.i(TAG, "handleEventInfo() eventInfo=" + eventInfo);
                         if (eventInfo != null) {
-                            EventsContentProvider.cacheEvent(eventInfo.getEvent());
+                            EventsContentProvider.cacheEventInfo(eventInfo);
                         }
                         if (handler != null) {
                             handler.post(new Runnable() {
@@ -254,7 +253,7 @@ public class EventInfoFragment extends Fragment {
                     return new CursorLoader(
                             getActivity(),   // Parent activity context
                             mDataUri,        // Table to query
-                            mProjection,     // Projection to return
+                            LocalEvent.Events.COLUMNS,     // Projection to return
                             null,            // No selection clause
                             null,            // No selection arguments
                             null             // Default sort order

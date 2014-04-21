@@ -182,6 +182,7 @@
                     >
 
             <TextView
+                    android:id="@+id/event_card_num_attendees"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/card_icon"
                     android:layout_gravity="center_horizontal"
@@ -198,7 +199,7 @@
                     android:lines="1"
                     android:textSize="@dimen/card_box_text"
                     android:textColor="@color/card_text_white"
-                    android:text="@string/guests_title"
+                    android:text="@string/attending_title"
                     />
 
             </LinearLayout>
@@ -222,6 +223,7 @@
                     android:orientation="vertical"
                     >
             <TextView
+                    android:id="@+id/event_card_num_comments"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
                     android:layout_gravity="center_horizontal"
@@ -310,8 +312,10 @@ android:background="@color/card_divider"
             android:scaleType="centerCrop"
             />
 
+    <include layout="@layout/event_card_action_directions"/>
+
     <TextView
-            android:id="@+id/event_card_guests_title"
+            android:id="@+id/event_card_attending_title"
             android:layout_width="match_parent"
             android:layout_height="@dimen/card_title_height"
             android:layout_marginTop="@dimen/card_inner"
@@ -320,7 +324,42 @@ android:background="@color/card_divider"
             android:background="@color/itsonin_primary_brand"
             android:textColor="@color/card_text_white"
             android:gravity="center"
-            android:text="@string/guests_lower_title"
+            android:text="@string/attending_lower_title"
+            />
+
+    <TextView
+            android:id="@+id/event_card_attending_text"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_title_height"
+            android:layout_marginTop="@dimen/card_inner"
+            android:paddingLeft="@dimen/card_inner"
+            android:paddingRight="@dimen/card_inner"
+            android:textSize="@dimen/card_text"
+            android:textColor="@color/card_text"
+            />
+
+    <TextView
+            android:id="@+id/event_card_declined_title"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_title_height"
+            android:layout_marginTop="@dimen/card_inner"
+            android:padding="@dimen/card_spacing"
+            android:textSize="@dimen/card_action_text"
+            android:background="@color/itsonin_primary_brand"
+            android:textColor="@color/card_text_white"
+            android:gravity="center"
+            android:text="@string/declined_lower_title"
+            />
+
+    <TextView
+            android:id="@+id/event_card_declined_text"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_title_height"
+            android:layout_marginTop="@dimen/card_inner"
+            android:paddingLeft="@dimen/card_inner"
+            android:paddingRight="@dimen/card_inner"
+            android:textSize="@dimen/card_text"
+            android:textColor="@color/card_text"
             />
 
     <TextView
@@ -335,8 +374,16 @@ android:background="@color/card_divider"
             android:gravity="center"
             android:text="@string/comments_lower_title"
             />
-    -->
 
-    <include layout="@layout/event_card_action_directions"/>
+    <TextView
+            android:id="@+id/event_card_comments_text"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_title_height"
+            android:layout_marginTop="@dimen/card_inner"
+            android:paddingLeft="@dimen/card_inner"
+            android:paddingRight="@dimen/card_inner"
+            android:textSize="@dimen/card_text"
+            android:textColor="@color/card_text"
+            />
 
 </LinearLayout>

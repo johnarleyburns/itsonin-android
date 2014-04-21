@@ -53,6 +53,10 @@
     <string name="until_time">\u0020\u2013\u0020</string>
     <string name="optional_details">Details (optional)</string>
 
+    <string name="no_guests_attending">No guests are attending this event</string>
+    <string name="no_guests_declined">No guests have declined this event</string>
+    <string name="no_comments">This event does not yet have any comments</string>
+
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
 
@@ -69,9 +73,10 @@
     <string name="this_event_is_private">This event is private</string>
 
     <string name="venue_title">VENUE</string>
-    <string name="guests_title">GUESTS</string>
+    <string name="attending_title">ATTENDING</string>
     <string name="comments_title">COMMENTS</string>
-    <string name="guests_lower_title">guests</string>
+    <string name="attending_lower_title">attending</string>
+    <string name="declined_lower_title">declined</string>
     <string name="comments_lower_title">comments</string>
 
     <string name="delete_information">Delete private information</string>

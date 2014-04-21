@@ -50,7 +50,6 @@ public class EventListFragment extends Fragment {
     private static final boolean DEBUG = true;
     private static final int EVENTS_LOADER = 0;
 
-    private String[] mProjection = LocalEvent.Events.COLUMNS;
     private Uri mDataUri;
     private AbsListView mListView;
     private SimpleCursorAdapter mAdapter;
@@ -270,7 +269,7 @@ public class EventListFragment extends Fragment {
                     return new CursorLoader(
                             getActivity(),   // Parent activity context
                             mDataUri,        // Table to query
-                            mProjection,     // Projection to return
+                            LocalEvent.Events.COLUMNS,     // Projection to return
                             null,            // No selection clause
                             null,            // No selection arguments
                             null             // Default sort order
