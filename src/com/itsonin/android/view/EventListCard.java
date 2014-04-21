@@ -28,32 +28,34 @@ public class EventListCard {
     public static final int[] VIEW_IDS = {
             R.id.event_card_main,
             R.id.event_card_title,
-            R.id.event_card_text,
-            R.id.event_card_host,
+            0, // null
+            0, // null
             R.id.event_card_icon,
+            R.id.event_card_pyramid_icon,
             R.id.event_card_date,
             R.id.event_card_start_time,
             R.id.event_card_end_time,
-            R.id.event_card_place,
             0,
-            0,
-            0,
-            0
+            0, // null
+            0, // null
+            0, // null
+            0 // null
     };
   /*
-            public static final String EVENT_ID = "_id";
-        public static final String TITLE = "title";
-        public static final String TEXT = "description";
-        public static final String HOST = "host"; // name of person hosting the event
-        public static final String CATEGORY = "category";
-        public static final String DATE = "date";
-        public static final String START_TIME = "startTime";
-        public static final String END_TIME = "endTime";
-        public static final String PLACE = "locationTitle";
-        public static final String ADDRESS = "locationAddress";
-        public static final String LATITUDE = "gpsLat";
-        public static final String LONGITUDE = "gpsLong";
-        public static final String NUM_ATTENDEES = "numAttendees";
+                 EVENT_ID,
+                TITLE,
+                TEXT,
+                HOST,
+                CATEGORY,
+                SHARABILITY,
+                DATE,
+                START_TIME,
+                END_TIME,
+                LOCATION_TITLE,
+                LOCATION_ADDRESS,
+                LATITUDE,
+                LONGITUDE,
+                NUM_ATTENDEES
      */
 
     public static class EventViewBinder implements SimpleCursorAdapter.ViewBinder {
@@ -78,21 +80,55 @@ public class EventListCard {
         }
 
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+            if (DEBUG) Log.i(TAG, "setViewValue() row=" + cursor.getPosition() + " col=" + columnIndex + " val=" + cursor.getString(columnIndex));
             switch (view.getId()) {
                 case R.id.event_card_main:
-                    return true;
+                    return setEventCardMain(view, cursor);
+                case R.id.event_card_title:
+                    //if (DEBUG) Log.i(TAG, "title str=" + cursor.getString(columnIndex));
+                    return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), 0);
                 case R.id.event_card_icon:
+                    //if (DEBUG) Log.i(TAG, "icon str=" + cursor.getString(columnIndex));
                     return setEventCardIcon((ImageView) view, cursor.getString(columnIndex));
-                case R.id.event_card_host:
-                    return setEventCardCollapsableText((TextView) view, cursor.getString(columnIndex), R.string.hosted_by);
+                case R.id.event_card_pyramid_icon:
+                    return setEventCardPyramidIcon((ImageView) view, cursor.getString(columnIndex));
                 case R.id.event_card_end_time:
                     return setEventCardCollapsableText((TextView) view, cursor.getString(columnIndex), R.string.until_time);
-                case R.id.event_card_text:
-                case R.id.event_card_place:
-                    return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), 0);
                 default:
                     return false;
             }
+        }
+
+        private boolean setEventCardMain(View view, Cursor cursor) {
+            View timeSeparator = view.findViewById(R.id.event_card_time_separator);
+            String startTime = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.START_TIME));
+            boolean timeVisible = startTime != null && !startTime.trim().isEmpty();
+            if (timeVisible) {
+                timeSeparator.setVisibility(View.VISIBLE);
+            }
+            else {
+                timeSeparator.setVisibility(View.GONE);
+            }
+
+            TextView placeView = (TextView)view.findViewById(R.id.event_card_place);
+            String locationTitle = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_TITLE));
+            String locationAddress = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_ADDRESS));
+            String place = locationTitle != null && !locationTitle.trim().isEmpty() ? locationTitle : locationAddress;
+            setEventCardCollapsableText(placeView, place, 0);
+
+            return true;
+
+        }
+
+        private boolean setEventCardPyramidIcon(ImageView view, String sharability) {
+            boolean isPyramid = Math.random() < 0.5;
+            if (isPyramid) {
+                view.setVisibility(View.VISIBLE);
+            }
+            else {
+                view.setVisibility(View.GONE);
+            }
+            return true;
         }
 
         private boolean setEventCardIcon(ImageView view, String category) {

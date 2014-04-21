@@ -56,11 +56,11 @@
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
 
-    <string name="get_directions">Get directions</string>
-    <string name="attend">Attend</string>
-    <string name="decline">Decline</string>
-    <string name="edit">Edit</string>
-    <string name="share">Share</string>
+    <string name="get_directions">get directions</string>
+    <string name="attend">attend</string>
+    <string name="decline">decline</string>
+    <string name="edit">edit</string>
+    <string name="share">share</string>
 
     <string name="no_network">No network connection</string>
     <string name="connection_error">Coludn\'t connect to server</string>
@@ -68,6 +68,7 @@
 
     <string name="this_event_is_private">This event is private</string>
 
+    <string name="venue_title">VENUE</string>
     <string name="guests_title">GUESTS</string>
     <string name="comments_title">COMMENTS</string>
 

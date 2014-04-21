@@ -5,14 +5,10 @@
         android:id="@+id/event_card_action_share"
         android:layout_width="match_parent"
         android:layout_height="@dimen/card_action_height"
+        android:layout_marginTop="@dimen/card_inner"
         >
 
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/card_divider_height"
-            android:background="@color/card_divider"
-            />
-
+                                                     <!--
     <ImageView
             android:id="@+id/event_card_share_icon"
             android:layout_width="wrap_content"
@@ -22,16 +18,19 @@
             android:layout_marginRight="@dimen/card_inner"
             android:src="@android:drawable/ic_menu_share"
             />
-
+                                                  -->
     <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/card_inner"
             android:layout_marginRight="@dimen/card_inner"
-            android:layout_toRightOf="@+id/event_card_share_icon"
             android:textSize="@dimen/card_action_text"
             android:text="@string/share"
-            android:textColor="@color/card_action"
+            android:textStyle="bold"
+            android:textColor="@color/card_text_white"
+            android:gravity="center"
+            android:background="@color/itsonin_secondary_brand_action_button"
             />
 
 </RelativeLayout>

@@ -1,44 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!--
 <FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/event_card_main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        android:background="@color/card_background_color"
+        >
+-->
     <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/event_card_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/card_inner"
             android:orientation="vertical"
-            android:background="@color/card_background_color"
             >
 
-        <RelativeLayout
+        <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="@dimen/card_inner"
-                android:paddingLeft="@dimen/card_inner"
-                android:paddingRight="@dimen/card_inner"
                 >
-
-            <ImageView
-                    android:id="@+id/event_card_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:src="@drawable/picnic_table"
-                    />
 
             <TextView
                     android:id="@+id/event_card_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@+id/event_card_icon"
-                    android:paddingLeft="@dimen/card_inner_button"
+                    android:layout_marginTop="@dimen/card_inner_top"
+                    android:layout_marginLeft="@dimen/card_inner"
+                    android:layout_marginRight="@dimen/card_inner_text_right"
                     android:textSize="@dimen/card_title"
                     android:textColor="@color/card_title"
                     />
-        </RelativeLayout>
+
+            <ImageView
+                    android:id="@+id/event_card_icon"
+                    android:layout_width="@dimen/card_icon"
+                    android:layout_height="@dimen/card_icon"
+                    android:layout_gravity="right"
+                    android:padding="@dimen/card_icon_small_padding"
+                    android:gravity="center"
+                    android:layout_marginTop="@dimen/card_inner_icon_top"
+                    android:layout_marginRight="@dimen/card_inner"
+                    android:src="@drawable/picnic_table"
+                    />
+
+            <ImageView
+                    android:id="@+id/event_card_pyramid_icon"
+                    android:layout_width="@dimen/card_icon"
+                    android:layout_height="@dimen/card_icon"
+                    android:layout_gravity="right"
+                    android:gravity="center"
+                    android:layout_marginTop="@dimen/card_inner_second_icon_top"
+                    android:layout_marginRight="@dimen/card_inner"
+                    android:src="@drawable/pyramid"
+                    />
+
+        </FrameLayout>
 
         <TextView
                 android:id="@+id/event_card_text"
@@ -51,23 +70,11 @@
                 android:textColor="@color/card_text"
                 />
 
-        <TextView
-                android:id="@+id/event_card_host"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/card_inner"
-                android:paddingRight="@dimen/card_inner"
-                android:textSize="@dimen/card_text"
-                android:textColor="@color/card_text"
-                android:textStyle="italic"
-                />
-
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingTop="@dimen/card_inner"
-                android:paddingBottom="@dimen/card_inner"
                 android:paddingLeft="@dimen/card_inner"
                 android:paddingRight="@dimen/card_inner"
                 >
@@ -80,6 +87,7 @@
                     android:textColor="@color/card_date"
                     />
             <TextView
+                    android:id="@+id/event_card_time_separator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/card_text"
@@ -102,24 +110,164 @@
                     />
         </LinearLayout>
 
+        <!--
+        <include layout="@layout/event_card_action_attend"/>
+        <include layout="@layout/event_card_action_decline"/>
+        <include layout="@layout/event_card_action_edit"/>
+        -->
+        <include layout="@layout/event_card_action_share"/>
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/card_divider_height"
+                android:layout_marginTop="@dimen/card_inner"
+                android:background="@color/card_divider"
+                />
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="96dp"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:background="@color/itsonin_primary_brand"
+                >
+
+            <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="96dp"
+                    android:layout_weight="1"
+                    >
+                <ImageView
+                        android:layout_width="@dimen/card_icon"
+                        android:layout_height="@dimen/card_icon"
+                        android:layout_gravity="center"
+                        android:src="@drawable/map"
+                        />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:layout_marginBottom="@dimen/card_box_inner"
+                    android:lines="1"
+                    android:textColor="@color/card_text_white"
+                    android:textSize="@dimen/card_box_text"
+                    android:textStyle="bold"
+                    android:text="@string/venue_title"
+                    />
+                <View
+                        android:layout_width="@dimen/card_divider_height"
+                        android:layout_height="96dp"
+                        android:background="@color/card_divider"
+                        android:layout_gravity="right"
+                        />
+            </FrameLayout>
+
+            <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="96dp"
+                    android:layout_weight="1">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:lines="1"
+                        android:textSize="@dimen/card_box_title"
+                        android:textColor="@color/card_text_white"
+                        android:text="12"
+                        />
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal|bottom"
+                        android:layout_marginBottom="@dimen/card_box_inner"
+                        android:lines="1"
+                        android:textSize="@dimen/card_box_text"
+                        android:textColor="@color/card_text_white"
+                        android:text="@string/guests_title"
+                        />
+            </FrameLayout>
+
+            <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="96dp"
+                    android:layout_weight="1">
+                <View
+                        android:layout_width="@dimen/card_divider_height"
+                        android:layout_height="96dp"
+                        android:background="@color/card_divider"
+                        android:layout_gravity="left"
+                        />
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:lines="1"
+                        android:textSize="@dimen/card_box_title"
+                        android:textColor="@color/card_text_white"
+                        android:text="27"
+                        />
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal|bottom"
+                        android:layout_marginBottom="@dimen/card_box_inner"
+                        android:lines="1"
+                        android:textSize="@dimen/card_box_text"
+                        android:textColor="@color/card_text_white"
+                        android:text="@string/comments_title"
+                        />
+            </FrameLayout>
+
+        </LinearLayout>
+                        <!--
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/card_divider_height"
+                android:background="@color/card_divider"
+                />   -->
+        <!--
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/card_divider_height"
+                android:background="@color/card_divider"
+                />
+
+        <TextView
+                android:id="@+id/event_card_venue_title"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/card_inner"
+                android:padding="@dimen/card_spacing"
+                android:textSize="@dimen/card_action_text"
+                android:background="@color/itsonin_primary_brand"
+                android:textColor="@color/card_text_white"
+                android:gravity="center_horizontal"
+                android:text="@string/venue_title"
+                />
+        -->
+
         <TextView
                 android:id="@+id/event_card_place"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/card_text"
+                android:paddingTop="@dimen/card_inner"
                 android:paddingLeft="@dimen/card_inner"
                 android:paddingRight="@dimen/card_inner"
                 android:textColor="@color/card_place"
                 />
+
+
         <TextView
                 android:id="@+id/event_card_address"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/card_text"
+                android:paddingTop="@dimen/card_inner"
                 android:paddingLeft="@dimen/card_inner"
                 android:paddingRight="@dimen/card_inner"
-                android:textColor="@color/card_place"
                 android:paddingBottom="@dimen/card_inner"
+                android:textSize="@dimen/card_text"
+                android:textColor="@color/card_place"
                 />
 
         <ImageView
@@ -137,28 +285,15 @@
                 android:scaleType="centerCrop"
                 />
 
-        <include layout="@layout/event_card_action_directions"/>
         <!--
-        <include layout="@layout/event_card_action_attend"/>
-        <include layout="@layout/event_card_action_decline"/>
-        <include layout="@layout/event_card_action_edit"/>
-        -->
-        <include layout="@layout/event_card_action_share"/>
-
-        <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/card_divider_height"
-                android:background="@color/card_divider"
-                />
-
         <TextView
                 android:id="@+id/event_card_guests_title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_marginTop="@dimen/card_inner"
                 android:padding="@dimen/card_spacing"
                 android:textSize="@dimen/card_action_text"
-                android:background="@color/card_title"
+                android:background="@color/itsonin_primary_brand"
                 android:textColor="@color/card_text_white"
                 android:gravity="center_horizontal"
                 android:text="@string/guests_title"
@@ -167,16 +302,19 @@
         <TextView
                 android:id="@+id/event_card_comments_title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_marginTop="@dimen/card_inner"
                 android:padding="@dimen/card_spacing"
                 android:textSize="@dimen/card_action_text"
-                android:background="@color/card_title"
+                android:background="@color/itsonin_primary_brand"
                 android:textColor="@color/card_text_white"
                 android:gravity="center_horizontal"
                 android:text="@string/comments_title"
                 />
+        -->
 
-    </LinearLayout>
+    <include layout="@layout/event_card_action_directions"/>
 
-</FrameLayout>
+</LinearLayout>
+<!--
+</FrameLayout>  -->

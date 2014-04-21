@@ -2,10 +2,9 @@
 
 <FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res/com.itsonin.android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/PaletteCardListBg"
+        android:background="@color/card_background_color"
         >
 
     <uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout
@@ -19,12 +18,12 @@
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"
                   android:layout_gravity="start"
-                  android:background="@color/card_background_color"
-                  android:smoothScrollbar="false"
-                  android:scrollbarStyle="outsideOverlay"
+                  android:scrollbars="none"
                   android:listSelector="@drawable/null_selector_bg"
                   android:clipToPadding="false"
                   android:stretchMode="none"
+                  android:dividerHeight="0dp"
+                  android:divider="@android:color/transparent"
                 />
 
     </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>

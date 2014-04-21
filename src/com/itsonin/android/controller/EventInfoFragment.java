@@ -172,7 +172,7 @@ public class EventInfoFragment extends Fragment {
     private BroadcastReceiver apiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (mPullToRefreshLayout.get() != null) {
+            if (mPullToRefreshLayout != null && mPullToRefreshLayout.get() != null) {
                 mPullToRefreshLayout.get().setRefreshComplete();
             }
             int statusCode = intent.getIntExtra(ItsoninAPI.ITSONIN_API_STATUS_CODE, 0);

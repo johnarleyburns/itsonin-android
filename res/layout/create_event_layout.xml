@@ -117,39 +117,41 @@
                         android:layout_height="wrap_content"
                         android:weightSum="2"
                         android:orientation="horizontal"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="@dimen/card_spacing"
                         >
 
-                    <LinearLayout
-                            android:layout_width="match_parent"
+                    <EditText
+                            android:id="@+id/date"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:weightSum="2"
-                            android:orientation="horizontal"
-                            android:paddingTop="0dp"
-                            android:paddingBottom="@dimen/card_spacing"
-                            >
+                            android:paddingTop="@dimen/card_inner"
+                            android:hint="@string/date_hint"
+                            android:textSize="@dimen/form_text"
+                            android:editable="false"
+                            />
 
-                        <EditText
-                                android:id="@+id/date"
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:layout_height="wrap_content"
-                                android:paddingTop="@dimen/card_inner"
-                                android:hint="@string/date_hint"
-                                android:textSize="@dimen/form_text"
-                                android:editable="false"
-                                />
+                    <EditText
+                            android:id="@+id/start_time"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/start_time_hint"
+                            android:textSize="@dimen/form_text"
+                            android:editable="false"
+                            />
 
-                        <EditText
-                                android:id="@+id/start_time"
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:layout_height="wrap_content"
-                                android:hint="@string/start_time_hint"
-                                android:textSize="@dimen/form_text"
-                                android:editable="false"
-                                />
+                </LinearLayout>
 
-                    </LinearLayout>
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="2"
+                        android:orientation="horizontal"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="@dimen/card_spacing"
+                        >
 
                     <TextView
                             android:layout_width="0dp"

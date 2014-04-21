@@ -23,6 +23,7 @@ import java.util.Random;
 public class LocalEvent {
 
     private static final String TAG = LocalEvent.class.getSimpleName();
+    private static final boolean DEBUG = true;
 
     public long _id;
     public String title;
@@ -346,6 +347,7 @@ public class LocalEvent {
     */
 
     public Object[] makeCursorRow() {
+        if (DEBUG) Log.i(TAG, "makeCursorRow() " + toString());
         return new Object[] {
                 _id,
                 title,
@@ -408,8 +410,8 @@ public class LocalEvent {
         public static final String DATE = "date";
         public static final String START_TIME = "startTime";
         public static final String END_TIME = "endTime";
-        public static final String PLACE = "locationTitle";
-        public static final String ADDRESS = "locationAddress";
+        public static final String LOCATION_TITLE = "locationTitle";
+        public static final String LOCATION_ADDRESS = "locationAddress";
         public static final String LATITUDE = "gpsLat";
         public static final String LONGITUDE = "gpsLong";
         public static final String NUM_ATTENDEES = "numAttendees"; // how many confirmed attending
@@ -424,8 +426,8 @@ public class LocalEvent {
                 DATE,
                 START_TIME,
                 END_TIME,
-                PLACE,
-                ADDRESS,
+                LOCATION_TITLE,
+                LOCATION_ADDRESS,
                 LATITUDE,
                 LONGITUDE,
                 NUM_ATTENDEES

@@ -296,7 +296,6 @@ public class EventListFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String eventId = String.valueOf(id); // temporary
-            Toast.makeText(getActivity(), "event id=" + eventId, Toast.LENGTH_SHORT).show();
             Uri dataUri = LocalEvent.Events.EVENTS_ID_CONTENT_URI.buildUpon().appendPath(eventId).build();
             Fragment fragment = new EventInfoFragment(dataUri);
             FragmentManager fragmentManager = getFragmentManager();

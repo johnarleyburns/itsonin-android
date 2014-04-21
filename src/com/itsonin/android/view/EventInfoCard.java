@@ -29,8 +29,9 @@ public class EventInfoCard {
             R.id.event_card_main,
             R.id.event_card_title,
             R.id.event_card_text,
-            R.id.event_card_host,
+            0,
             R.id.event_card_icon,
+            R.id.event_card_pyramid_icon,
             R.id.event_card_date,
             R.id.event_card_start_time,
             R.id.event_card_end_time,
@@ -40,20 +41,21 @@ public class EventInfoCard {
             R.id.event_card_streetview,
             0
     };
-  /*
-            public static final String EVENT_ID = "_id";
-        public static final String TITLE = "title";
-        public static final String TEXT = "description";
-        public static final String HOST = "host"; // name of person hosting the event
-        public static final String CATEGORY = "category";
-        public static final String DATE = "date";
-        public static final String START_TIME = "startTime";
-        public static final String END_TIME = "endTime";
-        public static final String PLACE = "locationTitle";
-        public static final String ADDRESS = "locationAddress";
-        public static final String LATITUDE = "gpsLat";
-        public static final String LONGITUDE = "gpsLong";
-        public static final String NUM_ATTENDEES = "numAttendees";
+    /*
+    EVENT_ID,
+    TITLE,
+    TEXT,
+    HOST,
+    CATEGORY,
+    SHARABILITY,
+    DATE,
+    START_TIME,
+    END_TIME,
+    LOCATION_TITLE,
+    LOCATION_ADDRESS,
+    LATITUDE,
+    LONGITUDE,
+    NUM_ATTENDEES
      */
 
     public static class EventViewBinder implements SimpleCursorAdapter.ViewBinder {
@@ -129,10 +131,11 @@ public class EventInfoCard {
                     return setEventCardStreetView((ImageView) view, cursor);
                 case R.id.event_card_icon:
                     return setEventCardIcon((ImageView) view, cursor.getString(columnIndex));
-                case R.id.event_card_host:
-                    return setEventCardCollapsableText((TextView) view, cursor.getString(columnIndex), R.string.hosted_by);
+                case R.id.event_card_pyramid_icon:
+                    return setEventCardPyramidIcon((ImageView) view, cursor.getString(columnIndex));
                 case R.id.event_card_end_time:
                     return setEventCardCollapsableText((TextView) view, cursor.getString(columnIndex), R.string.until_time);
+                case R.id.event_card_title:
                 case R.id.event_card_text:
                 case R.id.event_card_place:
                 case R.id.event_card_address:
@@ -143,13 +146,24 @@ public class EventInfoCard {
         }
 
         private boolean setEventCardMain(View view, Cursor cursor) {
-            View directions = view.findViewById(R.id.event_card_action_directions);
-            String address = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.ADDRESS));
-            if (address == null || address.trim().isEmpty()) {
-                directions.setVisibility(View.GONE);
+            View timeSeparator = view.findViewById(R.id.event_card_time_separator);
+            String startTime = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.START_TIME));
+            boolean timeVisible = startTime != null && !startTime.trim().isEmpty();
+            if (timeVisible) {
+                timeSeparator.setVisibility(View.VISIBLE);
             }
             else {
+                timeSeparator.setVisibility(View.GONE);
+            }
+
+            View directions = view.findViewById(R.id.event_card_action_directions);
+            String address = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_ADDRESS));
+            boolean hasAddress = address != null && !address.trim().isEmpty();
+            if (hasAddress) {
                 directions.setVisibility(View.VISIBLE);
+            }
+            else {
+                directions.setVisibility(View.GONE);
             }
             return true;
         }
@@ -162,9 +176,9 @@ public class EventInfoCard {
             }
             else {
                 int displayWidth = view.getResources().getDisplayMetrics().widthPixels;
-                int padding = view.getResources().getDimensionPixelSize(R.dimen.card_spacing);
-                int width = displayWidth - padding - padding;
-                int height = width / 2;
+                //int padding = view.getResources().getDimensionPixelSize(R.dimen.card_spacing);
+                int width = displayWidth; // - padding - padding;
+                int height = width; // / 2;
                 String url = String.format(MAPS_IMAGE_URL_FORMAT, width/2, height/2, lat, lng);
                 view.getLayoutParams().width = width;
                 view.getLayoutParams().height = height;
@@ -197,6 +211,17 @@ public class EventInfoCard {
             Context context = view.getContext();
             ensureEventIconMap(context);
             view.setImageDrawable(eventIconMap.get(category));
+            return true;
+        }
+
+        private boolean setEventCardPyramidIcon(ImageView view, String sharability) {
+            boolean isPyramid = Math.random() < 0.3;
+            if (isPyramid) {
+                view.setVisibility(View.VISIBLE);
+            }
+            else {
+                view.setVisibility(View.GONE);
+            }
             return true;
         }
 
