@@ -10,6 +10,7 @@
 
     <dimen name="card_spacing">8dp</dimen>
     <dimen name="card_inner_button">12dp</dimen>
+    <dimen name="card_inner_date_text">14dp</dimen>
     <dimen name="card_list_outer_height">112dp</dimen>
     <dimen name="card_list_height">96dp</dimen>
     <dimen name="card_title_height">48dp</dimen>

@@ -125,6 +125,7 @@
     <color name="itsonin_primary_brand">#00A6B5</color>
     <color name="itsonin_secondary_brand_subhead">#B9BF33</color>
     <color name="itsonin_secondary_brand_action_button">#C51F4B</color>
+    <color name="itsonin_secondary_brand_action_button_pressed">#88C51F4B</color>
     <color name="itsonin_secondary_brand_header_text">#002939</color>
     <color name="itsonin_white_text">#fefefe</color>
     <color name="itsonin_white_text_disabled">#bbfefefe</color>

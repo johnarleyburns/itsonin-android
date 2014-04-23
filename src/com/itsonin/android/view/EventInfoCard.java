@@ -1,9 +1,12 @@
 package com.itsonin.android.view;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Html;
 import android.util.Log;
@@ -12,6 +15,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.itsonin.android.R;
+import com.itsonin.android.controller.EditEventDialogFragment;
 import com.itsonin.android.model.LocalEvent;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -33,6 +37,8 @@ public class EventInfoCard {
             0,
             R.id.event_card_icon,
             R.id.event_card_pyramid_icon,
+            0,
+            0,
             R.id.event_card_date,
             R.id.event_card_start_time,
             R.id.event_card_end_time,
@@ -45,7 +51,10 @@ public class EventInfoCard {
             R.id.event_card_num_comments,
             R.id.event_card_attending_text,
             0,
-            R.id.event_card_comments_text
+            R.id.event_card_comments_text,
+            0,
+            0,
+            0
     };
     /*
     EVENT_ID,
@@ -66,7 +75,10 @@ public class EventInfoCard {
                 NUM_COMMENTS,
                 ATTENDING_TEXT,
                 DECLINED_TEXT,
-                COMMENTS_TEXT
+                COMMENTS_TEXT,
+                SHARE_URL,
+                GUEST_NAME,
+                VIEW_ONLY
     */
 
     public static class EventViewBinder implements SimpleCursorAdapter.ViewBinder {
@@ -153,17 +165,26 @@ public class EventInfoCard {
                     return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), 0);
                 case R.id.event_card_num_attendees:
                 case R.id.event_card_num_comments:
-                    return setEventCardZeroableText((TextView)view, cursor.getString(columnIndex));
+                    return setEventCardZeroableText((TextView) view, cursor.getString(columnIndex));
                 case R.id.event_card_attending_text:
-                    return setEventCardHandleEmptyHtmlText((TextView)view, cursor.getString(columnIndex), R.string.no_guests_attending);
+                    return setEventCardHandleEmptyHtmlText((TextView) view, cursor.getString(columnIndex), R.string.no_guests_attending);
                 case R.id.event_card_comments_text:
-                    return setEventCardHandleEmptyHtmlText((TextView)view, cursor.getString(columnIndex), R.string.no_comments);
+                    return setEventCardHandleEmptyHtmlText((TextView) view, cursor.getString(columnIndex), R.string.no_comments);
                 default:
                     return false;
             }
         }
 
         private boolean setEventCardMain(View view, Cursor cursor) {
+            setTimeSeparator(view, cursor);
+            setShareButton(view, cursor);
+            setEditButton(view, cursor);
+            setDirectionButton(view, cursor);
+            setDeclinedSection(view, cursor);
+            return true;
+        }
+
+        private boolean setTimeSeparator(View view, Cursor cursor) {
             View timeSeparator = view.findViewById(R.id.event_card_time_separator);
             String startTime = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.START_TIME));
             boolean timeVisible = startTime != null && !startTime.trim().isEmpty();
@@ -173,7 +194,10 @@ public class EventInfoCard {
             else {
                 timeSeparator.setVisibility(View.GONE);
             }
+            return true;
+        }
 
+        private boolean setDirectionButton(View view, Cursor cursor) {
             View directions = view.findViewById(R.id.event_card_action_directions);
             String address = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_ADDRESS));
             boolean hasAddress = address != null && !address.trim().isEmpty();
@@ -183,7 +207,10 @@ public class EventInfoCard {
             else {
                 directions.setVisibility(View.GONE);
             }
+            return true;
+        }
 
+        private boolean setDeclinedSection(View view, Cursor cursor) {
             View declinedTitle = view.findViewById(R.id.event_card_declined_title);
             TextView declinedTextView = (TextView)view.findViewById(R.id.event_card_declined_text);
             String declinedText = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.DECLINED_TEXT));
@@ -197,7 +224,66 @@ public class EventInfoCard {
                 declinedTextView.setVisibility(View.VISIBLE);
                 setEventCardHandleEmptyHtmlText(declinedTextView, declinedText, R.string.no_guests_declined);
             }
+            return true;
+        }
 
+
+        private boolean setShareButton(View view, Cursor cursor) {
+            View share = view.findViewById(R.id.event_card_action_share_button);
+            final String guestName = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_NAME));
+            final String title = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.TITLE));
+            final String shareUrl = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.SHARE_URL));
+            final String shareText = view.getContext().getResources().getString(R.string.invite_text,
+                    guestName,
+                    title,
+                    shareUrl);
+            if (DEBUG) Log.i(TAG, "share url=" + shareUrl + " text=" + shareText);
+            if (shareUrl == null) {
+                share.setOnClickListener(null);
+                share.setVisibility(View.GONE);
+            }
+            else {
+                share.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_SEND);
+                        intent.putExtra(Intent.EXTRA_TEXT, shareText);
+                        intent.setType("text/plain");
+                        Activity a = v.getContext() instanceof Activity ? (Activity)v.getContext() : null;
+                        if (DEBUG) Log.i(TAG, "share url=" + shareUrl + " activity=" + a + " text=" + shareText);
+                        if (a != null) {
+                            a.startActivity(Intent.createChooser(intent, a.getResources().getText(R.string.send_invite)));
+                        }
+                    }
+                });
+                share.setVisibility(View.VISIBLE);
+            }
+            return true;
+        }
+
+        private boolean setEditButton(View view, Cursor cursor) {
+            View edit = view.findViewById(R.id.event_card_action_edit_button);
+            final boolean viewonly = cursor.getInt(cursor.getColumnIndex(LocalEvent.Events.VIEWONLY)) == 1;
+            if (viewonly) {
+                edit.setOnClickListener(null);
+                edit.setVisibility(View.GONE);
+            }
+            else {
+                final LocalEvent e = new LocalEvent(view.getContext(), cursor);
+                edit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FragmentActivity a = v.getContext() instanceof FragmentActivity ? (FragmentActivity)v.getContext() : null;
+                        if (a != null) {
+                            EditEventDialogFragment d = new EditEventDialogFragment();
+                            d.setLocalEvent(e);
+                            d.show(a.getSupportFragmentManager(), TAG);
+                        }
+                    }
+                });
+                edit.setVisibility(View.VISIBLE);
+            }
             return true;
         }
 

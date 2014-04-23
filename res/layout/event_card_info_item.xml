@@ -110,9 +110,10 @@
     <!--
     <include layout="@layout/event_card_action_attend"/>
     <include layout="@layout/event_card_action_decline"/>
-    <include layout="@layout/event_card_action_edit"/>
     -->
     <include layout="@layout/event_card_action_share"/>
+
+    <include layout="@layout/event_card_action_edit"/>
 
     <View
             android:layout_width="match_parent"
@@ -330,7 +331,7 @@ android:background="@color/card_divider"
     <TextView
             android:id="@+id/event_card_attending_text"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/card_title_height"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/card_inner"
             android:paddingLeft="@dimen/card_inner"
             android:paddingRight="@dimen/card_inner"
@@ -354,7 +355,7 @@ android:background="@color/card_divider"
     <TextView
             android:id="@+id/event_card_declined_text"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/card_title_height"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/card_inner"
             android:paddingLeft="@dimen/card_inner"
             android:paddingRight="@dimen/card_inner"
@@ -378,7 +379,7 @@ android:background="@color/card_divider"
     <TextView
             android:id="@+id/event_card_comments_text"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/card_title_height"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/card_inner"
             android:paddingLeft="@dimen/card_inner"
             android:paddingRight="@dimen/card_inner"

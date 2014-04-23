@@ -7,18 +7,9 @@
         android:layout_height="@dimen/card_action_height"
         android:layout_marginTop="@dimen/card_inner"
         >
-<!--
-    <ImageView
-            android:id="@+id/event_card_directions_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="@dimen/card_inner"
-            android:layout_marginRight="@dimen/card_inner"
-            android:src="@android:drawable/ic_menu_directions"
-            />
-    -->
+
     <TextView
+            android:id="@+id/event_card_action_directions_button"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_centerVertical="true"

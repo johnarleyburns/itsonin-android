@@ -32,9 +32,14 @@ public class EventListCard {
             0,
             R.id.event_card_icon,
             R.id.event_card_pyramid_icon,
+            0,
+            0,
             R.id.event_card_date,
             R.id.event_card_start_time,
             R.id.event_card_end_time,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -65,7 +70,10 @@ public class EventListCard {
                 NUM_COMMENTS,
                 ATTENDING_TEXT,
                 DECLINED_TEXT,
-                COMMENTS_TEXT
+                COMMENTS_TEXT,
+                SHARE_URL,
+                GUEST_NAME,
+                VIEW_ONLY
 
      */
 

@@ -53,65 +53,6 @@
                         android:hint="@string/host_hint"
                         />
 
-            </LinearLayout>
-
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/card_divider"
-                    />
-
-            <FrameLayout
-                    android:id="@+id/detail_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/card_spacing"
-                    android:paddingBottom="@dimen/card_spacing"
-                    android:paddingLeft="@dimen/card_inner"
-                    android:background="@color/card_shadow"
-                    >
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="@dimen/card_inner_button"
-                        android:textSize="@dimen/form_text"
-                        android:text="@string/optional_details"
-                        />
-
-                <ImageView
-                        android:id="@+id/expand_details"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="right|center_vertical"
-                        android:layout_marginRight="@dimen/card_inner_button"
-                        android:src="@drawable/ic_action_expand"
-                        />
-
-                <ImageView
-                        android:id="@+id/collapse_details"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="right|center_vertical"
-                        android:layout_marginRight="@dimen/card_inner_button"
-                        android:src="@drawable/ic_action_collapse"
-                        android:visibility="gone"
-                        />
-
-            </FrameLayout>
-
-            <LinearLayout
-                    android:id="@+id/detail_section"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/card_inner"
-                    android:paddingLeft="@dimen/card_inner"
-                    android:paddingRight="@dimen/card_inner"
-                    android:background="@color/card_shadow"
-                    >
-
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -205,12 +146,6 @@
                         />
 
             </LinearLayout>
-
-            <!--
-            public double gpsLat;
-            public double gpsLong;
-            public long numAttendees;
-            -->
 
         </LinearLayout>
 

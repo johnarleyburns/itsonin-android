@@ -183,11 +183,18 @@ public class EventInfoFragment extends Fragment {
             switch(rest) {
                 case EVENT_INFO:
                     if (isError(statusCode, response)) {
-                        mListView.setEmptyView(mEmptyView);
+                        if (mListView != null) {
+                            mListView.setEmptyView(mEmptyView);
+                        }
                         notifyAuthenticationError(context);
                     }
                     else {
                         handleEventInfo(context, response);
+                    }
+                    break;
+                case UPDATE_EVENT:
+                    if (!isError(statusCode, response)) {
+                        reloadEvent();
                     }
                     break;
                 default:

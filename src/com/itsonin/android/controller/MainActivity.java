@@ -1,5 +1,6 @@
 package com.itsonin.android.controller;
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;

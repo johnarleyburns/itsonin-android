@@ -39,6 +39,7 @@
     <string name="no_events_found">No Events Found</string>
 
     <string name="add_event">Create event</string>
+    <string name="edit_event">Edit event</string>
     <string name="title_hint">Name your event</string>
     <string name="host_hint">Who\'s hosting the event?</string>
     <string name="date_hint">Event date</string>
@@ -52,6 +53,8 @@
     <string name="at_time">\u0020@\u0020</string>
     <string name="until_time">\u0020\u2013\u0020</string>
     <string name="optional_details">Details (optional)</string>
+    <string name="send_invite">Send invite to</string>
+    <string name="invite_text">%1$s invites you to %2$s, click %3$s for more info</string>
 
     <string name="no_guests_attending">No guests are attending this event</string>
     <string name="no_guests_declined">No guests have declined this event</string>
@@ -68,7 +71,8 @@
 
     <string name="no_network">No network connection</string>
     <string name="connection_error">Coludn\'t connect to server</string>
-    <string name="created_event">Created event</string>
+    <string name="created_event">Event created</string>
+    <string name="updated_event">Event updated</string>
 
     <string name="this_event_is_private">This event is private</string>
 

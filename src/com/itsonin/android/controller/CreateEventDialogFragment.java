@@ -56,48 +56,51 @@ import java.util.List;
  */
 public class CreateEventDialogFragment extends DialogFragment {
 
-    private static final String TAG = CreateEventDialogFragment.class.toString();
-    private static final boolean DEBUG = true;
-    private static String mApiKey;
+    protected static final String TAG = CreateEventDialogFragment.class.toString();
+    protected static final boolean DEBUG = true;
+    protected static String mApiKey;
 
-    private static final String CATEGORY_INDEX_KEY = "categoryIndex";
-    private static final String EVENT_DATE_KEY = "eventDate";
-    private static final String START_TIME_KEY = "startTime";
-    private static final String END_TIME_KEY = "endTime";
-    private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
-    private static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode/json";
+    protected static final String CATEGORY_INDEX_KEY = "categoryIndex";
+    protected static final String EVENT_DATE_KEY = "eventDate";
+    protected static final String START_TIME_KEY = "startTime";
+    protected static final String END_TIME_KEY = "endTime";
+    protected static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
+    protected static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode/json";
 
-    private LocalEvent localEvent;
-    private Host host;
-    private Place place;
-    private Category category;
-    private Date eventDate;
-    private Date startTime;
-    private Date endTime;
-    private double latitude;
-    private double longitude;
+    protected static final int DIALOG_TITLE_ID = R.string.add_event;
+    protected static final int DIALOG_LAYOUT_ID = R.layout.create_event_layout;
 
-    private ArrayAdapter<String> hostAutoAdapter;
-    private ArrayAdapter<String> placeAutoAdapter;
-    private PlacesAutoCompleteAdapter placesAutoCompleteAdapter;
-    private Location lastLocation;
+    protected LocalEvent localEvent;
+    protected Host host;
+    protected Place place;
+    protected Category category;
+    protected Date eventDate;
+    protected Date startTime;
+    protected Date endTime;
+    protected double latitude;
+    protected double longitude;
 
-    private View overlay;
-    private ProgressBar progressBar;
-    private EditText titleView;
-    private EditText textView;
-    private AutoCompleteTextView hostView;
-    private AutoCompleteTextView placeView;
-    private TextView eventDateView;
-    private TextView startTimeView;
-    private TextView endTimeView;
-    private AutoCompleteTextView addressView;
-    private View detailsButton;
-    private View detailsExpand;
-    private View detailsCollapse;
-    private View detailsSection;
-    private ItsoninAPI itsoninAPI;
-    private AlertDialog dialog;
+    protected ArrayAdapter<String> hostAutoAdapter;
+    protected ArrayAdapter<String> placeAutoAdapter;
+    protected PlacesAutoCompleteAdapter placesAutoCompleteAdapter;
+    protected Location lastLocation;
+
+    protected View overlay;
+    protected ProgressBar progressBar;
+    protected EditText titleView;
+    protected EditText textView;
+    protected AutoCompleteTextView hostView;
+    protected AutoCompleteTextView placeView;
+    protected TextView eventDateView;
+    protected TextView startTimeView;
+    protected TextView endTimeView;
+    protected AutoCompleteTextView addressView;
+    protected View detailsButton;
+    protected View detailsExpand;
+    protected View detailsCollapse;
+    protected View detailsSection;
+    protected ItsoninAPI itsoninAPI;
+    protected AlertDialog dialog;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -125,9 +128,44 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
 
         initDates(view.getContext());
+        createDialog(view);
+        if (localEvent != null) {
+            initFromEvent(localEvent);
+        }
 
+        return dialog;
+    }
+
+    public void setLocalEvent(LocalEvent e) {
+        localEvent = e;
+    }
+
+    protected void initFromEvent(LocalEvent e) {
+        host.lastName = e.host;
+        place.lastName = e.locationTitle;
+        category.lastCategory = e.category;
+        category.setIndex(category.getIndex());
+
+        eventDate = new CustomDateTimeSerializer().parse(e.startTimeRaw);
+        startTime = new CustomDateTimeSerializer().parse(e.startTimeRaw);
+        endTime = new CustomDateTimeSerializer().parse(e.endTimeRaw);
+        latitude = e.gpsLat;
+        longitude = e.gpsLong;
+
+        if (DEBUG) Log.e(TAG, "host: " + e.host);
+        titleView.setText(e.title);
+        textView.setText(e.description);
+        hostView.setText(e.host);
+        placeView.setText(e.locationTitle);
+        eventDateView.setText(e.date);
+        startTimeView.setText(e.startTime);
+        endTimeView.setText(e.endTime);
+        addressView.setText(e.locationAddress);
+    }
+
+    protected void createDialog(View view) {
         dialog = new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.add_event)
+                .setTitle(DIALOG_TITLE_ID)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel,
@@ -137,7 +175,6 @@ public class CreateEventDialogFragment extends DialogFragment {
                         }
                 )
                 .create();
-        return dialog;
     }
 
     @Override
@@ -145,11 +182,15 @@ public class CreateEventDialogFragment extends DialogFragment {
         super.onStart();
         Button b = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if (b != null) {
-            b.setOnClickListener(okListener);
+            setOkListener(b);
         }
     }
 
-    private BroadcastReceiver apiReceiver = new BroadcastReceiver() {
+    protected void setOkListener(Button b) {
+        b.setOnClickListener(okListener);
+    }
+
+    protected BroadcastReceiver apiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             overlay.setVisibility(View.GONE);
@@ -170,6 +211,15 @@ public class CreateEventDialogFragment extends DialogFragment {
                         Toast.makeText(context, "created event", Toast.LENGTH_SHORT).show();
                     }
                     break;
+                case UPDATE_EVENT:
+                    if (isError(statusCode, response)) {
+                        notifyAuthenticationError(context, response);
+                    }
+                    else {
+                        handleUpdateEvent(context, response);
+                        Toast.makeText(context, "created event", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
                     dismiss();
@@ -178,20 +228,25 @@ public class CreateEventDialogFragment extends DialogFragment {
 
         }
 
-        private boolean isError(int statusCode, String response) {
+        protected boolean isError(int statusCode, String response) {
             return response == null || response.isEmpty() || statusCode != 200;
         }
 
-        private void handleCreateEvent(Context context, String response) {
-            Toast.makeText(context, "created event", Toast.LENGTH_SHORT).show();
+        protected void handleCreateEvent(Context context, String response) {
+            Toast.makeText(context, R.string.created_event, Toast.LENGTH_SHORT).show();
             dismiss();
         }
 
-        private void notifyAuthenticationError(Context context) {
+        protected void handleUpdateEvent(Context context, String response) {
+            Toast.makeText(context, R.string.updated_event, Toast.LENGTH_SHORT).show();
+            dismiss();
+        }
+
+        protected void notifyAuthenticationError(Context context) {
             Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
         }
 
-        private void notifyAuthenticationError(Context context, String response) {
+        protected void notifyAuthenticationError(Context context, String response) {
             if (response == null) {
                 notifyAuthenticationError(context);
             }
@@ -226,7 +281,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     }
 
-    private View.OnClickListener okListener = new View.OnClickListener() {
+    protected View.OnClickListener okListener = new View.OnClickListener() {
         public void onClick(View view) {
             localEvent = extractEvent();
             if (DEBUG) Log.i(TAG, localEvent.toString());
@@ -246,7 +301,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
 
-    private void restoreBundleVariables(Bundle bundle) {
+    protected void restoreBundleVariables(Bundle bundle) {
         if (bundle != null) {
             if (bundle.containsKey(CATEGORY_INDEX_KEY)) {
                 category.setIndex(bundle.getInt(CATEGORY_INDEX_KEY));
@@ -272,9 +327,13 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     }
     
-    
-    private View createLayout(Bundle savedInstanceState) {
-        View view = getActivity().getLayoutInflater().inflate(R.layout.create_event_layout, null);
+
+    protected View inflateLayout() {
+        return getActivity().getLayoutInflater().inflate(DIALOG_LAYOUT_ID, null);
+    }
+
+    protected View createLayout(Bundle savedInstanceState) {
+        View view = inflateLayout();
 
         overlay = view.findViewById(R.id.overlay);
         progressBar = (ProgressBar)view.findViewById(R.id.progress);
@@ -330,16 +389,17 @@ public class CreateEventDialogFragment extends DialogFragment {
         endTimeView.setOnFocusChangeListener(endTimeFocusListener);
         endTimeView.setOnClickListener(endTimeClickListener);
 
-        detailsButton = view.findViewById(R.id.detail_button);
         detailsSection = view.findViewById(R.id.detail_section);
         detailsExpand = view.findViewById(R.id.expand_details);
         detailsCollapse = view.findViewById(R.id.collapse_details);
-        detailsButton.setOnClickListener(detailsButtonListener);
-
+        detailsButton = view.findViewById(R.id.detail_button);
+        if (detailsButton != null) {
+            detailsButton.setOnClickListener(detailsButtonListener);
+        }
         return view;
     }
 
-    private View.OnClickListener detailsButtonListener = new View.OnClickListener() {
+    protected View.OnClickListener detailsButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             ViewGroup.LayoutParams params = detailsSection.getLayoutParams();
@@ -356,7 +416,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
 
-    private AdapterView.OnItemClickListener hostListener = new AdapterView.OnItemClickListener() {
+    protected AdapterView.OnItemClickListener hostListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String name = (String) parent.getItemAtPosition(position);
@@ -364,7 +424,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
 
-    private AdapterView.OnItemClickListener placeListener = new AdapterView.OnItemClickListener() {
+    protected AdapterView.OnItemClickListener placeListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String name = (String) parent.getItemAtPosition(position);
@@ -372,7 +432,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
 
-    private Spinner.OnItemSelectedListener eventCategoryListener = new AdapterView.OnItemSelectedListener() {
+    protected Spinner.OnItemSelectedListener eventCategoryListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             category.setIndex(position);
@@ -382,8 +442,8 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
 
-    private View.OnFocusChangeListener eventDateFocusListener = new View.OnFocusChangeListener() {
-        private static final String TAG = "eventDateFocusListener";
+    protected View.OnFocusChangeListener eventDateFocusListener = new View.OnFocusChangeListener() {
+        protected static final String TAG = "eventDateFocusListener";
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (hasFocus) {
@@ -395,8 +455,8 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
     
-    private View.OnClickListener eventDateClickListener = new View.OnClickListener() {
-        private static final String TAG = "eventDateClickListener";
+    protected View.OnClickListener eventDateClickListener = new View.OnClickListener() {
+        protected static final String TAG = "eventDateClickListener";
         @Override
         public void onClick(View v) {
             overlay.setVisibility(View.VISIBLE);
@@ -405,8 +465,8 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
 
-    private View.OnFocusChangeListener startTimeFocusListener = new View.OnFocusChangeListener() {
-        private static final String TAG = "startTimeFocusListener";
+    protected View.OnFocusChangeListener startTimeFocusListener = new View.OnFocusChangeListener() {
+        protected static final String TAG = "startTimeFocusListener";
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (hasFocus) {
@@ -415,16 +475,16 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
 
-    private View.OnClickListener startTimeClickListener = new View.OnClickListener() {
-        private static final String TAG = "startTimeFocusListener";
+    protected View.OnClickListener startTimeClickListener = new View.OnClickListener() {
+        protected static final String TAG = "startTimeFocusListener";
         @Override
         public void onClick(View v) {
             new StartTimeDialog().show(getFragmentManager(), TAG);
         }
     };
 
-    private View.OnFocusChangeListener endTimeFocusListener = new View.OnFocusChangeListener() {
-        private static final String TAG = "endTimeFocusListener";
+    protected View.OnFocusChangeListener endTimeFocusListener = new View.OnFocusChangeListener() {
+        protected static final String TAG = "endTimeFocusListener";
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (hasFocus) {
@@ -433,15 +493,15 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
 
-    private View.OnClickListener endTimeClickListener = new View.OnClickListener() {
-            private static final String TAG = "endTimeFocusListener";
+    protected View.OnClickListener endTimeClickListener = new View.OnClickListener() {
+            protected static final String TAG = "endTimeFocusListener";
             @Override
             public void onClick(View v) {
                 new EndTimeDialog().show(getFragmentManager(), TAG);
             }
     };
     
-    private class EventDateDialog extends DialogFragment {
+    protected class EventDateDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             View view = getActivity().getLayoutInflater().inflate(R.layout.calendar_dialog, null);
@@ -476,15 +536,15 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     }
 
-    private void initDates(Context context) {
+    protected void initDates(Context context) {
         initEventDate(context);
         initStartTime(context);
         initEndTime(context);
     }
 
-    private static final int LAST_HOUR_OF_DAY = 23;
+    protected static final int LAST_HOUR_OF_DAY = 23;
 
-    private void initEventDate(Context context) {
+    protected void initEventDate(Context context) {
         if (eventDate == null) {
             Date today = new Date();
             Calendar c = Calendar.getInstance();
@@ -497,7 +557,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         eventDateView.setText(LocalEvent.friendlyDate(context, eventDate));
     }
 
-    private void initStartTime(Context context) {
+    protected void initStartTime(Context context) {
         Calendar c = Calendar.getInstance();
         c.roll(Calendar.HOUR_OF_DAY, 1);
         c.set(Calendar.MINUTE, 0);
@@ -505,7 +565,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         startTimeView.setText(LocalEvent.friendlyTime(context, startTime));
     }
 
-    private void initEndTime(Context context) {
+    protected void initEndTime(Context context) {
         Calendar c = Calendar.getInstance();
         c.setTime(startTime);
         c.roll(Calendar.HOUR_OF_DAY, 1);
@@ -513,7 +573,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         endTimeView.setText(LocalEvent.friendlyTime(context, endTime));
     }
 
-    private class StartTimeDialog extends DialogFragment
+    protected class StartTimeDialog extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -540,7 +600,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     }
 
-    private class EndTimeDialog extends DialogFragment
+    protected class EndTimeDialog extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -580,7 +640,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         bundle.putString(END_TIME_KEY, endTime.toString());
     }
 
-    private void persistToPrefs(Context context) {
+    protected void persistToPrefs(Context context) {
         String name = hostView.getText().toString().trim();
         host.lastName = name;
         if (!host.names.contains(name)) {
@@ -598,7 +658,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         category.store(context);
     }
 
-    private ArrayList<String> autocomplete(String input) {
+    protected ArrayList<String> autocomplete(String input) {
         ArrayList<String> resultList = null;
         String jsonResults = null;
         try {
@@ -636,8 +696,8 @@ public class CreateEventDialogFragment extends DialogFragment {
         return resultList;
     }
 
-    private class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
-        private ArrayList<String> resultList;
+    protected class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
+        protected ArrayList<String> resultList;
 
         public PlacesAutoCompleteAdapter(Context context, int textViewResourceId) {
             super(context, textViewResourceId);
@@ -683,7 +743,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     }
 
-    private AdapterView.OnItemClickListener placesAutoCompleteListener = new AdapterView.OnItemClickListener() {
+    protected AdapterView.OnItemClickListener placesAutoCompleteListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String str = (String) parent.getItemAtPosition(position);
@@ -693,7 +753,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
     };
 
-    private void updateLocationToAddress() {
+    protected void updateLocationToAddress() {
         String jsonResults = null;
         String input = addressView.getText().toString();
         try {
@@ -731,7 +791,7 @@ public class CreateEventDialogFragment extends DialogFragment {
     }
 
     // Define a listener that responds to location updates
-    private LocationListener locationListener = new LocationListener() {
+    protected LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             // Called when a new location is found by the network location provider.
             lastLocation = location;
@@ -741,7 +801,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         public void onProviderDisabled(String provider) {}
     };
 
-    private String placesJSON(String apiBase, String inputParam) {
+    protected String placesJSON(String apiBase, String inputParam) {
         String jsonResults = null;
 
         if (getActivity() == null) {
@@ -776,7 +836,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         return jsonResults;
     }
 
-    private LocalEvent extractEvent() {
+    protected LocalEvent extractEvent() {
         LocalEvent e = new LocalEvent();
         e.title = titleView.getText().toString();
         e.description = textView.getText().toString();
@@ -785,7 +845,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         e.date = new SimpleDateFormat(CustomDateTimeSerializer.ITSONIN_DATES).format(eventDate);
         e.startTime = startTimeView.getText().toString();
         e.endTime = endTimeView.getText().toString();
-        e.privateEvent = true; // can only create private events via interface
+        e.privateEvent = true; // can only create protected events via interface
         e.locationTitle = placeView.getText().toString();
         e.locationAddress = addressView.getText().toString();
         e.gpsLat = latitude;

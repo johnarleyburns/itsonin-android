@@ -1,6 +1,7 @@
 package com.itsonin.android.model;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.DateUtils;
@@ -23,6 +24,7 @@ public class LocalEvent {
 
     private static final String TAG = LocalEvent.class.getSimpleName();
     private static final boolean DEBUG = true;
+    private static final String SHARE_URL_PATTERN = "http://itsonin-com.appspot.com/i/%1$s.%2$s"; // eventId, guestId
 
     public long _id;
     public String title;
@@ -30,6 +32,8 @@ public class LocalEvent {
     public String host; // name of person hosting the event
     public String category;
     public String sharability;
+    public String startTimeRaw;
+    public String endTimeRaw;
     public String date;
     public String startTime;
     public String endTime;
@@ -44,6 +48,9 @@ public class LocalEvent {
     public String attendingText;
     public String declinedText;
     public String commentsText;
+    public String shareUrl;
+    public String guestName;
+    public boolean viewOnly;
 
     public LocalEvent() {
     }
@@ -56,6 +63,8 @@ public class LocalEvent {
         this.host = null;
         this.category = mapEventType(e.getType());
         this.sharability = e.getSharability().toString();
+        this.startTimeRaw = new CustomDateTimeSerializer().format(e.getStartTime());
+        this.endTimeRaw = new CustomDateTimeSerializer().format(e.getEndTime());
         this.date = friendlyDate(c, e.getStartTime());
         this.startTime = friendlyTime(c, e.getStartTime());
         this.endTime = friendlyTime(c, e.getEndTime());
@@ -70,11 +79,41 @@ public class LocalEvent {
         this.attendingText = null;
         this.declinedText = null;
         this.commentsText = null;
+        this.shareUrl = null;
+        this.guestName = null;
+        this.viewOnly = true;
+    }
+
+    public LocalEvent(Context c, Cursor cursor) {
+        this();
+        _id = cursor.getLong(cursor.getColumnIndex(Events.EVENT_ID));
+        title = cursor.getString(cursor.getColumnIndex(Events.TITLE));
+        description = cursor.getString(cursor.getColumnIndex(Events.TEXT));
+        host = cursor.getString(cursor.getColumnIndex(Events.HOST));
+        sharability = cursor.getString(cursor.getColumnIndex(Events.SHARABILITY));
+        startTimeRaw = cursor.getString(cursor.getColumnIndex(Events.START_TIME_RAW));
+        endTimeRaw = cursor.getString(cursor.getColumnIndex(Events.END_TIME_RAW));
+        date = cursor.getString(cursor.getColumnIndex(Events.DATE));
+        startTime = cursor.getString(cursor.getColumnIndex(Events.START_TIME));
+        endTime = cursor.getString(cursor.getColumnIndex(Events.END_TIME));
+        locationTitle = cursor.getString(cursor.getColumnIndex(Events.LOCATION_TITLE));
+        locationAddress = cursor.getString(cursor.getColumnIndex(Events.LOCATION_ADDRESS));
+        gpsLat = cursor.getDouble(cursor.getColumnIndex(Events.LATITUDE));
+        gpsLong = cursor.getDouble(cursor.getColumnIndex(Events.LONGITUDE));
+        numAttendees = cursor.getInt(cursor.getColumnIndex(Events.NUM_ATTENDEES));
+        numDeclined = cursor.getInt(cursor.getColumnIndex(Events.NUM_DECLINED));
+        numComments = cursor.getInt(cursor.getColumnIndex(Events.NUM_COMMENTS));
+        attendingText = cursor.getString(cursor.getColumnIndex(Events.ATTENDING_TEXT));
+        declinedText = cursor.getString(cursor.getColumnIndex(Events.DECLINED_TEXT));
+        commentsText = cursor.getString(cursor.getColumnIndex(Events.COMMENTS_TEXT));
+        shareUrl = cursor.getString(cursor.getColumnIndex(Events.SHARE_URL));
+        guestName = cursor.getString(cursor.getColumnIndex(Events.GUEST_NAME));
+        viewOnly = cursor.getInt(cursor.getColumnIndex(Events.VIEWONLY)) == 1;
     }
 
     public LocalEvent(Context c, EventInfo eventInfo) {
         this(c, eventInfo.getEvent());
-        
+
         List<Guest> guests = eventInfo.getGuests();
         for (Guest guest : guests) {
             switch (guest.getStatus()) {
@@ -120,6 +159,28 @@ public class LocalEvent {
             }
             commentsText += "<b>" + comment.getCreated().toString() + "</b> " + comment.getComment();
         }
+
+        Guest guest = eventInfo.getGuest();
+        long guestId;
+        if (guest.getStatus() == GuestStatus.PENDING) {
+            guestId = guest.getParentGuestId();
+        }
+        else if (guest.getStatus() == GuestStatus.ATTENDING
+                || guest.getStatus() == GuestStatus.DECLINED) {
+            guestId = guest.getGuestId();
+        }
+        else {
+            guestId = -1;
+        }
+        if (guestId >= 0) {
+            shareUrl = String.format(SHARE_URL_PATTERN, _id, guestId);
+        }
+        else {
+            shareUrl = null;
+        }
+        guestName = guest.getName();
+
+        viewOnly = eventInfo.isViewonly();
     }
 
     private static boolean isTomorrow(Date date) {
@@ -379,6 +440,8 @@ public class LocalEvent {
                 host,
                 category,
                 sharability,
+                startTimeRaw,
+                endTimeRaw,
                 date,
                 startTime,
                 endTime,
@@ -391,7 +454,10 @@ public class LocalEvent {
                 numComments,
                 attendingText,
                 declinedText,
-                commentsText
+                commentsText,
+                shareUrl,
+                guestName,
+                viewOnly ? 1 : 0
         };
     }
 
@@ -403,6 +469,8 @@ public class LocalEvent {
                 + "host=[" + host + "]"
                 + "category=[" + category + "]"
                 + "sharability=[" + sharability + "]"
+                + "startTimeRaw=[" + startTimeRaw + "]"
+                + "endTimeRaw=[" + endTimeRaw + "]"
                 + "date=[" + date + "]"
                 + "startTime=[" + startTime + "]"
                 + "endTime=[" + endTime + "]"
@@ -417,6 +485,9 @@ public class LocalEvent {
                 + "attendingText=[" + attendingText + "]"
                 + "declinedText=[" + declinedText + "]"
                 + "commentsText=[" + commentsText + "]"
+                + "shareUrl=[" + shareUrl + "]"
+                + "guestName=[" + guestName + "]"
+                + "viewOnly=[" + viewOnly + "]"
                 + "]";
     }
 
@@ -441,6 +512,8 @@ public class LocalEvent {
         public static final String HOST = "host"; // name of person hosting the event
         public static final String CATEGORY = "category";
         public static final String SHARABILITY = "sharability";
+        public static final String START_TIME_RAW = "startTimeRaw";
+        public static final String END_TIME_RAW = "endTimeRaw";
         public static final String DATE = "date";
         public static final String START_TIME = "startTime";
         public static final String END_TIME = "endTime";
@@ -454,6 +527,9 @@ public class LocalEvent {
         public static final String ATTENDING_TEXT = "attendingText"; // how many confirmed attending
         public static final String DECLINED_TEXT = "declinedText"; // how many confirmed attending
         public static final String COMMENTS_TEXT = "commentsText"; // how many confirmed attending
+        public static final String SHARE_URL = "shareUrl";
+        public static final String GUEST_NAME = "guestName";
+        public static final String VIEWONLY = "viewOnly";
 
         public static final String[] COLUMNS = {
                 EVENT_ID,
@@ -462,6 +538,8 @@ public class LocalEvent {
                 HOST,
                 CATEGORY,
                 SHARABILITY,
+                START_TIME_RAW,
+                END_TIME_RAW,
                 DATE,
                 START_TIME,
                 END_TIME,
@@ -474,7 +552,10 @@ public class LocalEvent {
                 NUM_COMMENTS,
                 ATTENDING_TEXT,
                 DECLINED_TEXT,
-                COMMENTS_TEXT
+                COMMENTS_TEXT,
+                SHARE_URL,
+                GUEST_NAME,
+                VIEWONLY
         };
 
     }

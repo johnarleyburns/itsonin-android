@@ -59,6 +59,7 @@ public class ItsoninAPI {
 
     public static enum REST {
         CREATE_EVENT("/api/event/create", HttpMethod.POST),
+        UPDATE_EVENT("/api/event/update", HttpMethod.PUT),
         LIST_EVENTS("/api/event/list?allEvents=true", HttpMethod.GET),
         EVENT_INFO("/api/event/%1$s/info", HttpMethod.GET);
 
@@ -131,6 +132,21 @@ public class ItsoninAPI {
         }
         catch (JsonProcessingException e) {
             Log.e(TAG, "Exception in createEvent()", e);
+        }
+    }
+
+    public void updateEvent(LocalEvent localEvent) {
+        pendingLocalEvent = localEvent;
+        if (context.get() == null) {
+            Log.e(TAG, "null context reference");
+            return;
+        }
+        try {
+            String requestJSON = mapper.writeValueAsString(localEvent.toEventWithGuest(context.get()));
+            asyncApiJSON(REST.UPDATE_EVENT, REST.UPDATE_EVENT.apiUrl(), requestJSON);
+        }
+        catch (JsonProcessingException e) {
+            Log.e(TAG, "Exception in updateEvent()", e);
         }
     }
 
