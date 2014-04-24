@@ -15,8 +15,11 @@ import android.util.Xml;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.itsonin.android.R;
 import com.itsonin.android.controller.EditEventDialogFragment;
+import com.itsonin.android.enums.EventVisibility;
+import com.itsonin.android.enums.GuestStatus;
 import com.itsonin.android.model.LocalEvent;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -40,6 +43,7 @@ public class EventInfoCard {
             R.id.event_card_pyramid_icon,
             0,
             0,
+            0,
             R.id.event_card_date,
             R.id.event_card_start_time,
             R.id.event_card_end_time,
@@ -55,32 +59,9 @@ public class EventInfoCard {
             R.id.event_card_comments_text,
             0,
             0,
+            0,
             0
     };
-    /*
-    EVENT_ID,
-    TITLE,
-    TEXT,
-    HOST,
-    CATEGORY,
-    SHARABILITY,
-    DATE,
-    START_TIME,
-    END_TIME,
-    LOCATION_TITLE,
-    LOCATION_ADDRESS,
-    LATITUDE,
-    LONGITUDE,
-    NUM_ATTENDEES
-                 NUM_DECLINED,
-                NUM_COMMENTS,
-                ATTENDING_TEXT,
-                DECLINED_TEXT,
-                COMMENTS_TEXT,
-                SHARE_URL,
-                GUEST_NAME,
-                VIEW_ONLY
-    */
 
     public static class EventViewBinder implements SimpleCursorAdapter.ViewBinder {
 
@@ -181,6 +162,8 @@ public class EventInfoCard {
             setShareButton(view, cursor);
             setEditButton(view, cursor);
             setDirectionsButton(view, cursor);
+            setAttendButton(view, cursor);
+            setDeclineButton(view, cursor);
             setDeclinedSection(view, cursor);
             return true;
         }
@@ -202,7 +185,13 @@ public class EventInfoCard {
             View declinedTitle = view.findViewById(R.id.event_card_declined_title);
             TextView declinedTextView = (TextView)view.findViewById(R.id.event_card_declined_text);
             String declinedText = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.DECLINED_TEXT));
+            EventVisibility ev = EventVisibility.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.VISIBILITY)));
             if (declinedText == null || declinedText.trim().isEmpty()) {
+                declinedTitle.setVisibility(View.GONE);
+                declinedTextView.setVisibility(View.GONE);
+                declinedTextView.setText("");
+            }
+            else if (ev != null && ev == EventVisibility.PUBLIC) { // don't report declined for public events
                 declinedTitle.setVisibility(View.GONE);
                 declinedTextView.setVisibility(View.GONE);
                 declinedTextView.setText("");
@@ -214,7 +203,6 @@ public class EventInfoCard {
             }
             return true;
         }
-
 
         private boolean setShareButton(View view, Cursor cursor) {
             View share = view.findViewById(R.id.event_card_action_share_button);
@@ -297,6 +285,52 @@ public class EventInfoCard {
                     }
                 });
                 directions.setVisibility(View.VISIBLE);
+            }
+            return true;
+        }
+
+        private boolean setAttendButton(View view, Cursor cursor) {
+            View attend = view.findViewById(R.id.event_card_action_attend);
+            View attendButton = view.findViewById(R.id.event_card_action_attend_button);
+            final GuestStatus guestStatus = GuestStatus.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_STATUS)));
+            if (guestStatus == GuestStatus.ATTENDING) {
+                attendButton.setOnClickListener(null);
+                attend.setVisibility(View.GONE);
+            }
+            else {
+                attendButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FragmentActivity a = v.getContext() instanceof FragmentActivity ? (FragmentActivity) v.getContext() : null;
+                        if (a != null) {
+                            Toast.makeText(a, "Attend event", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                attend.setVisibility(View.VISIBLE);
+            }
+            return true;
+        }
+
+        private boolean setDeclineButton(View view, Cursor cursor) {
+            View decline = view.findViewById(R.id.event_card_action_decline);
+            View declineButton = view.findViewById(R.id.event_card_action_decline_button);
+            final GuestStatus guestStatus = GuestStatus.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_STATUS)));
+            if (guestStatus != GuestStatus.ATTENDING) {
+                declineButton.setOnClickListener(null);
+                decline.setVisibility(View.GONE);
+            }
+            else {
+                declineButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FragmentActivity a = v.getContext() instanceof FragmentActivity ? (FragmentActivity) v.getContext() : null;
+                        if (a != null) {
+                            Toast.makeText(a, "Decline event", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                decline.setVisibility(View.VISIBLE);
             }
             return true;
         }

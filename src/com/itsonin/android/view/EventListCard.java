@@ -34,6 +34,7 @@ public class EventListCard {
             R.id.event_card_pyramid_icon,
             0,
             0,
+            0,
             R.id.event_card_date,
             R.id.event_card_start_time,
             R.id.event_card_end_time,
@@ -49,33 +50,9 @@ public class EventListCard {
             0,
             0,
             0,
+            0,
             0
     };
-  /*
-                 EVENT_ID,
-                TITLE,
-                TEXT,
-                HOST,
-                CATEGORY,
-                SHARABILITY,
-                DATE,
-                START_TIME,
-                END_TIME,
-                LOCATION_TITLE,
-                LOCATION_ADDRESS,
-                LATITUDE,
-                LONGITUDE,
-                NUM_ATTENDEES
-                                NUM_DECLINED,
-                NUM_COMMENTS,
-                ATTENDING_TEXT,
-                DECLINED_TEXT,
-                COMMENTS_TEXT,
-                SHARE_URL,
-                GUEST_NAME,
-                VIEW_ONLY
-
-     */
 
     public static class EventViewBinder implements SimpleCursorAdapter.ViewBinder {
 

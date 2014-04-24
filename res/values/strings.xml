@@ -55,6 +55,8 @@
     <string name="optional_details">Details (optional)</string>
     <string name="send_invite">Send invite to</string>
     <string name="invite_text">%1$s invites you to %2$s, click %3$s for more info</string>
+    <string name="attend_button_info_text">Would you like to attend this event?</string>
+    <string name="decline_button_info_text">You are attending this event</string>
 
     <string name="no_guests_attending">No guests are attending this event</string>
     <string name="no_guests_declined">No guests have declined this event</string>
@@ -66,6 +68,7 @@
     <string name="get_directions">get directions</string>
     <string name="attend">attend</string>
     <string name="decline">decline</string>
+    <string name="decline_button">rain check</string>
     <string name="edit">edit</string>
     <string name="share">share</string>
 

@@ -32,6 +32,7 @@ public class LocalEvent {
     public String host; // name of person hosting the event
     public String category;
     public String sharability;
+    public String visibility;
     public String startTimeRaw;
     public String endTimeRaw;
     public String date;
@@ -50,6 +51,7 @@ public class LocalEvent {
     public String commentsText;
     public String shareUrl;
     public String guestName;
+    public String guestStatus;
     public boolean viewOnly;
 
     public LocalEvent() {
@@ -63,6 +65,7 @@ public class LocalEvent {
         this.host = null;
         this.category = mapEventType(e.getType());
         this.sharability = e.getSharability().toString();
+        this.visibility = e.getVisibility().toString();
         this.startTimeRaw = new CustomDateTimeSerializer().format(e.getStartTime());
         this.endTimeRaw = new CustomDateTimeSerializer().format(e.getEndTime());
         this.date = friendlyDate(c, e.getStartTime());
@@ -81,6 +84,7 @@ public class LocalEvent {
         this.commentsText = null;
         this.shareUrl = null;
         this.guestName = null;
+        this.guestStatus = null;
         this.viewOnly = true;
     }
 
@@ -91,6 +95,7 @@ public class LocalEvent {
         description = cursor.getString(cursor.getColumnIndex(Events.TEXT));
         host = cursor.getString(cursor.getColumnIndex(Events.HOST));
         sharability = cursor.getString(cursor.getColumnIndex(Events.SHARABILITY));
+        visibility = cursor.getString(cursor.getColumnIndex(Events.VISIBILITY));
         startTimeRaw = cursor.getString(cursor.getColumnIndex(Events.START_TIME_RAW));
         endTimeRaw = cursor.getString(cursor.getColumnIndex(Events.END_TIME_RAW));
         date = cursor.getString(cursor.getColumnIndex(Events.DATE));
@@ -108,6 +113,7 @@ public class LocalEvent {
         commentsText = cursor.getString(cursor.getColumnIndex(Events.COMMENTS_TEXT));
         shareUrl = cursor.getString(cursor.getColumnIndex(Events.SHARE_URL));
         guestName = cursor.getString(cursor.getColumnIndex(Events.GUEST_NAME));
+        guestStatus = cursor.getString(cursor.getColumnIndex(Events.GUEST_STATUS));
         viewOnly = cursor.getInt(cursor.getColumnIndex(Events.VIEWONLY)) == 1;
     }
 
@@ -179,6 +185,7 @@ public class LocalEvent {
             shareUrl = null;
         }
         guestName = guest.getName();
+        guestStatus = guest.getStatus().toString();
 
         viewOnly = eventInfo.isViewonly();
     }
@@ -440,6 +447,7 @@ public class LocalEvent {
                 host,
                 category,
                 sharability,
+                visibility,
                 startTimeRaw,
                 endTimeRaw,
                 date,
@@ -457,6 +465,7 @@ public class LocalEvent {
                 commentsText,
                 shareUrl,
                 guestName,
+                guestStatus,
                 viewOnly ? 1 : 0
         };
     }
@@ -487,6 +496,7 @@ public class LocalEvent {
                 + "commentsText=[" + commentsText + "]"
                 + "shareUrl=[" + shareUrl + "]"
                 + "guestName=[" + guestName + "]"
+                + "guestStatus=[" + guestStatus + "]"
                 + "viewOnly=[" + viewOnly + "]"
                 + "]";
     }
@@ -512,6 +522,7 @@ public class LocalEvent {
         public static final String HOST = "host"; // name of person hosting the event
         public static final String CATEGORY = "category";
         public static final String SHARABILITY = "sharability";
+        public static final String VISIBILITY = "visibility";
         public static final String START_TIME_RAW = "startTimeRaw";
         public static final String END_TIME_RAW = "endTimeRaw";
         public static final String DATE = "date";
@@ -529,6 +540,7 @@ public class LocalEvent {
         public static final String COMMENTS_TEXT = "commentsText"; // how many confirmed attending
         public static final String SHARE_URL = "shareUrl";
         public static final String GUEST_NAME = "guestName";
+        public static final String GUEST_STATUS = "guestStatus";
         public static final String VIEWONLY = "viewOnly";
 
         public static final String[] COLUMNS = {
@@ -538,6 +550,7 @@ public class LocalEvent {
                 HOST,
                 CATEGORY,
                 SHARABILITY,
+                VISIBILITY,
                 START_TIME_RAW,
                 END_TIME_RAW,
                 DATE,
@@ -555,6 +568,7 @@ public class LocalEvent {
                 COMMENTS_TEXT,
                 SHARE_URL,
                 GUEST_NAME,
+                GUEST_STATUS,
                 VIEWONLY
         };
 
@@ -564,7 +578,7 @@ public class LocalEvent {
         return new Event(
                 mapCategory(),
                 mapSharability(),
-                mapPrivate(),
+                mapEventVisibility(),
                 EventStatus.ACTIVE,
                 EventFlexibility.NEGOTIABLE,
                 title,
@@ -646,12 +660,18 @@ public class LocalEvent {
         }
     }
 
-    private EventVisibility mapPrivate() {
-        if (privateEvent) {
-            return EventVisibility.PRIVATE;
+    private EventVisibility mapEventVisibility() {
+        if (visibility != null) {
+            EventVisibility v = EventVisibility.valueOf(visibility);
+            if (v != null) {
+                return v;
+            }
+            else {
+                return EventVisibility.PRIVATE;
+            }
         }
         else {
-            return EventVisibility.PUBLIC;
+            return EventVisibility.PRIVATE;
         }
     }
 

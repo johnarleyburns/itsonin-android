@@ -339,6 +339,9 @@ android:background="@color/card_divider"
             android:textColor="@color/card_text"
             />
 
+    <include layout="@layout/event_card_action_attend"/>
+    <include layout="@layout/event_card_action_decline"/>
+
     <TextView
             android:id="@+id/event_card_declined_title"
             android:layout_width="match_parent"
