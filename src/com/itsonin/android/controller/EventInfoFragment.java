@@ -85,7 +85,7 @@ public class EventInfoFragment extends Fragment {
             Uri dataUri = Uri.parse(dataUrl);
             eventId = dataUri.getLastPathSegment();
         }
-        setHasOptionsMenu(true);
+        //setHasOptionsMenu(true);
         //setRetainInstance(true);
         scheduleReload = true;
     }
@@ -165,6 +165,14 @@ public class EventInfoFragment extends Fragment {
         if (itsoninAPI != null) {
             itsoninAPI.unregisterReceiver(apiReceiver);
             itsoninAPI = null;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mPullToRefreshLayout != null && mPullToRefreshLayout.get() != null) {
+            mPullToRefreshLayout.get().setRefreshComplete();
         }
     }
 

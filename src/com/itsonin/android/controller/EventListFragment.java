@@ -77,7 +77,6 @@ public class EventListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setHasOptionsMenu(true);
         setRetainInstance(true);
         scheduleReload = true;
     }
@@ -181,10 +180,18 @@ public class EventListFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mPullToRefreshLayout != null && mPullToRefreshLayout.get() != null) {
+            mPullToRefreshLayout.get().setRefreshComplete();
+        }
+    }
+
     private BroadcastReceiver apiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (mPullToRefreshLayout.get() != null) {
+            if (mPullToRefreshLayout != null && mPullToRefreshLayout.get() != null) {
                 mPullToRefreshLayout.get().setRefreshComplete();
             }
             int statusCode = intent.getIntExtra(ItsoninAPI.ITSONIN_API_STATUS_CODE, 0);

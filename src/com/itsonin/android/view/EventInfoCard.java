@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Html;
@@ -179,7 +180,7 @@ public class EventInfoCard {
             setTimeSeparator(view, cursor);
             setShareButton(view, cursor);
             setEditButton(view, cursor);
-            setDirectionButton(view, cursor);
+            setDirectionsButton(view, cursor);
             setDeclinedSection(view, cursor);
             return true;
         }
@@ -193,19 +194,6 @@ public class EventInfoCard {
             }
             else {
                 timeSeparator.setVisibility(View.GONE);
-            }
-            return true;
-        }
-
-        private boolean setDirectionButton(View view, Cursor cursor) {
-            View directions = view.findViewById(R.id.event_card_action_directions);
-            String address = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_ADDRESS));
-            boolean hasAddress = address != null && !address.trim().isEmpty();
-            if (hasAddress) {
-                directions.setVisibility(View.VISIBLE);
-            }
-            else {
-                directions.setVisibility(View.GONE);
             }
             return true;
         }
@@ -283,6 +271,32 @@ public class EventInfoCard {
                     }
                 });
                 edit.setVisibility(View.VISIBLE);
+            }
+            return true;
+        }
+
+        private static final String GOOGLE_NAV_INTENT_PATTERN = "google.navigation:q=%1$s";
+
+        private boolean setDirectionsButton(View view, Cursor cursor) {
+            View directions = view.findViewById(R.id.event_card_action_directions_button);
+            final String address = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_ADDRESS));
+            if (address == null || address.trim().isEmpty()) {
+                directions.setOnClickListener(null);
+                directions.setVisibility(View.GONE);
+            }
+            else {
+                final Uri navUri = Uri.parse(String.format(GOOGLE_NAV_INTENT_PATTERN, address));
+                directions.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FragmentActivity a = v.getContext() instanceof FragmentActivity ? (FragmentActivity)v.getContext() : null;
+                        if (a != null) {
+                            Intent intent = new Intent(android.content.Intent.ACTION_VIEW, navUri);
+                            a.startActivity(intent);
+                        }
+                    }
+                });
+                directions.setVisibility(View.VISIBLE);
             }
             return true;
         }
