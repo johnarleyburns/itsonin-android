@@ -202,7 +202,20 @@ public class EventInfoFragment extends Fragment {
                     break;
                 case UPDATE_EVENT:
                     if (!isError(statusCode, response)) {
+                        Toast.makeText(context, R.string.updated_event, Toast.LENGTH_SHORT).show();
                         reloadEvent();
+                    }
+                    else {
+                        notifyAuthenticationError(context);
+                    }
+                    break;
+                case ATTEND_EVENT:
+                    if (!isError(statusCode, response)) {
+                        Toast.makeText(context, R.string.attending_event, Toast.LENGTH_SHORT).show();
+                        reloadEvent();
+                    }
+                    else {
+                        notifyAuthenticationError(context);
                     }
                     break;
                 default:

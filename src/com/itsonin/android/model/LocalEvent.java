@@ -695,6 +695,10 @@ public class LocalEvent {
     }
 
     private Date mapDateWithTime(Context context, String date, String time) {
+        if (date == null || time == null) {
+            Log.e(TAG, "mapDateWithTime() null date=" + date + " time=" + time);
+            return new Date();
+        }
         try {
             Date d = new SimpleDateFormat(CustomDateTimeSerializer.ITSONIN_DATES).parse(date);
             Date t = android.text.format.DateFormat.getTimeFormat(context).parse(time);
@@ -707,7 +711,7 @@ public class LocalEvent {
             return c1.getTime();
         }
         catch (ParseException e) {
-            Log.e(TAG, "Exception mapping date", e);
+            Log.e(TAG, "Exception mapping date with time", e);
             return new Date();
         }
     }

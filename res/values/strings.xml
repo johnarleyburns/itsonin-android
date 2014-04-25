@@ -41,7 +41,8 @@
     <string name="add_event">Create event</string>
     <string name="edit_event">Edit event</string>
     <string name="title_hint">Name your event</string>
-    <string name="host_hint">Who\'s hosting the event?</string>
+    <string name="host_hint">Your name</string>
+    <string name="guest_hint">Your name</string>
     <string name="date_hint">Event date</string>
     <string name="start_time_hint">Start time</string>
     <string name="end_time_hint">End time</string>
@@ -76,6 +77,8 @@
     <string name="connection_error">Coludn\'t connect to server</string>
     <string name="created_event">Event created</string>
     <string name="updated_event">Event updated</string>
+    <string name="attending_event">Attending event</string>
+    <string name="attending_event_need_name">You must enter a name to attend</string>
 
     <string name="this_event_is_private">This event is private</string>
 

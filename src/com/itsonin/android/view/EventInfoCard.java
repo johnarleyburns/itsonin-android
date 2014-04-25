@@ -12,11 +12,15 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Html;
 import android.util.Log;
 import android.util.Xml;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.itsonin.android.R;
+import com.itsonin.android.api.ItsoninAPI;
 import com.itsonin.android.controller.EditEventDialogFragment;
 import com.itsonin.android.enums.EventVisibility;
 import com.itsonin.android.enums.GuestStatus;
@@ -289,21 +293,41 @@ public class EventInfoCard {
             return true;
         }
 
-        private boolean setAttendButton(View view, Cursor cursor) {
+        private boolean setAttendButton(final View view, Cursor cursor) {
             View attend = view.findViewById(R.id.event_card_action_attend);
             View attendButton = view.findViewById(R.id.event_card_action_attend_button);
+            final EditText attendEditText = (EditText)view.findViewById(R.id.event_card_action_attend_guestname);
+            attendEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (event != null&& (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                        InputMethodManager in = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        in.hideSoftInputFromWindow(attendEditText.getApplicationWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+                    }
+                    return false;
+                }
+            });
+
             final GuestStatus guestStatus = GuestStatus.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_STATUS)));
             if (guestStatus == GuestStatus.ATTENDING) {
                 attendButton.setOnClickListener(null);
                 attend.setVisibility(View.GONE);
             }
             else {
+                final LocalEvent e = new LocalEvent(view.getContext(), cursor);
                 attendButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         FragmentActivity a = v.getContext() instanceof FragmentActivity ? (FragmentActivity) v.getContext() : null;
                         if (a != null) {
-                            Toast.makeText(a, "Attend event", Toast.LENGTH_SHORT).show();
+                            String guestName = attendEditText.getText().toString();
+                            if (guestName == null || guestName.trim().isEmpty()) {
+                                Toast.makeText(a, R.string.attending_event_need_name, Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+
+                                e.guestName = guestName;
+                                ItsoninAPI.instance(a).attendEvent(e);
+                            }
                         }
                     }
                 });

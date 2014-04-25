@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/event_card_action_attend"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/card_inner"
+        android:orientation="vertical"
         >
 
     <TextView
@@ -13,16 +14,28 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/card_inner"
             android:layout_marginRight="@dimen/card_inner"
+            android:layout_marginBottom="@dimen/card_inner"
             android:textSize="@dimen/card_text"
             android:textColor="@color/card_text"
             android:text="@string/attend_button_info_text"
+            />
+
+    <EditText
+            android:id="@+id/event_card_action_attend_guestname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/card_inner"
+            android:layout_marginRight="@dimen/card_inner"
+            android:layout_marginBottom="@dimen/card_inner"
+            android:textSize="@dimen/card_text"
+            android:textColor="@color/card_text"
+            android:hint="@string/guest_hint"
             />
 
     <TextView
             android:id="@+id/event_card_action_attend_button"
             android:layout_width="match_parent"
             android:layout_height="@dimen/card_action_height"
-            android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/card_inner"
             android:layout_marginRight="@dimen/card_inner"
             android:textSize="@dimen/card_action_text"
@@ -33,4 +46,4 @@
             android:background="@drawable/itsonin_action_button"
             />
 
-</RelativeLayout>
+</LinearLayout>

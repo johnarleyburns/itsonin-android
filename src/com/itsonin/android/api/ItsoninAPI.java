@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -59,7 +60,8 @@ public class ItsoninAPI {
 
     public static enum REST {
         CREATE_EVENT("/api/event/create", HttpMethod.POST),
-        UPDATE_EVENT("/api/event/update", HttpMethod.PUT),
+        ATTEND_EVENT("/api/event/%1$s/attend/%2$s", HttpMethod.GET),
+        UPDATE_EVENT("/api/event/%1$s/update", HttpMethod.PUT),
         LIST_EVENTS("/api/event/list?allEvents=true", HttpMethod.GET),
         EVENT_INFO("/api/event/%1$s/info", HttpMethod.GET);
 
@@ -95,9 +97,9 @@ public class ItsoninAPI {
     private WeakReference<Context> context;
 
     private Device device;
-    private LocalEvent pendingLocalEvent;
-    private String pendingEventInfoId;
-    private boolean pendingListEvents;
+    //private LocalEvent pendingLocalEvent;
+    //private String pendingEventInfoId;
+    //private boolean pendingListEvents;
 
     private static final ItsoninAPI instance = new ItsoninAPI();
 
@@ -121,7 +123,7 @@ public class ItsoninAPI {
         unregisterReceiver(apiReceiver);
     }
     public void createEvent(LocalEvent localEvent) {
-        pendingLocalEvent = localEvent;
+        //pendingLocalEvent = localEvent;
         if (context.get() == null) {
             Log.e(TAG, "null context reference");
             return;
@@ -135,15 +137,28 @@ public class ItsoninAPI {
         }
     }
 
+    public void attendEvent(LocalEvent localEvent) {
+        // pendingLocalEvent = localEvent;
+        String eventId = String.valueOf(localEvent._id);
+        String encodedGuestName = Uri.encode(localEvent.guestName);
+        if (context.get() == null) {
+            Log.e(TAG, "null context reference");
+            return;
+        }
+        asyncApiJSON(REST.ATTEND_EVENT, REST.ATTEND_EVENT.apiUrl(eventId, encodedGuestName), "");
+    }
+
     public void updateEvent(LocalEvent localEvent) {
-        pendingLocalEvent = localEvent;
+        //pendingLocalEvent = localEvent;
         if (context.get() == null) {
             Log.e(TAG, "null context reference");
             return;
         }
         try {
-            String requestJSON = mapper.writeValueAsString(localEvent.toEventWithGuest(context.get()));
-            asyncApiJSON(REST.UPDATE_EVENT, REST.UPDATE_EVENT.apiUrl(), requestJSON);
+            EventWithGuest e = localEvent.toEventWithGuest(context.get());
+            String requestJSON = mapper.writeValueAsString(e);
+            String eventId = String.valueOf(localEvent._id);
+            asyncApiJSON(REST.UPDATE_EVENT, REST.UPDATE_EVENT.apiUrl(eventId), requestJSON);
         }
         catch (JsonProcessingException e) {
             Log.e(TAG, "Exception in updateEvent()", e);
@@ -151,7 +166,7 @@ public class ItsoninAPI {
     }
 
     public void listEvents() {
-        pendingListEvents = true;
+        //pendingListEvents = true;
         if (context.get() == null) {
             Log.e(TAG, "null context reference");
             return;
@@ -160,7 +175,7 @@ public class ItsoninAPI {
     }
 
     public void eventInfo(String eventId) {
-        pendingEventInfoId = eventId;
+        //pendingEventInfoId = eventId;
         if (context.get() == null) {
             Log.e(TAG, "null context reference");
             return;
@@ -334,7 +349,7 @@ public class ItsoninAPI {
             try {
                 JSONObject jsonObj = new JSONObject(response);
                 if (DEBUG) Log.i(TAG, "received create event response=" + jsonObj);
-                pendingLocalEvent = null;
+        //        pendingLocalEvent = null;
             } catch (JSONException e) {
                 Log.e(TAG, "Cannot process JSON results", e);
             }
@@ -342,14 +357,15 @@ public class ItsoninAPI {
 
         private void handleListEvents(Context context, String response) {
             if (DEBUG) Log.i(TAG, "received list events response");
-            pendingListEvents = false;
+        //    pendingListEvents = false;
         }
 
         private void handleEventInfo(Context context, String response) {
             if (DEBUG) Log.i(TAG, "received list events response");
-            pendingEventInfoId = null;
+        //    pendingEventInfoId = null;
         }
 
+        /*
         private void handlePendingEvents() {
             if (pendingLocalEvent != null) {
                 createEvent(pendingLocalEvent);
@@ -361,6 +377,7 @@ public class ItsoninAPI {
                 listEvents();
             }
         }
+        */
 
     };
 }

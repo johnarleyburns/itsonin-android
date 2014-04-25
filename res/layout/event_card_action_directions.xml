@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<RelativeLayout
+<FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/event_card_action_directions"
         android:layout_width="match_parent"
@@ -13,7 +13,6 @@
             android:id="@+id/event_card_action_directions_button"
             android:layout_width="match_parent"
             android:layout_height="@dimen/card_action_height"
-            android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/card_inner"
             android:layout_marginRight="@dimen/card_inner"
             android:textSize="@dimen/card_action_text"
@@ -24,5 +23,5 @@
             android:background="@drawable/itsonin_action_button"
             />
 
-</RelativeLayout>
+</FrameLayout>
 

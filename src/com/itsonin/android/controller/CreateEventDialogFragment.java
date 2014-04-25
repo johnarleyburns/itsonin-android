@@ -207,8 +207,8 @@ public class CreateEventDialogFragment extends DialogFragment {
                         notifyAuthenticationError(context, response);
                     }
                     else {
-                        handleCreateEvent(context, response);
-                        Toast.makeText(context, "created event", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, R.string.created_event, Toast.LENGTH_SHORT).show();
+                        dismiss();
                     }
                     break;
                 case UPDATE_EVENT:
@@ -216,8 +216,7 @@ public class CreateEventDialogFragment extends DialogFragment {
                         notifyAuthenticationError(context, response);
                     }
                     else {
-                        handleUpdateEvent(context, response);
-                        Toast.makeText(context, "created event", Toast.LENGTH_SHORT).show();
+                        dismiss();
                     }
                     break;
                 default:
@@ -230,16 +229,6 @@ public class CreateEventDialogFragment extends DialogFragment {
 
         protected boolean isError(int statusCode, String response) {
             return response == null || response.isEmpty() || statusCode != 200;
-        }
-
-        protected void handleCreateEvent(Context context, String response) {
-            Toast.makeText(context, R.string.created_event, Toast.LENGTH_SHORT).show();
-            dismiss();
-        }
-
-        protected void handleUpdateEvent(Context context, String response) {
-            Toast.makeText(context, R.string.updated_event, Toast.LENGTH_SHORT).show();
-            dismiss();
         }
 
         protected void notifyAuthenticationError(Context context) {
