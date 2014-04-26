@@ -60,8 +60,9 @@ public class ItsoninAPI {
 
     public static enum REST {
         CREATE_EVENT("/api/event/create", HttpMethod.POST),
-        ATTEND_EVENT("/api/event/%1$s/attend/%2$s", HttpMethod.GET),
-        UPDATE_EVENT("/api/event/%1$s/update", HttpMethod.PUT),
+        ATTEND_EVENT("/api/event/%1$s/attend/%2$s", HttpMethod.POST),
+        DECLINE_EVENT("/api/event/%1$s/decline/%2$s", HttpMethod.POST),
+        UPDATE_EVENT("/api/event/%1$s/update", HttpMethod.POST),
         LIST_EVENTS("/api/event/list?allEvents=true", HttpMethod.GET),
         EVENT_INFO("/api/event/%1$s/info", HttpMethod.GET);
 
@@ -138,7 +139,6 @@ public class ItsoninAPI {
     }
 
     public void attendEvent(LocalEvent localEvent) {
-        // pendingLocalEvent = localEvent;
         String eventId = String.valueOf(localEvent._id);
         String encodedGuestName = Uri.encode(localEvent.guestName);
         if (context.get() == null) {
@@ -146,6 +146,16 @@ public class ItsoninAPI {
             return;
         }
         asyncApiJSON(REST.ATTEND_EVENT, REST.ATTEND_EVENT.apiUrl(eventId, encodedGuestName), "");
+    }
+
+    public void declineEvent(LocalEvent localEvent) {
+        String eventId = String.valueOf(localEvent._id);
+        String encodedGuestName = Uri.encode(localEvent.guestName);
+        if (context.get() == null) {
+            Log.e(TAG, "null context reference");
+            return;
+        }
+        asyncApiJSON(REST.DECLINE_EVENT, REST.DECLINE_EVENT.apiUrl(eventId, encodedGuestName), "");
     }
 
     public void updateEvent(LocalEvent localEvent) {

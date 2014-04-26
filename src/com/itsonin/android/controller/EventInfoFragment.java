@@ -218,6 +218,15 @@ public class EventInfoFragment extends Fragment {
                         notifyAuthenticationError(context);
                     }
                     break;
+                case DECLINE_EVENT:
+                    if (!isError(statusCode, response)) {
+                        Toast.makeText(context, R.string.declined_event, Toast.LENGTH_SHORT).show();
+                        reloadEvent();
+                    }
+                    else {
+                        notifyAuthenticationError(context);
+                    }
+                    break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
                     break;

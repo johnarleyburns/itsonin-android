@@ -59,6 +59,14 @@
     <string name="attend_button_info_text">Would you like to attend this event?</string>
     <string name="decline_button_info_text">You are attending this event</string>
 
+    <string name="guest_host">hosting event</string>
+    <string name="guest_attending_short">yes</string>
+    <string name="guest_declined_short">no</string>
+    <string name="guest_pending_short">maybe</string>
+
+    <string name="event_cancelled">CANCELED</string>
+    <string name="event_expired">EXPIRED</string>
+
     <string name="no_guests_attending">No guests are attending this event</string>
     <string name="no_guests_declined">No guests have declined this event</string>
     <string name="no_comments">This event does not yet have any comments</string>
@@ -72,6 +80,9 @@
     <string name="decline_button">rain check</string>
     <string name="edit">edit</string>
     <string name="share">share</string>
+    <string name="cancel_event">cancel event</string>
+    <string name="cancel">cancel</string>
+    <string name="save">save</string>
 
     <string name="no_network">No network connection</string>
     <string name="connection_error">Coludn\'t connect to server</string>
@@ -79,6 +90,7 @@
     <string name="updated_event">Event updated</string>
     <string name="attending_event">Attending event</string>
     <string name="attending_event_need_name">You must enter a name to attend</string>
+    <string name="declined_event">Event has been declined</string>
 
     <string name="this_event_is_private">This event is private</string>
 

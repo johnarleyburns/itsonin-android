@@ -30,6 +30,8 @@
             android:textSize="@dimen/card_text"
             android:textColor="@color/card_text"
             android:hint="@string/guest_hint"
+            android:inputType="text"
+            android:imeOptions="actionDone"
             />
 
     <TextView

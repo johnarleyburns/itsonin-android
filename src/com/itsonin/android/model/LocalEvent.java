@@ -15,10 +15,7 @@ import com.itsonin.android.resteasy.CustomDateTimeSerializer;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class LocalEvent {
 
@@ -27,6 +24,7 @@ public class LocalEvent {
     private static final String SHARE_URL_PATTERN = "http://itsonin-com.appspot.com/i/%1$s.%2$s"; // eventId, guestId
 
     public long _id;
+    public String status;
     public String title;
     public String description;
     public String host; // name of person hosting the event
@@ -44,10 +42,8 @@ public class LocalEvent {
     public double gpsLat;
     public double gpsLong;
     public long numAttendees; // how many confirmed attending
-    public long numDeclined;
     public long numComments;
     public String attendingText;
-    public String declinedText;
     public String commentsText;
     public String shareUrl;
     public String guestName;
@@ -60,6 +56,7 @@ public class LocalEvent {
     public LocalEvent(Context c, Event e) {
         this();
         this._id = e.getEventId();
+        this.status = e.getStatus().toString();
         this.title = e.getTitle();
         this.description = e.getDescription();
         this.host = null;
@@ -77,10 +74,8 @@ public class LocalEvent {
         this.gpsLat = e.getGpsLat() == null ? 0 : e.getGpsLat();
         this.gpsLong = e.getGpsLong() == null ? 0 : e.getGpsLong();
         this.numAttendees = 0;
-        this.numDeclined = 0;
         this.numComments = 0;
         this.attendingText = null;
-        this.declinedText = null;
         this.commentsText = null;
         this.shareUrl = null;
         this.guestName = null;
@@ -91,6 +86,7 @@ public class LocalEvent {
     public LocalEvent(Context c, Cursor cursor) {
         this();
         _id = cursor.getLong(cursor.getColumnIndex(Events.EVENT_ID));
+        status = cursor.getString(cursor.getColumnIndex(Events.STATUS));
         title = cursor.getString(cursor.getColumnIndex(Events.TITLE));
         description = cursor.getString(cursor.getColumnIndex(Events.TEXT));
         host = cursor.getString(cursor.getColumnIndex(Events.HOST));
@@ -106,10 +102,8 @@ public class LocalEvent {
         gpsLat = cursor.getDouble(cursor.getColumnIndex(Events.LATITUDE));
         gpsLong = cursor.getDouble(cursor.getColumnIndex(Events.LONGITUDE));
         numAttendees = cursor.getInt(cursor.getColumnIndex(Events.NUM_ATTENDEES));
-        numDeclined = cursor.getInt(cursor.getColumnIndex(Events.NUM_DECLINED));
         numComments = cursor.getInt(cursor.getColumnIndex(Events.NUM_COMMENTS));
         attendingText = cursor.getString(cursor.getColumnIndex(Events.ATTENDING_TEXT));
-        declinedText = cursor.getString(cursor.getColumnIndex(Events.DECLINED_TEXT));
         commentsText = cursor.getString(cursor.getColumnIndex(Events.COMMENTS_TEXT));
         shareUrl = cursor.getString(cursor.getColumnIndex(Events.SHARE_URL));
         guestName = cursor.getString(cursor.getColumnIndex(Events.GUEST_NAME));
@@ -117,54 +111,84 @@ public class LocalEvent {
         viewOnly = cursor.getInt(cursor.getColumnIndex(Events.VIEWONLY)) == 1;
     }
 
+    public String mapGuestType(Context c, GuestType type) {
+        switch(type) {
+            case HOST:
+                return c.getString(R.string.guest_host);
+            case GUEST:
+            default:
+                return "";
+        }
+    }
+
+    public String mapGuestStatus(Context c, GuestStatus status) {
+        switch (status) {
+            case ATTENDING:
+                return c.getString(R.string.guest_attending_short);
+            case DECLINED:
+                return c.getString(R.string.guest_declined_short);
+            case PENDING:
+                return c.getString(R.string.guest_pending_short);
+            case VIEWED:
+            default:
+                return "";
+        }
+    }
+
     public LocalEvent(Context c, EventInfo eventInfo) {
         this(c, eventInfo.getEvent());
 
         List<Guest> guests = eventInfo.getGuests();
-        for (Guest guest : guests) {
-            switch (guest.getStatus()) {
-                case ATTENDING:
-                    numAttendees++;
-                    if (attendingText == null) {
-                        attendingText = "";
-                    }
-                    else {
-                        attendingText += "<br />";
-                    }
-                    attendingText += guest.getName();
-                    if (guest.getType() == GuestType.HOST) {
-                        attendingText += " <b>(" + GuestType.HOST + ")</b>";
-                    }
-                    break;
-                case DECLINED:
-                    numDeclined++;
-                    if (declinedText == null) {
-                        declinedText = "";
-                    }
-                    else {
-                        declinedText += "<br />";
-                    }
-                    if (guest.getType() == GuestType.HOST) {
-                        attendingText += "<b>" + GuestType.HOST + "</b> ";
-                    }
-                    declinedText += guest.getName();
-                    break;
-                default:
-                    ;
+        Collections.sort(guests, new Comparator<Guest>() {
+            @Override
+            public int compare(Guest lhs, Guest rhs) {
+                return lhs.getName().compareToIgnoreCase(rhs.getName());
             }
-        }
+        });
         
-        List<Comment> comments = eventInfo.getComments();
-        for (Comment comment: comments) {
-            numComments++;
-            if (commentsText == null) {
-                commentsText = "";
+        StringBuilder guestBuilder = new StringBuilder();
+        for (Guest guest : guests) {
+            if (guest.getStatus() == GuestStatus.VIEWED) {
+                continue;
+            }
+            if (guest.getStatus() == GuestStatus.ATTENDING) {
+                numAttendees++;
+            }
+            if (guestBuilder.length() > 0) {
+                guestBuilder.append("<br />");
+            }
+            guestBuilder.append(guest.getName());
+            guestBuilder.append(" <b>");
+            if (guest.getType() == GuestType.HOST) {
+                guestBuilder.append(mapGuestType(c, guest.getType()));
             }
             else {
-                commentsText += "<br />";
+                guestBuilder.append(mapGuestStatus(c, guest.getStatus()));
             }
-            commentsText += "<b>" + comment.getCreated().toString() + "</b> " + comment.getComment();
+            guestBuilder.append("</b>");
         }
+        attendingText = guestBuilder.toString();
+        
+        List<Comment> comments = eventInfo.getComments();
+        Collections.sort(comments, new Comparator<Comment>() {
+            @Override
+            public int compare(Comment lhs, Comment rhs) {
+                return lhs.getCreated().compareTo(rhs.getCreated());
+            }
+        });
+
+        StringBuilder commentBuilder = new StringBuilder();
+        for (Comment comment: comments) {
+            numComments++;
+            if (commentBuilder.length() > 0) {
+                commentBuilder.append("<br />");
+            }
+            commentBuilder.append("<b>")
+                    .append(comment.getCreated().toString())
+                    .append("</b> ")
+                    .append(comment.getComment());
+        }
+        commentsText = commentBuilder.toString();
 
         Guest guest = eventInfo.getGuest();
         long guestId;
@@ -442,6 +466,7 @@ public class LocalEvent {
         if (DEBUG) Log.i(TAG, "makeCursorRow() " + toString());
         return new Object[] {
                 _id,
+                status,
                 title,
                 description,
                 host,
@@ -458,10 +483,8 @@ public class LocalEvent {
                 gpsLat,
                 gpsLong,
                 numAttendees,
-                numDeclined,
                 numComments,
                 attendingText,
-                declinedText,
                 commentsText,
                 shareUrl,
                 guestName,
@@ -473,6 +496,7 @@ public class LocalEvent {
     public String toString() {
         return "Event:" + _id
                 + "["
+                + "status=[" + status + "]"
                 + "title=[" + title + "]"
                 + "description=[" + description + "]"
                 + "host=[" + host + "]"
@@ -489,10 +513,8 @@ public class LocalEvent {
                 + "gpsLat=[" + gpsLat + "]"
                 + "gpsLong=[" + gpsLong + "]"
                 + "numAttendees=[" + numAttendees + "]"
-                + "numDeclined=[" + numDeclined + "]"
                 + "numComments=[" + numComments + "]"
                 + "attendingText=[" + attendingText + "]"
-                + "declinedText=[" + declinedText + "]"
                 + "commentsText=[" + commentsText + "]"
                 + "shareUrl=[" + shareUrl + "]"
                 + "guestName=[" + guestName + "]"
@@ -517,6 +539,7 @@ public class LocalEvent {
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.itsonin.events";
 
         public static final String EVENT_ID = "_id";
+        public static final String STATUS = "status";
         public static final String TITLE = "title";
         public static final String TEXT = "description";
         public static final String HOST = "host"; // name of person hosting the event
@@ -533,10 +556,8 @@ public class LocalEvent {
         public static final String LATITUDE = "gpsLat";
         public static final String LONGITUDE = "gpsLong";
         public static final String NUM_ATTENDEES = "numAttendees"; // how many confirmed attending
-        public static final String NUM_DECLINED = "numDeclined"; // how many confirmed attending
         public static final String NUM_COMMENTS = "numComments"; // how many confirmed attending
         public static final String ATTENDING_TEXT = "attendingText"; // how many confirmed attending
-        public static final String DECLINED_TEXT = "declinedText"; // how many confirmed attending
         public static final String COMMENTS_TEXT = "commentsText"; // how many confirmed attending
         public static final String SHARE_URL = "shareUrl";
         public static final String GUEST_NAME = "guestName";
@@ -545,6 +566,7 @@ public class LocalEvent {
 
         public static final String[] COLUMNS = {
                 EVENT_ID,
+                STATUS,
                 TITLE,
                 TEXT,
                 HOST,
@@ -561,10 +583,8 @@ public class LocalEvent {
                 LATITUDE,
                 LONGITUDE,
                 NUM_ATTENDEES,
-                NUM_DECLINED,
                 NUM_COMMENTS,
                 ATTENDING_TEXT,
-                DECLINED_TEXT,
                 COMMENTS_TEXT,
                 SHARE_URL,
                 GUEST_NAME,
@@ -579,7 +599,7 @@ public class LocalEvent {
                 mapCategory(),
                 mapSharability(),
                 mapEventVisibility(),
-                EventStatus.ACTIVE,
+                mapEventStatus(),
                 EventFlexibility.NEGOTIABLE,
                 title,
                 description,
@@ -661,17 +681,22 @@ public class LocalEvent {
     }
 
     private EventVisibility mapEventVisibility() {
-        if (visibility != null) {
-            EventVisibility v = EventVisibility.valueOf(visibility);
-            if (v != null) {
-                return v;
-            }
-            else {
-                return EventVisibility.PRIVATE;
-            }
+        EventVisibility v = visibility == null ? null : EventVisibility.valueOf(visibility);
+        if (v != null) {
+            return v;
         }
         else {
             return EventVisibility.PRIVATE;
+        }
+    }
+
+    private EventStatus mapEventStatus() {
+        EventStatus s = status == null ? null : EventStatus.valueOf(status);
+        if (s != null) {
+            return s;
+        }
+        else {
+            return EventStatus.ACTIVE;
         }
     }
 

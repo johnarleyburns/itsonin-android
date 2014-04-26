@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.itsonin.android.R;
 import com.itsonin.android.api.ItsoninAPI;
 import com.itsonin.android.controller.EditEventDialogFragment;
+import com.itsonin.android.enums.EventStatus;
 import com.itsonin.android.enums.EventVisibility;
 import com.itsonin.android.enums.GuestStatus;
 import com.itsonin.android.model.LocalEvent;
@@ -40,6 +41,7 @@ public class EventInfoCard {
 
     public static final int[] VIEW_IDS = {
             R.id.event_card_main,
+            R.id.event_card_status,
             R.id.event_card_title,
             R.id.event_card_text,
             0,
@@ -56,10 +58,8 @@ public class EventInfoCard {
             R.id.event_card_map,
             R.id.event_card_streetview,
             R.id.event_card_num_attendees,
-            0,
             R.id.event_card_num_comments,
             R.id.event_card_attending_text,
-            0,
             R.id.event_card_comments_text,
             0,
             0,
@@ -134,6 +134,8 @@ public class EventInfoCard {
             switch (view.getId()) {
                 case R.id.event_card_main:
                     return setEventCardMain(view, cursor);
+                case R.id.event_card_status:
+                    return setEventCardStatus((TextView)view, cursor.getString(columnIndex));
                 case R.id.event_card_map:
                     return setEventCardMap((ImageView) view, cursor);
                 case R.id.event_card_streetview:
@@ -168,8 +170,20 @@ public class EventInfoCard {
             setDirectionsButton(view, cursor);
             setAttendButton(view, cursor);
             setDeclineButton(view, cursor);
-            setDeclinedSection(view, cursor);
             return true;
+        }
+
+        private boolean setEventCardStatus(TextView view, String status) {
+            EventStatus s = (status == null || status.isEmpty()) ? EventStatus.ACTIVE : EventStatus.valueOf(status);
+            switch (s) {
+                default:
+                case ACTIVE:
+                    return setEventCardCollapsableText(view, "", 0);
+                case CANCELLED:
+                    return setEventCardCollapsableText(view, view.getContext().getString(R.string.event_cancelled), 0);
+                case EXPIRED:
+                    return setEventCardCollapsableText(view, view.getContext().getString(R.string.event_expired), 0);
+            }
         }
 
         private boolean setTimeSeparator(View view, Cursor cursor) {
@@ -181,29 +195,6 @@ public class EventInfoCard {
             }
             else {
                 timeSeparator.setVisibility(View.GONE);
-            }
-            return true;
-        }
-
-        private boolean setDeclinedSection(View view, Cursor cursor) {
-            View declinedTitle = view.findViewById(R.id.event_card_declined_title);
-            TextView declinedTextView = (TextView)view.findViewById(R.id.event_card_declined_text);
-            String declinedText = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.DECLINED_TEXT));
-            EventVisibility ev = EventVisibility.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.VISIBILITY)));
-            if (declinedText == null || declinedText.trim().isEmpty()) {
-                declinedTitle.setVisibility(View.GONE);
-                declinedTextView.setVisibility(View.GONE);
-                declinedTextView.setText("");
-            }
-            else if (ev != null && ev == EventVisibility.PUBLIC) { // don't report declined for public events
-                declinedTitle.setVisibility(View.GONE);
-                declinedTextView.setVisibility(View.GONE);
-                declinedTextView.setText("");
-            }
-            else {
-                declinedTitle.setVisibility(View.VISIBLE);
-                declinedTextView.setVisibility(View.VISIBLE);
-                setEventCardHandleEmptyHtmlText(declinedTextView, declinedText, R.string.no_guests_declined);
             }
             return true;
         }
@@ -324,7 +315,8 @@ public class EventInfoCard {
                                 Toast.makeText(a, R.string.attending_event_need_name, Toast.LENGTH_SHORT).show();
                             }
                             else {
-
+                                InputMethodManager imm = (InputMethodManager)a.getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(a.getWindow().getCurrentFocus().getWindowToken(), 0);
                                 e.guestName = guestName;
                                 ItsoninAPI.instance(a).attendEvent(e);
                             }
@@ -345,12 +337,13 @@ public class EventInfoCard {
                 decline.setVisibility(View.GONE);
             }
             else {
+                final LocalEvent e = new LocalEvent(view.getContext(), cursor);
                 declineButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         FragmentActivity a = v.getContext() instanceof FragmentActivity ? (FragmentActivity) v.getContext() : null;
                         if (a != null) {
-                            Toast.makeText(a, "Decline event", Toast.LENGTH_SHORT).show();
+                            ItsoninAPI.instance(a).declineEvent(e);
                         }
                     }
                 });

@@ -24,6 +24,8 @@ import com.itsonin.android.R;
 import com.itsonin.android.api.ItsoninAPI;
 import com.itsonin.android.entity.ApiError;
 import com.itsonin.android.entity.Event;
+import com.itsonin.android.enums.EventStatus;
+import com.itsonin.android.enums.GuestStatus;
 import com.itsonin.android.model.*;
 import com.itsonin.android.resteasy.CustomDateTimeSerializer;
 import com.squareup.timessquare.CalendarPickerView;
@@ -67,7 +69,6 @@ public class CreateEventDialogFragment extends DialogFragment {
     protected static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
     protected static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode/json";
 
-    protected static final int DIALOG_TITLE_ID = R.string.add_event;
     protected static final int DIALOG_LAYOUT_ID = R.layout.create_event_layout;
 
     protected LocalEvent localEvent;
@@ -99,6 +100,8 @@ public class CreateEventDialogFragment extends DialogFragment {
     protected View detailsExpand;
     protected View detailsCollapse;
     protected View detailsSection;
+    protected TextView cancelButton;
+    protected TextView saveButton;
     protected ItsoninAPI itsoninAPI;
     protected AlertDialog dialog;
 
@@ -165,29 +168,43 @@ public class CreateEventDialogFragment extends DialogFragment {
 
     protected void createDialog(View view) {
         dialog = new AlertDialog.Builder(getActivity())
-                .setTitle(DIALOG_TITLE_ID)
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(android.R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                            }
-                        }
-                )
                 .create();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        Button b = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        if (b != null) {
-            setOkListener(b);
-        }
+        setListeners();
     }
 
-    protected void setOkListener(Button b) {
-        b.setOnClickListener(okListener);
+    protected void setListeners() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                localEvent = extractEvent();
+                if (DEBUG) Log.i(TAG, localEvent.toString());
+                Context context = getActivity();
+                if (context != null) {
+                    persistToPrefs(context);
+                }
+
+                if (itsoninAPI == null) {
+                    Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    overlay.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    itsoninAPI.createEvent(localEvent);
+                }
+            }
+        });
     }
 
     protected BroadcastReceiver apiReceiver = new BroadcastReceiver() {
@@ -269,26 +286,6 @@ public class CreateEventDialogFragment extends DialogFragment {
             itsoninAPI = null;
         }
     }
-
-    protected View.OnClickListener okListener = new View.OnClickListener() {
-        public void onClick(View view) {
-            localEvent = extractEvent();
-            if (DEBUG) Log.i(TAG, localEvent.toString());
-            Context context = getActivity();
-            if (context != null) {
-                persistToPrefs(context);
-            }
-
-            if (itsoninAPI == null) {
-                Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
-            }
-            else {
-                overlay.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.VISIBLE);
-                itsoninAPI.createEvent(localEvent);
-            }
-        }
-    };
 
     protected void restoreBundleVariables(Bundle bundle) {
         if (bundle != null) {
@@ -385,6 +382,10 @@ public class CreateEventDialogFragment extends DialogFragment {
         if (detailsButton != null) {
             detailsButton.setOnClickListener(detailsButtonListener);
         }
+
+        cancelButton = (TextView)view.findViewById(R.id.event_dialog_action_cancel_button);
+        saveButton = (TextView)view.findViewById(R.id.event_dialog_action_save_button);
+
         return view;
     }
 
@@ -827,6 +828,7 @@ public class CreateEventDialogFragment extends DialogFragment {
 
     protected LocalEvent extractEvent() {
         LocalEvent e = new LocalEvent();
+        e.status = EventStatus.ACTIVE.toString();
         e.title = titleView.getText().toString();
         e.description = textView.getText().toString();
         e.host = hostView.getText().toString();

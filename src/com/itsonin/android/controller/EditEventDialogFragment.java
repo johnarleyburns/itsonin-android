@@ -29,21 +29,12 @@ public class EditEventDialogFragment extends CreateEventDialogFragment {
     protected static final String TAG = EditEventDialogFragment.class.toString();
     protected static final boolean DEBUG = true;
 
-    protected static final int DIALOG_TITLE_ID = R.string.edit_event;
     protected static final int DIALOG_LAYOUT_ID = R.layout.edit_event_layout;
 
     @Override
     protected void createDialog(View view) {
         dialog = new AlertDialog.Builder(getActivity())
-                .setTitle(DIALOG_TITLE_ID)
                 .setView(view)
-                .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(android.R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                            }
-                        }
-                )
                 .create();
     }
 
@@ -52,28 +43,33 @@ public class EditEventDialogFragment extends CreateEventDialogFragment {
         return getActivity().getLayoutInflater().inflate(DIALOG_LAYOUT_ID, null);
     }
 
-    protected void setOkListener(Button b) {
-        b.setOnClickListener(okListener);
+    protected void setListeners() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "Cancel event!!!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                localEvent = extractEvent();
+                if (DEBUG) Log.i(TAG, localEvent.toString());
+                Context context = getActivity();
+                if (context != null) {
+                    persistToPrefs(context);
+                }
+
+                if (itsoninAPI == null) {
+                    Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    overlay.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    itsoninAPI.updateEvent(localEvent);
+                }
+            }
+        });
     }
-
-    protected View.OnClickListener okListener = new View.OnClickListener() {
-        public void onClick(View view) {
-            localEvent = extractEvent();
-            if (DEBUG) Log.i(TAG, localEvent.toString());
-            Context context = getActivity();
-            if (context != null) {
-                persistToPrefs(context);
-            }
-
-            if (itsoninAPI == null) {
-                Toast.makeText(context, R.string.connection_error, Toast.LENGTH_SHORT).show();
-            }
-            else {
-                overlay.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.VISIBLE);
-                itsoninAPI.updateEvent(localEvent);
-            }
-        }
-    };
 
 }

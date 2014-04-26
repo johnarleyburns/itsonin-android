@@ -5,12 +5,14 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.text.Html;
 import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.itsonin.android.R;
+import com.itsonin.android.enums.EventStatus;
 import com.itsonin.android.model.LocalEvent;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -27,6 +29,7 @@ public class EventListCard {
 
     public static final int[] VIEW_IDS = {
             R.id.event_card_main,
+            0,
             R.id.event_card_title,
             0,
             0,
@@ -38,8 +41,6 @@ public class EventListCard {
             R.id.event_card_date,
             R.id.event_card_start_time,
             R.id.event_card_end_time,
-            0,
-            0,
             0,
             0,
             0,
@@ -96,6 +97,12 @@ public class EventListCard {
         }
 
         private boolean setEventCardMain(View view, Cursor cursor) {
+            setTimeSeparator(view, cursor);
+            setPlaceView(view, cursor);
+            return true;
+        }
+
+        private boolean setTimeSeparator(View view, Cursor cursor) {
             View timeSeparator = view.findViewById(R.id.event_card_time_separator);
             String startTime = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.START_TIME));
             boolean timeVisible = startTime != null && !startTime.trim().isEmpty();
@@ -105,15 +112,32 @@ public class EventListCard {
             else {
                 timeSeparator.setVisibility(View.GONE);
             }
+            return true;
+        }
 
+        private boolean setPlaceView(View view, Cursor cursor) {
             TextView placeView = (TextView)view.findViewById(R.id.event_card_place);
+
             String locationTitle = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_TITLE));
             String locationAddress = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_ADDRESS));
-            String place = locationTitle != null && !locationTitle.trim().isEmpty() ? locationTitle : locationAddress;
-            setEventCardCollapsableText(placeView, place, 0);
+            String status = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.STATUS));
 
-            return true;
-
+            EventStatus s = (status == null || status.isEmpty()) ? EventStatus.ACTIVE : EventStatus.valueOf(status);
+            String text;
+            switch (s) {
+                default:
+                case ACTIVE:
+                    text = locationTitle != null && !locationTitle.trim().isEmpty() ? locationTitle : locationAddress;
+                    return setEventCardCollapsableText(placeView, text, 0);
+                case CANCELLED:
+                    text = "<b>" + view.getContext().getString(R.string.event_cancelled) + "</b>";
+                    placeView.setText(Html.fromHtml(text));
+                    return true;
+                case EXPIRED:
+                    text = "<b>" + view.getContext().getString(R.string.event_expired) + "</b>";
+                    placeView.setText(Html.fromHtml(text));
+                    return true;
+            }
         }
 
         private boolean setEventCardPyramidIcon(ImageView view, String sharability) {
