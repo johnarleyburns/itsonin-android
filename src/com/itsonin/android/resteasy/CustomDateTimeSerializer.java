@@ -36,11 +36,16 @@ public class CustomDateTimeSerializer extends JsonSerializer<Date> {
             return null;
         }
     }
-	@Override
-	public void serialize(Date value, JsonGenerator gen,
-			SerializerProvider provider) throws IOException,
-			JsonProcessingException {
-		gen.writeString(format(value));
-		
-	}
+
+    @Override
+    public void serialize(Date value, JsonGenerator gen,
+                          SerializerProvider provider) throws IOException,
+            JsonProcessingException {
+        SimpleDateFormat formatter = new SimpleDateFormat(ITSONIN_DATES);
+        String formattedDate = formatter.format(value);
+
+        gen.writeString(formattedDate);
+
+    }
+
 }

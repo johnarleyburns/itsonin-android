@@ -27,7 +27,6 @@ public class LocalEvent {
     public String status;
     public String title;
     public String description;
-    public String host; // name of person hosting the event
     public String category;
     public String sharability;
     public String visibility;
@@ -46,41 +45,48 @@ public class LocalEvent {
     public String attendingText;
     public String commentsText;
     public String shareUrl;
+    public boolean viewOnly;
     public String guestName;
     public String guestStatus;
-    public boolean viewOnly;
+    public long guestDeviceId;
+    public long guestGuestId;
+    public String guestType;
+    public String guestCreated;
 
     public LocalEvent() {
     }
 
     public LocalEvent(Context c, Event e) {
         this();
-        this._id = e.getEventId();
-        this.status = e.getStatus().toString();
-        this.title = e.getTitle();
-        this.description = e.getDescription();
-        this.host = null;
-        this.category = mapEventType(e.getType());
-        this.sharability = e.getSharability().toString();
-        this.visibility = e.getVisibility().toString();
-        this.startTimeRaw = new CustomDateTimeSerializer().format(e.getStartTime());
-        this.endTimeRaw = new CustomDateTimeSerializer().format(e.getEndTime());
-        this.date = friendlyDate(c, e.getStartTime());
-        this.startTime = friendlyTime(c, e.getStartTime());
-        this.endTime = friendlyTime(c, e.getEndTime());
-        this.privateEvent = mapVisibility(e.getVisibility());
-        this.locationTitle = e.getLocationTitle();
-        this.locationAddress = e.getLocationAddress();
-        this.gpsLat = e.getGpsLat() == null ? 0 : e.getGpsLat();
-        this.gpsLong = e.getGpsLong() == null ? 0 : e.getGpsLong();
-        this.numAttendees = 0;
-        this.numComments = 0;
-        this.attendingText = null;
-        this.commentsText = null;
-        this.shareUrl = null;
-        this.guestName = null;
-        this.guestStatus = null;
-        this.viewOnly = true;
+        _id = e.getEventId();
+        status = e.getStatus().toString();
+        title = e.getTitle();
+        description = e.getDescription();
+        category = mapEventType(e.getType());
+        sharability = e.getSharability().toString();
+        visibility = e.getVisibility().toString();
+        startTimeRaw = new CustomDateTimeSerializer().format(e.getStartTime());
+        endTimeRaw = new CustomDateTimeSerializer().format(e.getEndTime());
+        date = friendlyDate(c, e.getStartTime());
+        startTime = friendlyTime(c, e.getStartTime());
+        endTime = friendlyTime(c, e.getEndTime());
+        privateEvent = mapVisibility(e.getVisibility());
+        locationTitle = e.getLocationTitle();
+        locationAddress = e.getLocationAddress();
+        gpsLat = e.getGpsLat() == null ? 0 : e.getGpsLat();
+        gpsLong = e.getGpsLong() == null ? 0 : e.getGpsLong();
+        numAttendees = 0;
+        numComments = 0;
+        attendingText = null;
+        commentsText = null;
+        shareUrl = null;
+        viewOnly = true;
+        guestName = null;
+        guestStatus = null;
+        guestDeviceId = 0;
+        guestGuestId = 0;
+        guestType = null;
+        guestCreated = null;
     }
 
     public LocalEvent(Context c, Cursor cursor) {
@@ -89,7 +95,6 @@ public class LocalEvent {
         status = cursor.getString(cursor.getColumnIndex(Events.STATUS));
         title = cursor.getString(cursor.getColumnIndex(Events.TITLE));
         description = cursor.getString(cursor.getColumnIndex(Events.TEXT));
-        host = cursor.getString(cursor.getColumnIndex(Events.HOST));
         sharability = cursor.getString(cursor.getColumnIndex(Events.SHARABILITY));
         visibility = cursor.getString(cursor.getColumnIndex(Events.VISIBILITY));
         startTimeRaw = cursor.getString(cursor.getColumnIndex(Events.START_TIME_RAW));
@@ -106,9 +111,13 @@ public class LocalEvent {
         attendingText = cursor.getString(cursor.getColumnIndex(Events.ATTENDING_TEXT));
         commentsText = cursor.getString(cursor.getColumnIndex(Events.COMMENTS_TEXT));
         shareUrl = cursor.getString(cursor.getColumnIndex(Events.SHARE_URL));
+        viewOnly = cursor.getInt(cursor.getColumnIndex(Events.VIEWONLY)) == 1;
         guestName = cursor.getString(cursor.getColumnIndex(Events.GUEST_NAME));
         guestStatus = cursor.getString(cursor.getColumnIndex(Events.GUEST_STATUS));
-        viewOnly = cursor.getInt(cursor.getColumnIndex(Events.VIEWONLY)) == 1;
+        guestDeviceId = cursor.getLong(cursor.getColumnIndex(Events.GUEST_DEVICE_ID));
+        guestGuestId = cursor.getLong(cursor.getColumnIndex(Events.GUEST_GUEST_ID));
+        guestType = cursor.getString(cursor.getColumnIndex(Events.GUEST_TYPE));
+        guestCreated = cursor.getString(cursor.getColumnIndex(Events.GUEST_CREATED));
     }
 
     public String mapGuestType(Context c, GuestType type) {
@@ -210,6 +219,10 @@ public class LocalEvent {
         }
         guestName = guest.getName();
         guestStatus = guest.getStatus().toString();
+        guestDeviceId = guest.getDeviceId();
+        guestGuestId = guestId;
+        guestType = guest.getType().toString();
+        guestCreated = new CustomDateTimeSerializer().format(guest.getCreated());
 
         viewOnly = eventInfo.isViewonly();
     }
@@ -469,7 +482,6 @@ public class LocalEvent {
                 status,
                 title,
                 description,
-                host,
                 category,
                 sharability,
                 visibility,
@@ -487,9 +499,13 @@ public class LocalEvent {
                 attendingText,
                 commentsText,
                 shareUrl,
+                viewOnly ? 1 : 0,
                 guestName,
                 guestStatus,
-                viewOnly ? 1 : 0
+                guestDeviceId,
+                guestGuestId,
+                guestType,
+                guestCreated
         };
     }
 
@@ -499,7 +515,6 @@ public class LocalEvent {
                 + "status=[" + status + "]"
                 + "title=[" + title + "]"
                 + "description=[" + description + "]"
-                + "host=[" + host + "]"
                 + "category=[" + category + "]"
                 + "sharability=[" + sharability + "]"
                 + "startTimeRaw=[" + startTimeRaw + "]"
@@ -517,9 +532,13 @@ public class LocalEvent {
                 + "attendingText=[" + attendingText + "]"
                 + "commentsText=[" + commentsText + "]"
                 + "shareUrl=[" + shareUrl + "]"
+                + "viewOnly=[" + viewOnly + "]"
                 + "guestName=[" + guestName + "]"
                 + "guestStatus=[" + guestStatus + "]"
-                + "viewOnly=[" + viewOnly + "]"
+                + "guestDeviceId=[" + guestDeviceId + "]"
+                + "guestGuestId=[" + guestGuestId + "]"
+                + "guestType=[" + guestType + "]"
+                + "guestCreated=[" + guestCreated + "]"
                 + "]";
     }
 
@@ -542,7 +561,6 @@ public class LocalEvent {
         public static final String STATUS = "status";
         public static final String TITLE = "title";
         public static final String TEXT = "description";
-        public static final String HOST = "host"; // name of person hosting the event
         public static final String CATEGORY = "category";
         public static final String SHARABILITY = "sharability";
         public static final String VISIBILITY = "visibility";
@@ -560,16 +578,19 @@ public class LocalEvent {
         public static final String ATTENDING_TEXT = "attendingText"; // how many confirmed attending
         public static final String COMMENTS_TEXT = "commentsText"; // how many confirmed attending
         public static final String SHARE_URL = "shareUrl";
+        public static final String VIEWONLY = "viewOnly";
         public static final String GUEST_NAME = "guestName";
         public static final String GUEST_STATUS = "guestStatus";
-        public static final String VIEWONLY = "viewOnly";
+        public static final String GUEST_DEVICE_ID = "guestDeviceId";
+        public static final String GUEST_GUEST_ID = "guestGuestId";
+        public static final String GUEST_TYPE = "guestType";
+        public static final String GUEST_CREATED = "guestCreated";
 
         public static final String[] COLUMNS = {
                 EVENT_ID,
                 STATUS,
                 TITLE,
                 TEXT,
-                HOST,
                 CATEGORY,
                 SHARABILITY,
                 VISIBILITY,
@@ -587,15 +608,19 @@ public class LocalEvent {
                 ATTENDING_TEXT,
                 COMMENTS_TEXT,
                 SHARE_URL,
+                VIEWONLY,
                 GUEST_NAME,
                 GUEST_STATUS,
-                VIEWONLY
+                GUEST_DEVICE_ID,
+                GUEST_GUEST_ID,
+                GUEST_TYPE,
+                GUEST_CREATED
         };
 
     }
 
     public Event toEvent(Context context) {
-        return new Event(
+        Event e = new Event(
                 mapCategory(),
                 mapSharability(),
                 mapEventVisibility(),
@@ -613,6 +638,10 @@ public class LocalEvent {
                 locationAddress,
                 new Date()
         );
+        if (_id >= 0) {
+            e.setEventId(_id);
+        }
+        return e;
     }
 
     private String mapEventType(EventType e) {
@@ -741,12 +770,20 @@ public class LocalEvent {
         }
     }
 
-    public Guest toHostGuest() {
-        return new Guest(host);
+    public Guest toGuest() {
+        return new Guest(
+                guestDeviceId,
+                guestGuestId,
+                _id,
+                guestName,
+                guestType == null ? null : GuestType.valueOf(guestType),
+                guestStatus == null ? null : GuestStatus.valueOf(guestStatus),
+                guestCreated == null ? null : new CustomDateTimeSerializer().parse(guestCreated)
+        );
     }
 
     public EventWithGuest toEventWithGuest(Context context) {
-        return new EventWithGuest(toEvent(context), toHostGuest());
+        return new EventWithGuest(toEvent(context), toGuest());
     }
 
 }

@@ -53,7 +53,7 @@ public class EditEventDialogFragment extends CreateEventDialogFragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                localEvent = extractEvent();
+                updateLocalEvent();
                 if (DEBUG) Log.i(TAG, localEvent.toString());
                 Context context = getActivity();
                 if (context != null) {

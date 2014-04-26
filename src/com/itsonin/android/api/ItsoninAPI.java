@@ -336,15 +336,6 @@ public class ItsoninAPI {
 
             ItsoninAPI.REST rest = ItsoninAPI.REST.valueOfPath(path);
             switch(rest) {
-                case CREATE_EVENT:
-                    handleCreateEvent(context, response);
-                    break;
-                case LIST_EVENTS:
-                    handleListEvents(context, response);
-                    break;
-                case EVENT_INFO:
-                    handleEventInfo(context, response);
-                    break;
                 default:
                     if (DEBUG) Log.i(TAG, "ignored rest api: " + rest);
                     break;
@@ -353,26 +344,6 @@ public class ItsoninAPI {
 
         private boolean isError(int statusCode, String response) {
             return response == null || response.isEmpty() || statusCode != 200;
-        }
-
-        private void handleCreateEvent(Context context, String response) {
-            try {
-                JSONObject jsonObj = new JSONObject(response);
-                if (DEBUG) Log.i(TAG, "received create event response=" + jsonObj);
-        //        pendingLocalEvent = null;
-            } catch (JSONException e) {
-                Log.e(TAG, "Cannot process JSON results", e);
-            }
-        }
-
-        private void handleListEvents(Context context, String response) {
-            if (DEBUG) Log.i(TAG, "received list events response");
-        //    pendingListEvents = false;
-        }
-
-        private void handleEventInfo(Context context, String response) {
-            if (DEBUG) Log.i(TAG, "received list events response");
-        //    pendingEventInfoId = null;
         }
 
         /*

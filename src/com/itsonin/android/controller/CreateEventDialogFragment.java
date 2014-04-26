@@ -75,6 +75,7 @@ public class CreateEventDialogFragment extends DialogFragment {
     protected Host host;
     protected Place place;
     protected Category category;
+    protected long eventId = -1;
     protected Date eventDate;
     protected Date startTime;
     protected Date endTime;
@@ -144,21 +145,22 @@ public class CreateEventDialogFragment extends DialogFragment {
     }
 
     protected void initFromEvent(LocalEvent e) {
-        host.lastName = e.host;
+        host.lastName = e.guestName;
         place.lastName = e.locationTitle;
         category.lastCategory = e.category;
         category.setIndex(category.getIndex());
 
+        eventId = e._id;
         eventDate = new CustomDateTimeSerializer().parse(e.startTimeRaw);
         startTime = new CustomDateTimeSerializer().parse(e.startTimeRaw);
         endTime = new CustomDateTimeSerializer().parse(e.endTimeRaw);
         latitude = e.gpsLat;
         longitude = e.gpsLong;
 
-        if (DEBUG) Log.e(TAG, "host: " + e.host);
+        if (DEBUG) Log.e(TAG, "guestName: " + e.guestName);
         titleView.setText(e.title);
         textView.setText(e.description);
-        hostView.setText(e.host);
+        hostView.setText(e.guestName);
         placeView.setText(e.locationTitle);
         eventDateView.setText(e.date);
         startTimeView.setText(e.startTime);
@@ -188,7 +190,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                localEvent = extractEvent();
+                updateLocalEvent();
                 if (DEBUG) Log.i(TAG, localEvent.toString());
                 Context context = getActivity();
                 if (context != null) {
@@ -826,24 +828,25 @@ public class CreateEventDialogFragment extends DialogFragment {
         return jsonResults;
     }
 
-    protected LocalEvent extractEvent() {
-        LocalEvent e = new LocalEvent();
-        e.status = EventStatus.ACTIVE.toString();
-        e.title = titleView.getText().toString();
-        e.description = textView.getText().toString();
-        e.host = hostView.getText().toString();
-        e.category = category.lastCategory;
-        e.date = new SimpleDateFormat(CustomDateTimeSerializer.ITSONIN_DATES).format(eventDate);
-        e.startTime = startTimeView.getText().toString();
-        e.endTime = endTimeView.getText().toString();
-        e.privateEvent = true; // can only create protected events via interface
-        e.locationTitle = placeView.getText().toString();
-        e.locationAddress = addressView.getText().toString();
-        e.gpsLat = latitude;
-        e.gpsLong = longitude;
-        e.numAttendees = 1; // myself
-        e._id = e.hashCode();
-        return e;
+    protected void updateLocalEvent() {
+        if (localEvent == null) {
+            localEvent = new LocalEvent();
+            localEvent._id = localEvent.hashCode();
+            localEvent.numAttendees = 1; // myself
+        }
+        localEvent.status = EventStatus.ACTIVE.toString();
+        localEvent.title = titleView.getText().toString();
+        localEvent.description = textView.getText().toString();
+        localEvent.guestName = hostView.getText().toString();
+        localEvent.category = category.lastCategory;
+        localEvent.date = new SimpleDateFormat(CustomDateTimeSerializer.ITSONIN_DATES).format(eventDate);
+        localEvent.startTime = startTimeView.getText().toString();
+        localEvent.endTime = endTimeView.getText().toString();
+        localEvent.privateEvent = true; // can only create protected events via interface
+        localEvent.locationTitle = placeView.getText().toString();
+        localEvent.locationAddress = addressView.getText().toString();
+        localEvent.gpsLat = latitude;
+        localEvent.gpsLong = longitude;
     }
-
+    
 }
