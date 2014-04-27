@@ -63,6 +63,7 @@ public class ItsoninAPI {
         ATTEND_EVENT("/api/event/%1$s/attend/%2$s", HttpMethod.POST),
         DECLINE_EVENT("/api/event/%1$s/decline/%2$s", HttpMethod.POST),
         UPDATE_EVENT("/api/event/%1$s/update", HttpMethod.POST),
+        CANCEL_EVENT("/api/event/%1$s/cancel", HttpMethod.POST),
         LIST_EVENTS("/api/event/list?allEvents=true", HttpMethod.GET),
         EVENT_INFO("/api/event/%1$s/info", HttpMethod.GET);
 
@@ -173,6 +174,16 @@ public class ItsoninAPI {
         catch (JsonProcessingException e) {
             Log.e(TAG, "Exception in updateEvent()", e);
         }
+    }
+
+    public void cancelEvent(LocalEvent localEvent) {
+        //pendingLocalEvent = localEvent;
+        if (context.get() == null) {
+            Log.e(TAG, "null context reference");
+            return;
+        }
+        String eventId = String.valueOf(localEvent._id);
+        asyncApiJSON(REST.CANCEL_EVENT, REST.CANCEL_EVENT.apiUrl(eventId), "");
     }
 
     public void listEvents() {

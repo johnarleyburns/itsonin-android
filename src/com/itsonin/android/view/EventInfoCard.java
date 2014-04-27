@@ -21,10 +21,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.itsonin.android.R;
 import com.itsonin.android.api.ItsoninAPI;
+import com.itsonin.android.controller.ConfirmCancelEventDialog;
 import com.itsonin.android.controller.EditEventDialogFragment;
 import com.itsonin.android.enums.EventStatus;
-import com.itsonin.android.enums.EventVisibility;
 import com.itsonin.android.enums.GuestStatus;
+import com.itsonin.android.enums.GuestType;
 import com.itsonin.android.model.LocalEvent;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -56,8 +57,8 @@ public class EventInfoCard {
             R.id.event_card_address,
             R.id.event_card_map,
             R.id.event_card_streetview,
-            R.id.event_card_num_attendees,
-            R.id.event_card_num_comments,
+            0, //R.id.event_card_num_attendees,
+            0, //R.id.event_card_num_comments,
             R.id.event_card_attending_text,
             R.id.event_card_comments_text,
             0,
@@ -154,9 +155,9 @@ public class EventInfoCard {
                 case R.id.event_card_place:
                 case R.id.event_card_address:
                     return setEventCardCollapsableText((TextView)view, cursor.getString(columnIndex), 0);
-                case R.id.event_card_num_attendees:
-                case R.id.event_card_num_comments:
-                    return setEventCardZeroableText((TextView) view, cursor.getString(columnIndex));
+                //case R.id.event_card_num_attendees:
+                //case R.id.event_card_num_comments:
+                //    return setEventCardZeroableText((TextView) view, cursor.getString(columnIndex));
                 case R.id.event_card_attending_text:
                     return setEventCardHandleEmptyHtmlText((TextView) view, cursor.getString(columnIndex), R.string.no_guests_attending);
                 case R.id.event_card_comments_text:
@@ -173,6 +174,7 @@ public class EventInfoCard {
             setDirectionsButton(view, cursor);
             setAttendButton(view, cursor);
             setDeclineButton(view, cursor);
+            setCancelButton(view, cursor);
             return true;
         }
 
@@ -301,8 +303,9 @@ public class EventInfoCard {
                 }
             });
 
+            final GuestType guestType = GuestType.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_TYPE)));
             final GuestStatus guestStatus = GuestStatus.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_STATUS)));
-            if (guestStatus == GuestStatus.ATTENDING) {
+            if (guestType == GuestType.HOST || guestStatus == GuestStatus.ATTENDING) {
                 attendButton.setOnClickListener(null);
                 attend.setVisibility(View.GONE);
             }
@@ -334,8 +337,10 @@ public class EventInfoCard {
         private boolean setDeclineButton(View view, Cursor cursor) {
             View decline = view.findViewById(R.id.event_card_action_decline);
             View declineButton = view.findViewById(R.id.event_card_action_decline_button);
+
+            final GuestType guestType = GuestType.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_TYPE)));
             final GuestStatus guestStatus = GuestStatus.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_STATUS)));
-            if (guestStatus != GuestStatus.ATTENDING) {
+            if (guestType == GuestType.HOST || guestStatus != GuestStatus.ATTENDING) {
                 declineButton.setOnClickListener(null);
                 decline.setVisibility(View.GONE);
             }
@@ -351,6 +356,32 @@ public class EventInfoCard {
                     }
                 });
                 decline.setVisibility(View.VISIBLE);
+            }
+            return true;
+        }
+
+        private boolean setCancelButton(View view, Cursor cursor) {
+            View cancel = view.findViewById(R.id.event_card_action_cancel);
+            View cancelButton = view.findViewById(R.id.event_card_action_cancel_button);
+
+            final GuestType guestType = GuestType.valueOf(cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_TYPE)));
+            if (guestType != GuestType.HOST) {
+                cancelButton.setOnClickListener(null);
+                cancel.setVisibility(View.GONE);
+            }
+            else {
+                final LocalEvent e = new LocalEvent(view.getContext(), cursor);
+                cancelButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FragmentActivity a = v.getContext() instanceof FragmentActivity ? (FragmentActivity) v.getContext() : null;
+                        if (a == null) {
+                            return;
+                        }
+                        new ConfirmCancelEventDialog(e).show(a.getSupportFragmentManager(), TAG);
+                    }
+                });
+                cancel.setVisibility(View.VISIBLE);
             }
             return true;
         }

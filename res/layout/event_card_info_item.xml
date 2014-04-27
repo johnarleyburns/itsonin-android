@@ -94,16 +94,44 @@
                 android:src="@drawable/pyramid"
                 />
 
+        <!--
+        <TextView
+                android:id="@+id/event_card_num_attendees"
+                android:layout_width="@dimen/card_icon_box"
+                android:layout_height="@dimen/card_icon"
+                android:layout_gravity="right"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="@dimen/card_inner_third_icon_top"
+                android:layout_marginRight="@dimen/card_inner"
+                android:lines="1"
+                android:textSize="@dimen/card_box_title"
+                android:textColor="@color/itsonin_secondary_brand_subhead"
+                android:text="12"
+                />
+
+        <TextView
+                android:layout_width="@dimen/card_icon_box"
+                android:layout_height="@dimen/card_icon"
+                android:layout_gravity="right"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="@dimen/card_inner_fourth_icon_top"
+                android:layout_marginRight="@dimen/card_inner"
+                android:lines="1"
+                android:textSize="@dimen/card_box_text"
+                android:textColor="@color/card_text"
+                android:text="@string/attending_title"
+                />
+        -->
     </FrameLayout>
 
     <TextView
             android:id="@+id/event_card_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/card_text"
-            android:paddingTop="@dimen/card_inner"
             android:paddingLeft="@dimen/card_inner"
             android:paddingRight="@dimen/card_inner"
+            android:paddingTop="@dimen/card_inner"
+            android:textSize="@dimen/card_text"
             android:textColor="@color/card_text"
             />
 
@@ -119,17 +147,7 @@
             android:gravity="center"
             />
 
-    <include layout="@layout/event_card_action_share"/>
-
-    <include layout="@layout/event_card_action_edit"/>
-
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/card_divider_height"
-            android:layout_marginTop="@dimen/card_inner"
-            android:background="@color/card_divider"
-            />
-
+    <!--
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/card_box_height"
@@ -137,7 +155,7 @@
             android:weightSum="2"
             android:background="@color/itsonin_primary_brand"
             >
-                                <!--
+
         <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="@dimen/card_box_height"
@@ -177,7 +195,8 @@
                     android:layout_gravity="right"
                     />
         </FrameLayout>
-                                         -->
+
+
         <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="@dimen/card_box_height"
@@ -255,6 +274,7 @@
         </FrameLayout>
 
     </LinearLayout>
+    -->
     <!--
 <View
 android:layout_width="match_parent"
@@ -321,7 +341,18 @@ android:background="@color/card_divider"
             android:scaleType="centerCrop"
             />
 
+    <include layout="@layout/event_card_action_share"/>
+
     <include layout="@layout/event_card_action_directions"/>
+
+    <include layout="@layout/event_card_action_edit"/>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_divider_height"
+            android:layout_marginTop="@dimen/card_inner"
+            android:background="@color/card_divider"
+            />
 
     <TextView
             android:id="@+id/event_card_attending_title"
@@ -349,6 +380,7 @@ android:background="@color/card_divider"
 
     <include layout="@layout/event_card_action_attend"/>
     <include layout="@layout/event_card_action_decline"/>
+    <include layout="@layout/event_card_action_cancel"/>
 
     <TextView
             android:id="@+id/event_card_comments_title"

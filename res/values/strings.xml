@@ -40,6 +40,8 @@
 
     <string name="add_event">Create event</string>
     <string name="edit_event">Edit event</string>
+    <string name="cancel_event_title">Cancel event</string>
+    <string name="cancel_event_message">WARNING!  If you cancel this event, you will not be able to reactivate it.</string>
     <string name="title_hint">Name your event</string>
     <string name="host_hint">Your name</string>
     <string name="guest_hint">Your name</string>
@@ -58,13 +60,14 @@
     <string name="invite_text">%1$s invites you to %2$s, click %3$s for more info</string>
     <string name="attend_button_info_text">Would you like to attend this event?</string>
     <string name="decline_button_info_text">You are attending this event</string>
+    <string name="cancel_button_info_text">You are hosting this event</string>
 
     <string name="guest_host">hosting event</string>
     <string name="guest_attending_short">yes</string>
     <string name="guest_declined_short">no</string>
     <string name="guest_pending_short">maybe</string>
 
-    <string name="event_cancelled">CANCELED</string>
+    <string name="event_cancelled">CANCELLED</string>
     <string name="event_expired">EXPIRED</string>
 
     <string name="no_guests_attending">No guests are attending this event</string>
@@ -81,6 +84,8 @@
     <string name="edit">edit</string>
     <string name="share">share</string>
     <string name="cancel_event">cancel event</string>
+    <string name="cancel_event_cancel">don\'t cancel it</string>
+    <string name="cancel_event_confirm">cancel this event</string>
     <string name="cancel">cancel</string>
     <string name="save">save</string>
 
@@ -88,6 +93,7 @@
     <string name="connection_error">Coludn\'t connect to server</string>
     <string name="created_event">Event created</string>
     <string name="updated_event">Event updated</string>
+    <string name="cancelled_event">Event cancelled</string>
     <string name="attending_event">Attending event</string>
     <string name="attending_event_need_name">You must enter a name to attend</string>
     <string name="declined_event">Event has been declined</string>
@@ -95,10 +101,9 @@
     <string name="this_event_is_private">This event is private</string>
 
     <string name="venue_title">VENUE</string>
-    <string name="attending_title">ATTENDING</string>
+    <string name="attending_title">GUESTS</string>
     <string name="comments_title">COMMENTS</string>
-    <string name="attending_lower_title">attending</string>
-    <string name="declined_lower_title">declined</string>
+    <string name="attending_lower_title">guests</string>
     <string name="comments_lower_title">comments</string>
 
     <string name="delete_information">Delete private information</string>
@@ -112,5 +117,9 @@
 
     <string name="welcome_screen">Itsonin is everything that\'s going on in your town and in your life
         - kept completely secure and anonymous.  See what\'s on in your community today.</string>
+
+    <string name="guest">guest</string>
+    <string name="guests">guests</string>
+
 
 </resources>

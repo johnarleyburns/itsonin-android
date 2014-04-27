@@ -18,11 +18,14 @@
     <dimen name="card_inner_time">8dp</dimen>
     <dimen name="card_inner_top">12dp</dimen>
     <dimen name="card_inner_second_icon_top">48dp</dimen>
+    <dimen name="card_inner_third_icon_top">84dp</dimen>
+    <dimen name="card_inner_fourth_icon_top">120dp</dimen>
     <dimen name="card_inner_second_line_top">36dp</dimen>
     <dimen name="card_inner_third_line_top">56dp</dimen>
     <dimen name="card_inner_icon_top">12dp</dimen>
     <dimen name="card_inner_text_right">60dp</dimen>
     <dimen name="card_icon">32dp</dimen>
+    <dimen name="card_icon_box">48dp</dimen>
     <dimen name="card_icon_small_padding">4dp</dimen>
     <dimen name="card_title">28dp</dimen>
     <dimen name="card_list_title">18dp</dimen>
@@ -31,7 +34,7 @@
     <dimen name="card_action_height">48dp</dimen>
     <dimen name="card_divider_height">1dp</dimen>
     <dimen name="card_box_title">28dp</dimen>
-    <dimen name="card_box_text">16dp</dimen>
+    <dimen name="card_box_text">14dp</dimen>
     <dimen name="card_box_inner">4dp</dimen>
     <dimen name="card_box_height">96dp</dimen>
 

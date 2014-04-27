@@ -124,20 +124,23 @@ public class EventListCard {
             String locationTitle = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_TITLE));
             String locationAddress = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_ADDRESS));
             String status = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.STATUS));
-
+            if (DEBUG) Log.i(TAG, "eventStatus=" + status);
             EventStatus s = (status == null || status.isEmpty()) ? EventStatus.ACTIVE : EventStatus.valueOf(status);
             String text;
             switch (s) {
                 default:
                 case ACTIVE:
                     text = locationTitle != null && !locationTitle.trim().isEmpty() ? locationTitle : locationAddress;
+                    placeView.setTextColor(view.getResources().getColor(R.color.itsonin_body_text));
                     return setEventCardCollapsableText(placeView, text, 0);
                 case CANCELLED:
                     text = "<b>" + view.getContext().getString(R.string.event_cancelled) + "</b>";
+                    placeView.setTextColor(view.getResources().getColor(R.color.itsonin_secondary_brand_action_button));
                     placeView.setText(Html.fromHtml(text));
                     return true;
                 case EXPIRED:
                     text = "<b>" + view.getContext().getString(R.string.event_expired) + "</b>";
+                    placeView.setTextColor(view.getResources().getColor(R.color.itsonin_secondary_brand_action_button));
                     placeView.setText(Html.fromHtml(text));
                     return true;
             }

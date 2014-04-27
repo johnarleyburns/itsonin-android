@@ -255,7 +255,7 @@ public class CreateEventDialogFragment extends DialogFragment {
         }
 
         protected void notifyAuthenticationError(Context context, String response) {
-            if (response == null) {
+            if (response == null || response.trim().length() == 0) {
                 notifyAuthenticationError(context);
             }
             else {

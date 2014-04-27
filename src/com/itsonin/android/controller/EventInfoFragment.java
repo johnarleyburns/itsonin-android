@@ -209,6 +209,12 @@ public class EventInfoFragment extends Fragment {
                         notifyAuthenticationError(context);
                     }
                     break;
+                case CANCEL_EVENT:
+                    if (!isError(statusCode, response)) {
+                        Toast.makeText(context, R.string.cancelled_event, Toast.LENGTH_SHORT).show();
+                        reloadEvent();
+                    }
+                    break;
                 case ATTEND_EVENT:
                     if (!isError(statusCode, response)) {
                         Toast.makeText(context, R.string.attending_event, Toast.LENGTH_SHORT).show();

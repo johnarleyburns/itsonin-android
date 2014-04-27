@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/card_title_height"
+                android:textSize="@dimen/card_action_text"
+                android:textStyle="bold"
+                android:textColor="@color/card_text_white"
+                android:gravity="center"
+                android:background="@color/itsonin_primary_brand"
+                android:text="@string/cancel_event_title"
+                />
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/card_spacing"
+                android:paddingLeft="@dimen/card_inner"
+                android:paddingRight="@dimen/card_inner"
+                android:paddingBottom="@dimen/card_spacing"
+                android:textSize="@dimen/card_text"
+                android:textColor="@color/card_text"
+                android:text="@string/cancel_event_message"
+                />
+
+        <TextView
+                android:id="@+id/event_dialog_action_cancel_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/card_action_height"
+                android:textSize="@dimen/card_action_text"
+                android:text="@string/cancel_event_cancel"
+                android:textStyle="bold"
+                android:textColor="@color/card_text_white"
+                android:gravity="center"
+                android:background="@drawable/itsonin_action_button"
+                />
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                />
+
+        <TextView
+                android:id="@+id/event_dialog_action_save_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/card_action_height"
+                android:textSize="@dimen/card_action_text"
+                android:text="@string/cancel_event_confirm"
+                android:textStyle="bold"
+                android:textColor="@color/card_text_white"
+                android:gravity="center"
+                android:background="@drawable/itsonin_action_button"
+                />
+
+    </LinearLayout>
+
+    <View
+            android:id="@+id/overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/PaletteBlackHalfOpacity"
+            android:visibility="gone"
+            />
+
+    <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone"
+            />
+
+</FrameLayout>

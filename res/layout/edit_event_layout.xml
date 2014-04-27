@@ -164,7 +164,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/card_action_height"
                     android:textSize="@dimen/card_action_text"
-                    android:text="@string/cancel_event"
+                    android:text="@string/cancel"
                     android:textStyle="bold"
                     android:textColor="@color/card_text_white"
                     android:gravity="center"

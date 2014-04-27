@@ -47,7 +47,7 @@ public class EditEventDialogFragment extends CreateEventDialogFragment {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "Cancel event!!!", Toast.LENGTH_SHORT).show();
+                dismiss();
             }
         });
         saveButton.setOnClickListener(new View.OnClickListener() {
