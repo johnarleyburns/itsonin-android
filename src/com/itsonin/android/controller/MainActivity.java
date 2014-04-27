@@ -1,29 +1,23 @@
 package com.itsonin.android.controller;
 
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.*;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.*;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.itsonin.android.R;
+import com.itsonin.android.enums.ItsoninWebRoot;
+import com.itsonin.android.model.ItsoninWebUri;
 import com.itsonin.android.model.LocalEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MainActivity extends FragmentActivity {
 
@@ -73,10 +67,7 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         createDrawer();
-        //if (!hasFragment()) {
-            showEventListFragment(LocalEvent.Events.EVENTS_CONTENT_URI);
-            setDrawerSelected(DISCOVER_POSITION);
-        //}
+        handleIntent(getIntent());
     }
 
     //private boolean hasFragment() {
@@ -84,9 +75,17 @@ public class MainActivity extends FragmentActivity {
     //    return frame != null && frame.getChildCount() > 0;
     //}
 
+   private void clearBackStack() {
+       FragmentManager manager = getSupportFragmentManager();
+       if (manager.getBackStackEntryCount() > 0) {
+           FragmentManager.BackStackEntry first = manager.getBackStackEntryAt(0);
+           manager.popBackStack(first.getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+       }
+   }
+
    private void showEventListFragment(Uri dataUri) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, new EventListFragment(dataUri))
+                .replace(R.id.content_frame, new EventListFragment(dataUri), dataUri.toString())
                 .commit();
     }
 
@@ -222,6 +221,7 @@ public class MainActivity extends FragmentActivity {
     private void selectItem(int position) {
 
         // Create a new fragment and specify the planet to show based on position
+        clearBackStack();
         switch (position) {
             default:
             case DISCOVER_POSITION:
@@ -316,11 +316,55 @@ public class MainActivity extends FragmentActivity {
         }
     };
 
-    protected void onNewIntent (Intent intent) {
+    protected void onNewIntent(final Intent intent) {
+        handleIntent(intent);
+    }
+
+    protected void handleIntent(final Intent intent) {
+        if (!handleSpecificIntent(intent)) {
+            clearBackStack();
+            showEventListFragment(LocalEvent.Events.EVENTS_CONTENT_URI);
+            setDrawerSelected(DISCOVER_POSITION);
+        }
+    }
+
+    protected boolean handleSpecificIntent(final Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Toast.makeText(this, "Searching for " + query, Toast.LENGTH_SHORT).show();
+            return true;
         }
+        else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            final List<String> segments = intent.getData().getPathSegments();
+            ItsoninWebUri uri = ItsoninWebUri.parse(segments);
+            if (DEBUG) Log.i(TAG, "parsed event uri=" + uri);
+            switch (uri.pathRoot) {
+                case EVENT:
+                //    return true;
+                case INVITE:
+                    Uri dataUri = LocalEvent.Events.EVENTS_ID_CONTENT_URI
+                            .buildUpon()
+                            .appendPath(String.valueOf(uri.eventId))
+                            .build();
+                    Uri listUri = LocalEvent.Events.EVENTS_CONTENT_URI;
+                    Fragment backFrag = getSupportFragmentManager().findFragmentByTag(listUri.toString());
+                    if (backFrag == null) {
+                        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                        ft.replace(R.id.content_frame, new EventListFragment(listUri), listUri.toString());
+                        ft.commit();
+                    }
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.add(R.id.content_frame, new EventInfoFragment(dataUri), dataUri.toString());
+                    ft.addToBackStack(dataUri.toString());
+                    ft.commit();
+                    return true;
+                case WELCOME:
+                case OTHER:
+                default:
+                    return false;
+            }
+        }
+        return false;
     }
 
     /*

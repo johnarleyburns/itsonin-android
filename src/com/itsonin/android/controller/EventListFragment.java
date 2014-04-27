@@ -1,6 +1,7 @@
 package com.itsonin.android.controller;
 
 import android.app.Activity;
+import android.support.v4.app.*;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,9 +9,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -77,7 +75,8 @@ public class EventListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        //setRetainInstance(true);
+        if (DEBUG) Log.i(TAG, "onCreate()");
         scheduleReload = true;
     }
 
@@ -178,6 +177,12 @@ public class EventListFragment extends Fragment {
             itsoninAPI.unregisterReceiver(apiReceiver);
             itsoninAPI = null;
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (DEBUG) Log.i(TAG, "onResume()");
     }
 
     @Override
@@ -304,10 +309,10 @@ public class EventListFragment extends Fragment {
             String eventId = String.valueOf(id); // temporary
             Uri dataUri = LocalEvent.Events.EVENTS_ID_CONTENT_URI.buildUpon().appendPath(eventId).build();
             Fragment fragment = new EventInfoFragment(dataUri);
-            FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction()
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.content_frame, fragment, dataUri.toString())
                     .addToBackStack(dataUri.toString())
-                    .add(R.id.content_frame, fragment)
                     .commit();
         }
     };

@@ -347,13 +347,6 @@ android:background="@color/card_divider"
 
     <include layout="@layout/event_card_action_edit"/>
 
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/card_divider_height"
-            android:layout_marginTop="@dimen/card_inner"
-            android:background="@color/card_divider"
-            />
-
     <TextView
             android:id="@+id/event_card_attending_title"
             android:layout_width="match_parent"
