@@ -22,9 +22,6 @@
             android:theme="@style/AppTheme"
             android:hardwareAccelerated="true"
             >
-            <!--
-            http://dribbble.com/shots/947782-Flat-Ui-Sm/attachments/107093
-            -->
 
         <activity android:name=".controller.MainActivity"
                   android:label="@string/app_name"
@@ -38,6 +35,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+                <category android:name="android.intent.category.BROWSABLE"></category>
+                <data android:host="itsonin-com.appspot.com" android:scheme="http"></data>
             </intent-filter>
         </activity>
 

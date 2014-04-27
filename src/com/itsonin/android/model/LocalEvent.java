@@ -151,7 +151,9 @@ public class LocalEvent {
         Collections.sort(guests, new Comparator<Guest>() {
             @Override
             public int compare(Guest lhs, Guest rhs) {
-                return lhs.getName().compareToIgnoreCase(rhs.getName());
+                String l = (lhs == null || lhs.getName() == null) ? "" : lhs.getName();
+                String r = (rhs == null || rhs.getName() == null) ? "" : rhs.getName();
+                return l.compareToIgnoreCase(r);
             }
         });
         

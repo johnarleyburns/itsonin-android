@@ -205,7 +205,8 @@ public class EventInfoCard {
         }
 
         private boolean setShareButton(View view, Cursor cursor) {
-            View share = view.findViewById(R.id.event_card_action_share_button);
+            View share = view.findViewById(R.id.event_card_action_share);
+            View shareButton = view.findViewById(R.id.event_card_action_share_button);
             final String guestName = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.GUEST_NAME));
             final String title = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.TITLE));
             final String shareUrl = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.SHARE_URL));
@@ -215,11 +216,11 @@ public class EventInfoCard {
                     shareUrl);
             if (DEBUG) Log.i(TAG, "share url=" + shareUrl + " text=" + shareText);
             if (shareUrl == null) {
-                share.setOnClickListener(null);
+                shareButton.setOnClickListener(null);
                 share.setVisibility(View.GONE);
             }
             else {
-                share.setOnClickListener(new View.OnClickListener() {
+                shareButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent();
@@ -239,15 +240,16 @@ public class EventInfoCard {
         }
 
         private boolean setEditButton(View view, Cursor cursor) {
-            View edit = view.findViewById(R.id.event_card_action_edit_button);
+            View edit = view.findViewById(R.id.event_card_action_edit);
+            View editButton = view.findViewById(R.id.event_card_action_edit_button);
             final boolean viewonly = cursor.getInt(cursor.getColumnIndex(LocalEvent.Events.VIEWONLY)) == 1;
             if (viewonly) {
-                edit.setOnClickListener(null);
+                editButton.setOnClickListener(null);
                 edit.setVisibility(View.GONE);
             }
             else {
                 final LocalEvent e = new LocalEvent(view.getContext(), cursor);
-                edit.setOnClickListener(new View.OnClickListener() {
+                editButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         FragmentActivity a = v.getContext() instanceof FragmentActivity ? (FragmentActivity)v.getContext() : null;
@@ -266,15 +268,16 @@ public class EventInfoCard {
         private static final String GOOGLE_NAV_INTENT_PATTERN = "google.navigation:q=%1$s";
 
         private boolean setDirectionsButton(View view, Cursor cursor) {
-            View directions = view.findViewById(R.id.event_card_action_directions_button);
+            View directions = view.findViewById(R.id.event_card_action_directions);
+            View directionsButton = view.findViewById(R.id.event_card_action_directions_button);
             final String address = cursor.getString(cursor.getColumnIndex(LocalEvent.Events.LOCATION_ADDRESS));
             if (address == null || address.trim().isEmpty()) {
-                directions.setOnClickListener(null);
+                directionsButton.setOnClickListener(null);
                 directions.setVisibility(View.GONE);
             }
             else {
                 final Uri navUri = Uri.parse(String.format(GOOGLE_NAV_INTENT_PATTERN, address));
-                directions.setOnClickListener(new View.OnClickListener() {
+                directionsButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         FragmentActivity a = v.getContext() instanceof FragmentActivity ? (FragmentActivity)v.getContext() : null;
